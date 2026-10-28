@@ -127,6 +127,22 @@
         <p class="text-sm sm:text-base text-stone-200 leading-relaxed font-light text-justify">
           一樓的空間不大，約有 <span class="text-amber-300 font-medium">2×2×2 公尺</span>大小，二樓是斜屋頂的閣樓，這樣為一個單位，背靠背，並排蓋成一排屋舍。
         </p>
+
+        <!-- English Historical Narrative -->
+        <div class="border-t border-amber-800/40 pt-4 space-y-3 font-serif-tc text-xs sm:text-sm text-stone-300/90 leading-relaxed font-light text-justify">
+          <p class="italic">
+            A Showa-era wooden house built in the 1930s (or earlier), where a young family of four lived for several years after World War II, beginning their life and career journey in Tainan City, Taiwan.
+          </p>
+          <p>
+            Built in the 1930s during the Showa era (or earlier), this modest Japanese-style wooden house on Beizhong Street, Tainan, sheltered a young family of four for several years after World War II as they embarked on their post-war life and career adventures. Nestled between the vibrant pulse of Tainan Railway Station and the sacred local community of Fulong Temple (福隆宮), the residence witnessed decades of daily life, bustling alleyway chatter, and Tainan's urban transformation.
+          </p>
+          <p>
+            This 3D digital heritage preservation project created by <a href="https://elementslab.net/" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:text-amber-300 underline font-medium">Elements Lab (實驗元素工作室)</a>, reconstructing a Showa-era wooden house in Tainan, Taiwan, and reviving the everyday memories of the 1960s.
+          </p>
+          <p class="italic text-amber-400/90 tracking-wider">
+            Dedicated to my best friend's parents.
+          </p>
+        </div>
       </div>
 
       <!-- Primary Action: Enter 3D House -->
@@ -1206,6 +1222,119 @@
         toast.classList.remove("opacity-100");
         toast.classList.add("opacity-0");
       }, 2000);
+    }
+
+    // ==========================================
+    // 11. EVENT LISTENERS SETUP
+    // ==========================================
+    function setupEvents() {
+      const viewLanding = document.getElementById('view-landing');
+      const heroEnterBtn = document.getElementById('hero-enter-3d-btn');
+      const backToIntroBtn = document.getElementById('back-to-intro-btn');
+
+      // Enter 3D from landing page
+      if (heroEnterBtn && viewLanding) {
+        heroEnterBtn.addEventListener('click', () => {
+          viewLanding.classList.add('opacity-0', 'pointer-events-none');
+          setTimeout(() => {
+            viewLanding.classList.add('hidden');
+            onWindowResize();
+            showToast('已進入 3D 空間！模型持續緩緩轉動，可自由探索');
+          }, 500);
+        });
+      }
+
+      // Back to Intro
+      if (backToIntroBtn && viewLanding) {
+        backToIntroBtn.addEventListener('click', () => {
+          viewLanding.classList.remove('hidden');
+          setTimeout(() => {
+            viewLanding.classList.remove('opacity-0', 'pointer-events-none');
+          }, 20);
+        });
+      }
+
+      // Time Line Buttons (Morning, Noon, Evening, Night)
+      ['morning', 'noon', 'evening', 'night'].forEach(p => {
+        const b = document.getElementById(`btn-time-${p}`);
+        if (b) b.addEventListener('click', () => setTimeLinePeriod(p));
+      });
+      // Initialize noon state
+      setTimeLinePeriod('noon', 0);
+
+      // Exploded View Slider
+      const explodeSlider = document.getElementById('explode-slider');
+      if (explodeSlider) {
+        explodeSlider.addEventListener('input', e => setExplodeRatio(parseFloat(e.target.value) / 100));
+      }
+
+      // Front Door Slider (前拉門拉桿)
+      const doorSlider = document.getElementById('door-slider');
+      if (doorSlider) {
+        doorSlider.addEventListener('input', e => {
+          setDoorRatio(parseFloat(e.target.value) / 100);
+          playDoorSlideSound();
+        });
+      }
+
+      // Show All / Hide All Components
+      const btnShowAll = document.getElementById('btn-show-all');
+      if (btnShowAll) {
+        btnShowAll.addEventListener('click', () => setAllComponentsVisibility(true));
+      }
+      const btnHideAll = document.getElementById('btn-hide-all');
+      if (btnHideAll) {
+        btnHideAll.addEventListener('click', () => setAllComponentsVisibility(false));
+      }
+
+      // Reset Camera View
+      const resetCamBtn = document.getElementById('reset-cam-btn');
+      if (resetCamBtn) {
+        resetCamBtn.addEventListener('click', () => {
+          new TWEEN.Tween(camera.position)
+            .to({ x: 4.6, y: 3.2, z: 5.6 }, 800)
+            .easing(TWEEN.Easing.Cubic.Out)
+            .start();
+          new TWEEN.Tween(controls.target)
+            .to({ x: 0, y: 1.8, z: 0 }, 800)
+            .easing(TWEEN.Easing.Cubic.Out)
+            .start();
+        });
+      }
+
+      // Audio Engine Setup
+      setupAudioEngine();
+
+      // Click / Pointerdown on 3D Objects
+      renderer.domElement.addEventListener('pointerdown', on3DPointerDown, { passive: true });
+
+      // Window resize
+      window.addEventListener('resize', onWindowResize);
+    }
+
+    function on3DPointerDown(e) {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects(scene.children, true);
+      for (const hit of intersects) {
+        let cur = hit.object;
+        while (cur && cur !== scene) {
+          if (cur.userData && cur.userData.isDoor) {
+            const nextRatio = currentDoorRatio > 0.5 ? 0 : 1;
+            setDoorRatio(nextRatio, true);
+            playDoorSlideSound();
+            showToast(nextRatio === 1 ? '前拉門已拉開（與後拉門重疊，淨寬90公分）' : '前拉門已閉合');
+            return;
+          }
+          if (cur.userData && cur.userData.id) {
+            toggleComponentVisibility(cur.userData.id);
+            return;
+          }
+          cur = cur.parent;
+        }
+      }
     }
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
