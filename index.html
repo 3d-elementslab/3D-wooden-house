@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台南北忠街小屋舍 3D 數位文資保存互動網頁 | ElementsLab</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Three.js & Loaders -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+    .font-serif-tc {
+      font-family: 'Noto Serif TC', serif;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(180, 83, 9, 0.4);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(180, 83, 9, 0.7);
+    }
+    .glass-panel {
+      background: rgba(28, 25, 23, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(217, 119, 6, 0.25);
+    }
+    .glass-card {
+      background: rgba(41, 37, 36, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(168, 162, 158, 0.15);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #d97706;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(217, 119, 6, 0.6);
+      border: 2px solid #fef3c7;
+    }
+    .vignette {
+      box-shadow: inset 0 0 100px rgba(10, 8, 6, 0.65);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-stone-900 text-stone-100 w-screen h-screen relative overflow-hidden">
+
+  <!-- 3D WebGL Canvas Container -->
+  <div id="canvas-container" class="w-full h-full absolute inset-0 z-0"></div>
+  <div class="vignette absolute inset-0 z-10"></div>
+
+  <!-- Top Header / Title & Dedication -->
+  <header class="absolute top-0 left-0 right-0 z-20 p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center pointer-events-none gap-3">
+    <div class="pointer-events-auto bg-stone-950/85 backdrop-blur-md px-5 py-3 rounded-2xl border border-amber-900/40 shadow-2xl max-w-xl">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+        <span class="text-xs uppercase tracking-widest text-amber-400 font-medium">ElementsLab 文資 3D 專案</span>
+      </div>
+      <h1 class="text-xl md:text-2xl font-bold font-serif-tc text-stone-100 tracking-wide mt-1">台南北忠街小屋舍</h1>
+      <p class="text-xs text-stone-400 mt-0.5 line-clamp-1">原屋微型尺寸：一樓約 2×2×2M • 斜屋頂二樓閣樓 • 總高約 4M</p>
+      <div class="mt-2 pt-2 border-t border-stone-800 flex items-center justify-between text-xs">
+        <span class="text-amber-200/90 italic font-serif-tc flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Dedicated to my best friend's parents.
+        </span>
+        <span class="text-stone-500 text-[11px] ml-3">3d.elementslab.net</span>
+      </div>
+    </div>
+
+    <!-- Quick Action Tool Buttons -->
+    <div class="pointer-events-auto flex items-center gap-2 self-end md:self-auto">
+      <!-- Camera Reset / Presets -->
+      <div class="relative group">
+        <button id="camera-menu-btn" class="glass-panel px-3.5 py-2.5 rounded-xl hover:bg-stone-800 text-stone-200 hover:text-amber-300 transition text-sm flex items-center gap-1.5 shadow-lg border-stone-700">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          <span class="hidden sm:inline">視角切換</span>
+        </button>
+        <div id="camera-menu" class="hidden absolute right-0 mt-1.5 w-44 glass-panel rounded-xl py-1 shadow-2xl border-stone-700 z-50">
+          <button id="view-overview" class="w-full text-left px-3.5 py-2 text-xs hover:bg-amber-900/40 text-stone-200 hover:text-amber-200 transition flex items-center justify-between">
+            <span>鳥瞰全景</span>
+            <span class="text-stone-500 text-[10px]">斜角</span>
+          </button>
+          <button id="view-front" class="w-full text-left px-3.5 py-2 text-xs hover:bg-amber-900/40 text-stone-200 hover:text-amber-200 transition flex items-center justify-between">
+            <span>正門街道立面</span>
+            <span class="text-stone-500 text-[10px]">前斜屋簷</span>
+          </button>
+          <button id="view-interior" class="w-full text-left px-3.5 py-2 text-xs hover:bg-amber-900/40 text-stone-200 hover:text-amber-200 transition flex items-center justify-between">
+            <span>一樓生活空間</span>
+            <span class="text-stone-500 text-[10px]">竹床/竹梯</span>
+          </button>
+          <button id="view-roof" class="w-full text-left px-3.5 py-2 text-xs hover:bg-amber-900/40 text-stone-200 hover:text-amber-200 transition flex items-center justify-between">
+            <span>二樓閣樓木架</span>
+            <span class="text-stone-500 text-[10px]">4M屋脊</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Component Hierarchy / Layers Toggle -->
+      <button id="layer-toggle-btn" class="glass-panel px-3.5 py-2.5 rounded-xl hover:bg-stone-800 text-stone-200 hover:text-amber-300 transition text-sm flex items-center gap-1.5 shadow-lg border-stone-700">
+        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <span class="hidden sm:inline">14 零件拆解</span>
+      </button>
+
+      <!-- Storyboard / History Modal -->
+      <button id="story-toggle-btn" class="glass-panel px-3.5 py-2.5 rounded-xl hover:bg-stone-800 text-stone-200 hover:text-amber-300 transition text-sm flex items-center gap-1.5 shadow-lg border-stone-700">
+        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span class="hidden sm:inline">常民記事與留言</span>
+      </button>
+
+      <!-- Soundscape audio toggle -->
+      <button id="audio-toggle-btn" class="glass-panel p-2.5 rounded-xl hover:bg-stone-800 text-stone-200 hover:text-amber-300 transition shadow-lg border-stone-700" title="1960年代聲音地景">
+        <svg id="audio-icon-on" class="w-5 h-5 text-amber-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+        <svg id="audio-icon-off" class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+      </button>
+
+      <!-- Asset URL Config Modal -->
+      <button id="asset-modal-btn" class="glass-panel p-2.5 rounded-xl hover:bg-stone-800 text-stone-200 hover:text-amber-300 transition shadow-lg border-stone-700" title="模型來源網址與設定">
+        <svg class="w-5 h-5 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Bottom Floating HUD: Time Slider & Explode Slider -->
+  <footer class="absolute bottom-4 left-4 right-4 z-20 flex flex-col md:flex-row justify-between items-end gap-3 pointer-events-none">
+    
+    <!-- Time of Day & Lighting Control -->
+    <div class="pointer-events-auto glass-panel p-4 rounded-2xl w-full md:w-96 shadow-2xl border-amber-900/30">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          時空光影切換拉桿
+        </span>
+        <span id="time-display" class="text-xs font-mono text-stone-300 bg-stone-900/80 px-2 py-0.5 rounded border border-stone-700">17:30 黃昏</span>
+      </div>
+
+      <!-- Time Slider -->
+      <input id="time-slider" type="range" min="0" max="24" step="0.1" value="17.5" class="w-full h-2 bg-stone-800 rounded-lg appearance-none cursor-pointer">
+
+      <!-- Preset Buttons -->
+      <div class="grid grid-cols-4 gap-1.5 mt-3">
+        <button id="preset-dawn" class="py-1 text-[11px] rounded bg-stone-800/80 hover:bg-amber-900/40 text-stone-300 hover:text-amber-200 transition border border-stone-700/60 text-center">清晨 06:00</button>
+        <button id="preset-midday" class="py-1 text-[11px] rounded bg-stone-800/80 hover:bg-amber-900/40 text-stone-300 hover:text-amber-200 transition border border-stone-700/60 text-center">正午 12:00</button>
+        <button id="preset-dusk" class="py-1 text-[11px] rounded bg-amber-950/80 text-amber-300 border border-amber-600/60 text-center font-medium">黃昏 17:30</button>
+        <button id="preset-night" class="py-1 text-[11px] rounded bg-stone-800/80 hover:bg-amber-900/40 text-stone-300 hover:text-amber-200 transition border border-stone-700/60 text-center">深夜 22:00</button>
+      </div>
+    </div>
+
+    <!-- Explode View Slider -->
+    <div class="pointer-events-auto glass-panel p-4 rounded-2xl w-full md:w-80 shadow-2xl border-amber-900/30">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+          結構層級爆炸拆解
+        </span>
+        <span id="explode-display" class="text-xs font-mono text-stone-300 bg-stone-900/80 px-2 py-0.5 rounded border border-stone-700">0%</span>
+      </div>
+      <input id="explode-slider" type="range" min="0" max="100" step="1" value="0" class="w-full h-2 bg-stone-800 rounded-lg appearance-none cursor-pointer">
+      <div class="flex justify-between items-center text-[10px] text-stone-500 mt-2">
+        <span>整合閉合</span>
+        <span>微距抽離</span>
+        <span>完全拆解</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 14 Components Hierarchy Drawer -->
+  <aside id="layer-drawer" class="hidden absolute top-20 right-4 bottom-28 w-80 glass-panel rounded-2xl p-4 z-30 shadow-2xl flex flex-col border-amber-900/40 transition-all duration-300">
+    <div class="flex items-center justify-between pb-3 border-b border-stone-800">
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        <h2 class="text-sm font-bold text-stone-100">建築零件清單 (14)</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="show-all-layers-btn" class="text-[11px] text-amber-400 hover:text-amber-300 underline">全部顯示</button>
+        <button id="close-layer-drawer-btn" class="text-stone-400 hover:text-stone-200 p-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Components List -->
+    <div id="components-list" class="flex-1 overflow-y-auto space-y-1.5 py-3 pr-1 text-xs"></div>
+
+    <div class="pt-2 border-t border-stone-800 text-[11px] text-stone-400 flex items-center justify-between">
+      <span>座標原點：(0, 0, 0) 共用</span>
+      <span class="text-amber-500">1:1 真實比例 (1F 2M / 總高 4M)</span>
+    </div>
+  </aside>
+
+  <!-- Storyboard & Guestbook Modal -->
+  <div id="story-modal" class="hidden fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl border border-amber-900/40 flex flex-col overflow-hidden">
+      <div class="p-5 border-b border-stone-800 flex items-center justify-between bg-stone-900/60">
+        <div>
+          <span class="text-xs text-amber-400 font-semibold tracking-wider uppercase">Oral History & Memories</span>
+          <h2 class="text-lg md:text-xl font-bold font-serif-tc text-stone-100">北忠街小屋舍 • 1960常民故事與記憶</h2>
+        </div>
+        <button id="close-story-modal-btn" class="p-1.5 text-stone-400 hover:text-stone-200 rounded-lg hover:bg-stone-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-5 space-y-6 text-xs md:text-sm text-stone-300">
+        <div class="glass-card p-4 rounded-xl border border-amber-900/30 space-y-3 font-serif-tc leading-relaxed">
+          <h3 class="font-bold text-amber-300 text-sm">【記憶地景：台南車站後方、福隆宮之側】</h3>
+          <p>
+            建於 1930 年代昭和時期的北忠街微型木造舍房，一樓是約 2×2×2 公尺的方正小巧木屋，二樓順著日式斜屋頂在後側搭起挑高閣樓，總高約四公尺。戰後由一家四口在此生根，年輕的父親帶著妻子與兩個幼子，在動盪的戰後歲月裡，以此溫暖方寸之地開創人生與事業。
+          </p>
+          <p>
+            晨曦初現時，遠方台南車站傳來蒸汽機車沉厚悠長的鳴笛與鐵軌撞擊聲；巷口福隆宮的香火裊裊升起，伴隨著挑扁擔小販呼喊麵茶與肉粽的叫賣聲。
+          </p>
+          <div class="pt-2 border-t border-stone-700/60 flex items-center justify-between text-xs italic text-amber-200/80">
+            <span>獻給摯友的父母 (Dedicated to my best friend's parents)</span>
+            <span>實驗元素工作室 ElementsLab</span>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="font-bold text-stone-100 text-sm flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            常民故事留言板 (Stories & Dialogues)
+          </h3>
+          <div id="story-entries-container" class="space-y-2.5 max-h-48 overflow-y-auto pr-1"></div>
+
+          <div class="glass-card p-3 rounded-xl border border-stone-800 space-y-2">
+            <div class="flex gap-2">
+              <input id="note-author-input" type="text" placeholder="您的稱呼或家族代稱..." class="bg-stone-900 border border-stone-700 rounded-lg px-3 py-1.5 text-xs text-stone-200 focus:outline-none focus:border-amber-500 w-1/3">
+              <input id="note-tag-input" type="text" placeholder="時代標籤 (例如：1965台南車站、北忠街鄰人)" class="bg-stone-900 border border-stone-700 rounded-lg px-3 py-1.5 text-xs text-stone-200 focus:outline-none focus:border-amber-500 flex-1">
+            </div>
+            <textarea id="note-content-input" rows="2" placeholder="寫下一段您對台南木造老屋、昔日街道叫賣、或家庭奮鬥的記憶碎片..." class="w-full bg-stone-900 border border-stone-700 rounded-lg p-2.5 text-xs text-stone-200 focus:outline-none focus:border-amber-500"></textarea>
+            <div class="flex justify-end">
+              <button id="submit-story-btn" class="px-4 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-stone-100 font-medium text-xs transition shadow-lg">寫入記憶板</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Asset Registry Modal -->
+  <div id="asset-modal" class="hidden fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-xl max-h-[85vh] rounded-2xl shadow-2xl border border-amber-900/40 flex flex-col overflow-hidden">
+      <div class="p-4 border-b border-stone-800 flex items-center justify-between bg-stone-900/60">
+        <div>
+          <h2 class="text-base font-bold text-stone-100">3D 模型零件來源與尺寸校準</h2>
+          <p class="text-xs text-stone-400">一樓 2×2×2M • 二樓閣樓前短後高 • 總高約 4M</p>
+        </div>
+        <button id="close-asset-modal-btn" class="p-1 text-stone-400 hover:text-stone-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-4 flex-1 overflow-y-auto space-y-3 text-xs">
+        <div class="bg-amber-950/40 p-3 rounded-xl border border-amber-800/40 text-stone-300 leading-relaxed">
+          <span class="text-amber-400 font-semibold block mb-1">💡 幾何結構與比例修正：</span>
+          依原屋真實尺寸重構：一樓為 2×2×2 公尺四方木盒；二樓因應斜屋頂，正面斜削下壓，後側閣樓擁有挑高空間，屋脊最高點達 4.0 公尺。
+        </div>
+
+        <div>
+          <label class="block text-stone-300 mb-1 font-medium">從本機直接載入 ZBrush 優化後的 14 個 .txt / .obj 檔案：</label>
+          <input id="local-files-input" type="file" multiple accept=".txt,.obj" class="block w-full text-xs text-stone-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-700 file:text-stone-100 hover:file:bg-amber-600 file:cursor-pointer cursor-pointer bg-stone-900 rounded-lg border border-stone-800 p-1">
+        </div>
+
+        <div class="pt-2">
+          <span class="block text-stone-300 font-medium mb-1">14 個零件實體設定路徑：</span>
+          <div id="asset-urls-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-stone-800 flex justify-between items-center bg-stone-900/60">
+        <button id="reset-default-urls-btn" class="text-stone-400 hover:text-stone-200 text-xs underline">還原預設路徑</button>
+        <button id="save-asset-config-btn" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-stone-100 font-medium text-xs rounded-xl shadow-lg transition">套用並關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay / Status Toast -->
+  <div id="status-toast" class="absolute bottom-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all duration-300 opacity-0 transform translate-y-2">
+    <div class="glass-panel px-4 py-2 rounded-xl text-xs text-amber-200 border border-amber-700/50 shadow-2xl flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+      <span id="toast-message">系統已就緒</span>
+    </div>
+  </div>
+
+  <!-- Main JavaScript App Code -->
+  <script>
+    // --- 1. Architectural Metadata for 14 Components ---
+    // Scaled to real-world house: 1F is 2m x 2m x 2m cube; 2F has sloped roof, ridge at 4.0m
+    const COMPONENT_METADATA = [
+      { id: '01_1F', file: '01_1F.obj', altFile: '01_1F.txt', name: '01_1F (一樓 2x2x2M 主木構柱樑)', category: 'structure', color: 0x8b5a2b, explodeOffset: [0, 0, 0] },
+      { id: '02_2F', file: '02_2F.obj', altFile: '02_2F.txt', name: '02_2F (二樓斜屋頂閣樓木骨架)', category: 'structure', color: 0x9c6634, explodeOffset: [0, 1.2, 0] },
+      { id: '03_淋雨板1', file: '03_side_wall_top.obj', altFile: '03_side wall_top.txt', name: '03_側牆上方 (閣樓山牆杉木板)', category: 'exterior', color: 0x6e4a27, explodeOffset: [-1.2, 0.4, 0] },
+      { id: '04_淋雨板2', file: '04_side_wall.obj', altFile: '04_side wall.txt', name: '04_側牆下方 (一樓側向杉木板)', category: 'exterior', color: 0x6e4a27, explodeOffset: [-1.2, 0, 0] },
+      { id: '05_淋雨板3', file: '05_front_wall.obj', altFile: '05_front wall.txt', name: '05_正面短牆 (斜屋簷下前牆板)', category: 'exterior', color: 0x6e4a27, explodeOffset: [0, 0, 1.2] },
+      { id: '06_屋頂', file: '06_roof.obj', altFile: '06_roof.txt', name: '06_屋頂 (4M日式斜屋頂與黑瓦)', category: 'structure', color: 0x3d3835, explodeOffset: [0, 2.0, 0] },
+      { id: '07_竹編床', file: '07_bed.obj', altFile: '07_bed.txt', name: '07_竹編床 (常民起居手工竹床)', category: 'interior', color: 0xc2a649, explodeOffset: [-0.6, 0.2, 0.2] },
+      { id: '08_竹梯', file: '08_ladder.obj', altFile: '08_ladder.txt', name: '08_竹梯 (通往二樓閣樓竹梯)', category: 'interior', color: 0xb59838, explodeOffset: [0.5, 0.4, -0.3] },
+      { id: '09_桌子', file: '09_Table.obj', altFile: '09_Table.txt', name: '09_桌子 (檜木生活飯桌)', category: 'interior', color: 0x7c4e24, explodeOffset: [0.3, 0.1, 0.4] },
+      { id: '10_瓦斯爐', file: '10_gas_burner.obj', altFile: '10_gas burner.txt', name: '10_瓦斯爐 (桌上雙口瓦斯爐)', category: 'interior', color: 0x4a5568, explodeOffset: [0.8, 0.1, -0.6] },
+      { id: '11_瓦斯桶', file: '11_gas_tank.obj', altFile: '11_gas tank.txt', name: '11_瓦斯桶 (傳統液化石油氣鐵桶)', category: 'interior', color: 0x718096, explodeOffset: [1.0, 0.1, -0.6] },
+      { id: '12_窗格', file: '12_window.obj', altFile: '12_window.txt', name: '12_窗格 (二樓通風與立面木窗格)', category: 'exterior', color: 0x5c3d1e, explodeOffset: [0, 0.6, 0.9] },
+      { id: '13_後拉門', file: '13_rear_door.obj', altFile: '13_rear door.txt', name: '13_後拉門 (後側日式橫拉木門)', category: 'exterior', color: 0x734822, explodeOffset: [0, 0, -1.4] },
+      { id: '14_前拉門', file: '14_front_door.obj', altFile: '14_front door.txt', name: '14_前拉門 (臨北忠街正面格拉門)', category: 'exterior', color: 0x734822, explodeOffset: [0, 0, 1.4] }
+    ];
+
+    let scene, camera, renderer, controls;
+    let componentGroups = {};
+    let basePositions = {};
+    let directionalLight, ambientLight, pointLight;
+    let currentExplodeRatio = 0;
+
+    let audioCtx = null;
+    let isAudioPlaying = false;
+    let audioNodes = {};
+
+    const DEFAULT_STORIES = [
+      {
+        id: 1,
+        author: '鄰里口述歷史小組',
+        tag: '1960年代台南車站',
+        content: '北忠街就在火車站不遠處。清晨五點半，早班平快車進站的氣笛聲比任何鬧鐘都準時。小屋外窗格透進來的晨光，灑在竹編床上特別恬靜。',
+        time: '紀錄於 1968 年夏'
+      },
+      {
+        id: 2,
+        author: '福隆宮虔誠老鄰居',
+        tag: '日常信仰與街坊',
+        content: '初一十五，家家戶戶都會走去福隆宮燒香。瓦斯爐上滾著大骨高湯，街坊鄰居常坐在木門前拉門邊乘涼邊聊天，人情味非常濃郁。',
+        time: '紀錄於 1972 年冬'
+      }
+    ];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initThreeScene();
+      buildCorrectedProceduralGeometries();
+      setupUIInteractions();
+      setupAudioEngine();
+      renderStoryEntries();
+      attemptAutoLoadRepoModels();
+      showToast('尺寸已校準：1F為2×2×2M方盒，二樓閣樓總高4M');
+    });
+
+    
+    // --- 1.1 Automatic Loader for GitHub Repo Models (/models/) ---
+    async function attemptAutoLoadRepoModels() {
+      const loader = new THREE.OBJLoader();
+      let loadedCount = 0;
+
+      for (const meta of COMPONENT_METADATA) {
+        if (!meta.file) continue;
+        const candidates = [
+          `./models/${meta.file}`,
+          `./models/${encodeURIComponent(meta.file)}`,
+          meta.altFile ? `./models/${meta.altFile}` : null,
+          meta.altFile ? `./models/${encodeURIComponent(meta.altFile)}` : null,
+          `./models/${meta.id}.obj`,
+          `./models/${meta.id}.txt`
+        ].filter(Boolean);
+
+        let parsedObj = null;
+        for (const url of candidates) {
+          try {
+            const resp = await fetch(url);
+            if (resp.ok) {
+              const text = await resp.text();
+              if (text && (text.includes('v ') || text.includes('f ') || text.startsWith('#'))) {
+                parsedObj = loader.parse(text);
+                break;
+              }
+            }
+          } catch(e) {}
+        }
+
+        if (parsedObj) {
+          // ZBrush coordinate calibration:
+          // Coordinates in centimeters: 1F (span 200cm), total height to roof ridge (400cm).
+          // Scale 0.01 transforms cm to meters.
+          // Y=-101cm sits at base; offset Y by +1.01m puts floor exactly on ground slab (y=0).
+          // Z spans 1~201cm; offset Z by -1.01m centers house depth at origin.
+          parsedObj.scale.set(0.01, 0.01, 0.01);
+          parsedObj.position.set(0, 1.01, -1.01);
+          parsedObj.traverse(child => {
+            if (child.isMesh) {
+              child.material = new THREE.MeshStandardMaterial({
+                color: meta.color || 0x8b5a2b,
+                roughness: 0.78,
+                metalness: 0.12,
+                side: THREE.DoubleSide
+              });
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+
+          if (componentGroups[meta.id]) {
+            scene.remove(componentGroups[meta.id]);
+          }
+          componentGroups[meta.id] = parsedObj;
+          basePositions[meta.id] = parsedObj.position.clone();
+          scene.add(parsedObj);
+          loadedCount++;
+        }
+      }
+
+      if (loadedCount > 0) {
+        showToast(`已從 ./models/ 自動載入 ${loadedCount} 個真實 3D 零件！`);
+      }
+    }
+
+    function initThreeScene() {
+      const container = document.getElementById('canvas-container');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a1614);
+      scene.fog = new THREE.FogExp2(0x1a1614, 0.025);
+
+      // Camera calibrated for 2m x 2m x 4m micro-house
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.001, 100000);
+      camera.position.set(5.5, 4.2, 6.0);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      container.appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.maxPolarAngle = Math.PI / 2 + 0.05;
+      controls.minDistance = 1.2;
+      controls.maxDistance = 35;
+      controls.target.set(0, 1.8, 0); // Focus at center of 4M house
+
+      createGroundFoundation();
+      setupLighting();
+
+      window.addEventListener('resize', onWindowResize);
+      animate();
+    }
+
+    function createGroundFoundation() {
+      const groundGeo = new THREE.PlaneGeometry(30, 30);
+      const groundMat = new THREE.MeshStandardMaterial({
+        color: 0x1c1a17,
+        roughness: 0.92,
+        metalness: 0.08,
+        side: THREE.DoubleSide
+      });
+      const ground = new THREE.Mesh(groundGeo, groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.01;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      // Compact foundation slab under the 2x2M house
+      const slabGeo = new THREE.BoxGeometry(2.4, 0.15, 2.4);
+      const slabMat = new THREE.MeshStandardMaterial({
+        color: 0x2e2b28,
+        roughness: 0.85
+      });
+      const slab = new THREE.Mesh(slabGeo, slabMat);
+      slab.position.set(0, 0.075, 0);
+      slab.receiveShadow = true;
+      scene.add(slab);
+    }
+
+    function setupLighting() {
+      ambientLight = new THREE.AmbientLight(0xfff5e6, 0.65);
+      scene.add(ambientLight);
+
+      directionalLight = new THREE.DirectionalLight(0xffd199, 1.8);
+      directionalLight.position.set(8, 12, 6);
+      directionalLight.castShadow = true;
+      directionalLight.shadow.mapSize.width = 2048;
+      directionalLight.shadow.mapSize.height = 2048;
+      directionalLight.shadow.camera.near = 0.5;
+      directionalLight.shadow.camera.far = 40;
+      directionalLight.shadow.bias = -0.0005;
+      const d = 5;
+      directionalLight.shadow.camera.left = -d;
+      directionalLight.shadow.camera.right = d;
+      directionalLight.shadow.camera.top = d;
+      directionalLight.shadow.camera.bottom = -d;
+      scene.add(directionalLight);
+
+      // Warm lantern light inside the 2x2M cube
+      pointLight = new THREE.PointLight(0xff9933, 1.6, 8, 1.5);
+      pointLight.position.set(0, 1.4, 0);
+      pointLight.castShadow = true;
+      scene.add(pointLight);
+
+      updateTimeOfDayLighting(17.5);
+    }
+
+    // --- 2. Accurate Procedural Geometry for 14 Parts (1F 2x2x2M, 2F Sloped Attic to 4M) ---
+    function buildCorrectedProceduralGeometries() {
+      function makeMat(color, roughness = 0.75, metalness = 0.1) {
+        return new THREE.MeshStandardMaterial({
+          color: color,
+          roughness: roughness,
+          metalness: metalness,
+          side: THREE.DoubleSide
+        });
+      }
+
+      COMPONENT_METADATA.forEach(meta => {
+        const group = new THREE.Group();
+        group.name = meta.id;
+
+        switch(meta.id) {
+          case '01_1F': {
+            // 1F: 2x2x2M timber frame structure
+            const colMat = makeMat(0x6b4423, 0.8);
+            // 4 Corner Posts (X: ±0.95, Z: ±0.95, Height: 2.0m, from y=0.15 to 2.05)
+            [[-0.95, -0.95], [-0.95, 0.95], [0.95, -0.95], [0.95, 0.95]].forEach(p => {
+              const col = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.9, 0.12), colMat);
+              col.position.set(p[0], 1.1, p[1]);
+              col.castShadow = true;
+              col.receiveShadow = true;
+              group.add(col);
+            });
+            // 1F Wooden Floor Planks (2.0m x 2.0m at y=0.22)
+            const floor = new THREE.Mesh(new THREE.BoxGeometry(1.95, 0.1, 1.95), makeMat(0x82542a, 0.7));
+            floor.position.set(0, 0.2, 0);
+            floor.receiveShadow = true;
+            group.add(floor);
+            // 1F Top perimeter beams (y=2.05)
+            const beamN = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.12, 0.12), colMat);
+            beamN.position.set(0, 2.05, -0.95);
+            group.add(beamN);
+            const beamS = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.12, 0.12), colMat);
+            beamS.position.set(0, 2.05, 0.95);
+            group.add(beamS);
+            const beamW = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.8), colMat);
+            beamW.position.set(-0.95, 2.05, 0);
+            group.add(beamW);
+            const beamE = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.8), colMat);
+            beamE.position.set(0.95, 2.05, 0);
+            group.add(beamE);
+            break;
+          }
+
+          case '02_2F': {
+            // 2F Attic: Wooden joists & sloped attic framing
+            // In Showa alley houses, the front roof slopes down steeply, so the 2F attic mezzanine sits in the back!
+            const atticMat = makeMat(0x7c4e24, 0.8);
+            // 2F Floor/Mezzanine Planks (covering back 65% of the house: z from -0.95 to 0.25)
+            const atticFloor = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.08, 1.2), atticMat);
+            atticFloor.position.set(0, 2.1, -0.35);
+            atticFloor.receiveShadow = true;
+            group.add(atticFloor);
+
+            // 2F Central King Post rising to Ridge at y=3.9m (Z = -0.2m)
+            const kingPost = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.8, 0.12), atticMat);
+            kingPost.position.set(0, 3.0, -0.2);
+            kingPost.castShadow = true;
+            group.add(kingPost);
+
+            // Ridge Beam (棟木) running along X at y=3.95m, Z=-0.2m
+            const ridgeBeam = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.12, 0.12), atticMat);
+            ridgeBeam.position.set(0, 3.95, -0.2);
+            group.add(ridgeBeam);
+
+            // 2F Attic Gable End Frame (Rear wall gable posts)
+            const gablePostL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.4, 0.1), atticMat);
+            gablePostL.position.set(-0.95, 2.8, -0.95);
+            group.add(gablePostL);
+            const gablePostR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.4, 0.1), atticMat);
+            gablePostR.position.set(0.95, 2.8, -0.95);
+            group.add(gablePostR);
+
+            // Front Low Eaves Header Beam at y=2.2m, Z=1.05m
+            const frontEaveBeam = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.1, 0.1), atticMat);
+            frontEaveBeam.position.set(0, 2.2, 1.05);
+            group.add(frontEaveBeam);
+            break;
+          }
+
+          case '03_淋雨板1': {
+            // Exterior Cedar Clapboards (Left & Right 1F Walls: 2m x 2m)
+            const plankMat = makeMat(0x54361b, 0.9);
+            for (let side of [-1.01, 1.01]) {
+              for (let i = 0; i < 9; i++) {
+                const plank = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 1.9), plankMat);
+                plank.position.set(side, 0.35 + i * 0.19, 0);
+                plank.castShadow = true;
+                plank.receiveShadow = true;
+                group.add(plank);
+              }
+            }
+            break;
+          }
+
+          case '04_淋雨板2': {
+            // Exterior Cedar Clapboards (Rear Wall: 1F + 2F Attic Gable)
+            const plankMat = makeMat(0x54361b, 0.9);
+            // 1F rear clapboards
+            for (let i = 0; i < 9; i++) {
+              const plank = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.22, 0.04), plankMat);
+              plank.position.set(0, 0.35 + i * 0.19, -1.01);
+              plank.castShadow = true;
+              plank.receiveShadow = true;
+              group.add(plank);
+            }
+            // 2F rear attic gable siding (extending up to y=3.6m)
+            for (let j = 0; j < 7; j++) {
+              const w = 1.9 - j * 0.2;
+              if (w > 0.4) {
+                const gablePlank = new THREE.Mesh(new THREE.BoxGeometry(w, 0.18, 0.04), plankMat);
+                gablePlank.position.set(0, 2.15 + j * 0.17, -1.01);
+                gablePlank.castShadow = true;
+                group.add(gablePlank);
+              }
+            }
+            break;
+          }
+
+          case '05_淋雨板3': {
+            // Front Exterior Clapboards (Framing 1F front sliding door)
+            const plankMat = makeMat(0x54361b, 0.9);
+            for (let i = 0; i < 9; i++) {
+              // Left side narrow siding panel
+              const pLeft = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.22, 0.04), plankMat);
+              pLeft.position.set(-0.73, 0.35 + i * 0.19, 1.01);
+              group.add(pLeft);
+              // Right side narrow siding panel
+              const pRight = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.22, 0.04), plankMat);
+              pRight.position.set(0.73, 0.35 + i * 0.19, 1.01);
+              group.add(pRight);
+            }
+            break;
+          }
+
+          case '06_屋頂': {
+            // Traditional Japanese Tile Roof: Front Long Slope (short front wall), Back Short Slope, Ridge at ~4M
+            const tileMat = makeMat(0x2a2826, 0.8, 0.15);
+
+            // Front Roof Pitch: From Ridge (y=4.0, z=-0.2) down to Front Eaves (y=2.2, z=1.2)
+            // Slope length: sqrt((1.4)^2 + (1.8)^2) ≈ 2.28m; angle ~52° from horizontal
+            const frontRoof = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.08, 2.35), tileMat);
+            frontRoof.position.set(0, 3.1, 0.5);
+            frontRoof.rotation.x = Math.atan2(1.8, 1.4); // ~0.91 rad
+            frontRoof.castShadow = true;
+            frontRoof.receiveShadow = true;
+            group.add(frontRoof);
+
+            // Rear Roof Pitch: From Ridge (y=4.0, z=-0.2) down to Rear Eaves (y=3.3, z=-1.15)
+            // Slope length: sqrt((0.95)^2 + (0.7)^2) ≈ 1.18m
+            const rearRoof = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.08, 1.25), tileMat);
+            rearRoof.position.set(0, 3.65, -0.68);
+            rearRoof.rotation.x = -Math.atan2(0.7, 0.95);
+            rearRoof.castShadow = true;
+            rearRoof.receiveShadow = true;
+            group.add(rearRoof);
+
+            // Top Ridge Cap (棟木瓦) at 4M
+            const ridgeCap = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.12, 0.2), makeMat(0x1a1918, 0.7));
+            ridgeCap.position.set(0, 4.02, -0.2);
+            ridgeCap.castShadow = true;
+            group.add(ridgeCap);
+            break;
+          }
+
+          case '07_竹編床': {
+            // Handwoven Bamboo Bed inside 2x2M room (Compact: 0.85m wide x 1.4m long)
+            const bambooMat = makeMat(0xc49d47, 0.65, 0.05);
+            // 4 Bamboo legs
+            [[-0.38, -0.65], [-0.38, 0.65], [0.38, -0.65], [0.38, 0.65]].forEach(pt => {
+              const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.35, 8), bambooMat);
+              leg.position.set(-0.45 + pt[0], 0.38, -0.15 + pt[1]);
+              group.add(leg);
+            });
+            // Woven bed surface
+            const bedMat = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.06, 1.4), bambooMat);
+            bedMat.position.set(-0.45, 0.55, -0.15);
+            bedMat.castShadow = true;
+            group.add(bedMat);
+            break;
+          }
+
+          case '08_竹梯': {
+            // Bamboo Ladder leading from 1F floor (y=0.25) up to 2F attic floor (y=2.1)
+            const ladderMat = makeMat(0xaa8337, 0.7);
+            const sideL = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.2, 8), ladderMat);
+            sideL.position.set(0.2, 1.15, -0.65);
+            sideL.rotation.z = -0.28;
+            group.add(sideL);
+
+            const sideR = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.2, 8), ladderMat);
+            sideR.position.set(0.2, 1.15, -0.35);
+            sideR.rotation.z = -0.28;
+            group.add(sideR);
+
+            // 6 Ladder rungs
+            for (let r = 0; r < 6; r++) {
+              const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.3, 6), ladderMat);
+              rung.rotation.x = Math.PI / 2;
+              rung.position.set(0.48 - r * 0.1, 0.45 + r * 0.3, -0.5);
+              group.add(rung);
+            }
+            break;
+          }
+
+          case '09_桌子': {
+            // Small wooden cypress tea / dining table (0.65m x 0.55m x 0.5m)
+            const woodMat = makeMat(0x6b4320, 0.7);
+            const top = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.05, 0.55), woodMat);
+            top.position.set(0.4, 0.65, 0.4);
+            top.castShadow = true;
+            group.add(top);
+            [[-0.26, -0.22], [-0.26, 0.22], [0.26, -0.22], [0.26, 0.22]].forEach(p => {
+              const leg = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.4, 0.05), woodMat);
+              leg.position.set(0.4 + p[0], 0.45, 0.4 + p[1]);
+              group.add(leg);
+            });
+            break;
+          }
+
+          case '10_瓦斯爐': {
+            // Compact vintage dual-burner gas stove in kitchen corner
+            const stoveMat = makeMat(0x383e42, 0.5, 0.8);
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.18, 0.35), stoveMat);
+            body.position.set(0.65, 0.65, -0.7);
+            body.castShadow = true;
+            group.add(body);
+            // 2 Burners
+            [-0.13, 0.13].forEach(bx => {
+              const ring = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.015, 6, 12), makeMat(0x1a1a1a, 0.4, 0.9));
+              ring.rotation.x = Math.PI / 2;
+              ring.position.set(0.65 + bx, 0.75, -0.7);
+              group.add(ring);
+            });
+            break;
+          }
+
+          case '11_瓦斯桶': {
+            // LPG iron cylinder beside the stove
+            const tankMat = makeMat(0x64748b, 0.6, 0.4);
+            const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.6, 14), tankMat);
+            tank.position.set(0.68, 0.52, -0.4);
+            tank.castShadow = true;
+            group.add(tank);
+            const cap = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2), tankMat);
+            cap.position.set(0.68, 0.82, -0.4);
+            group.add(cap);
+            break;
+          }
+
+          case '12_窗格': {
+            // Traditional wooden window grille (Lattice on front/attic facade)
+            const grilleMat = makeMat(0x422a16, 0.8);
+            const frame = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.8, 0.04), grilleMat);
+            frame.position.set(0, 1.45, 1.02);
+            group.add(frame);
+            // Vertical window slats
+            for (let gx = -0.25; gx <= 0.25; gx += 0.12) {
+              const slat = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.74, 0.05), grilleMat);
+              slat.position.set(gx, 1.45, 1.02);
+              group.add(slat);
+            }
+            break;
+          }
+
+          case '13_後拉門': {
+            // Rear sliding door (0.8m x 1.7m)
+            const doorMat = makeMat(0x5c3818, 0.75);
+            const door = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.7, 0.04), doorMat);
+            door.position.set(0, 1.1, -0.99);
+            door.castShadow = true;
+            group.add(door);
+            break;
+          }
+
+          case '14_前拉門': {
+            // Front sliding door on Beizhong street (0.9m x 1.7m)
+            const doorMat = makeMat(0x6b421c, 0.75);
+            const door = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.7, 0.04), doorMat);
+            door.position.set(0, 1.1, 1.02);
+            door.castShadow = true;
+            group.add(door);
+            break;
+          }
+        }
+
+        basePositions[meta.id] = group.position.clone();
+        componentGroups[meta.id] = group;
+        scene.add(group);
+      });
+
+      renderLayerDrawerItems();
+    }
+
+    // --- 3. Explode Calculation ---
+    function updateExplosion(ratio) {
+      currentExplodeRatio = ratio;
+      COMPONENT_METADATA.forEach(meta => {
+        const group = componentGroups[meta.id];
+        if (group && basePositions[meta.id]) {
+          const offset = meta.explodeOffset;
+          group.position.x = basePositions[meta.id].x + offset[0] * ratio * 1.5;
+          group.position.y = basePositions[meta.id].y + offset[1] * ratio * 1.5;
+          group.position.z = basePositions[meta.id].z + offset[2] * ratio * 1.5;
+        }
+      });
+    }
+
+    // --- 4. Dynamic Lighting ---
+    function updateTimeOfDayLighting(hour) {
+      let sunColor, skyColor, fogColor, sunIntensity, sunX, sunY, sunZ, label;
+
+      if (hour >= 5 && hour < 9) {
+        label = `清晨 ${formatHour(hour)}`;
+        sunColor = new THREE.Color(0xffcba4);
+        skyColor = new THREE.Color(0x382c26);
+        fogColor = new THREE.Color(0x29201b);
+        sunIntensity = 1.3;
+        sunX = -10; sunY = 7; sunZ = 8;
+        pointLight.intensity = 0.5;
+        ambientLight.intensity = 0.5;
+      } else if (hour >= 9 && hour < 16) {
+        label = `正午 ${formatHour(hour)}`;
+        sunColor = new THREE.Color(0xfffaed);
+        skyColor = new THREE.Color(0x333b42);
+        fogColor = new THREE.Color(0x23282e);
+        sunIntensity = 2.2;
+        sunX = 3; sunY = 15; sunZ = 3;
+        pointLight.intensity = 0.1;
+        ambientLight.intensity = 0.9;
+      } else if (hour >= 16 && hour < 19.5) {
+        label = `黃昏 ${formatHour(hour)}`;
+        sunColor = new THREE.Color(0xff8833);
+        skyColor = new THREE.Color(0x3d1f14);
+        fogColor = new THREE.Color(0x26130d);
+        sunIntensity = 1.9;
+        sunX = 10; sunY = 5; sunZ = -8;
+        pointLight.intensity = 1.8;
+        ambientLight.intensity = 0.5;
+      } else {
+        label = `深夜 ${formatHour(hour)}`;
+        sunColor = new THREE.Color(0x556688);
+        skyColor = new THREE.Color(0x0e1117);
+        fogColor = new THREE.Color(0x090b0f);
+        sunIntensity = 0.3;
+        sunX = 6; sunY = 10; sunZ = -6;
+        pointLight.intensity = 2.4;
+        ambientLight.intensity = 0.25;
+      }
+
+      directionalLight.color = sunColor;
+      directionalLight.intensity = sunIntensity;
+      directionalLight.position.set(sunX, sunY, sunZ);
+      scene.background = skyColor;
+      scene.fog.color = fogColor;
+
+      document.getElementById('time-display').textContent = label;
+    }
+
+    function formatHour(h) {
+      const hours = Math.floor(h);
+      const minutes = Math.floor((h - hours) * 60);
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    }
+
+    // --- 5. Soundscape Engine ---
+    function setupAudioEngine() {
+      const audioBtn = document.getElementById('audio-toggle-btn');
+      audioBtn.addEventListener('click', () => {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        isAudioPlaying = !isAudioPlaying;
+        if (isAudioPlaying) {
+          startSoundscape();
+          document.getElementById('audio-icon-on').classList.remove('hidden');
+          document.getElementById('audio-icon-off').classList.add('hidden');
+          showToast('聲音地景已開啟：1960台南車站蒸汽火車、夏夜蟬鳴、遠方廟鐘');
+        } else {
+          stopSoundscape();
+          document.getElementById('audio-icon-on').classList.add('hidden');
+          document.getElementById('audio-icon-off').classList.remove('hidden');
+          showToast('聲音地景已靜音');
+        }
+      });
+    }
+
+    function startSoundscape() {
+      if (!audioCtx) return;
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        output[i] = (b0 + b1 + b2) * 0.02;
+      }
+      const noiseSource = audioCtx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+      noiseSource.loop = true;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 450;
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.value = 0.35;
+      noiseSource.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      noiseSource.start();
+      audioNodes.noise = noiseSource;
+
+      scheduleTrainWhistle();
+    }
+
+    function scheduleTrainWhistle() {
+      if (!isAudioPlaying || !audioCtx) return;
+      playSteamWhistle();
+      const nextTime = (15 + Math.random() * 10) * 1000;
+      audioNodes.whistleTimer = setTimeout(scheduleTrainWhistle, nextTime);
+    }
+
+    function playSteamWhistle() {
+      if (!audioCtx || audioCtx.state !== 'running') return;
+      const now = audioCtx.currentTime;
+      [440, 554].forEach(freq => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.05, now + 1.2);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.98, now + 2.5);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.04, now + 0.5);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.6);
+
+        const bp = audioCtx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.value = freq;
+        bp.Q.value = 4.0;
+
+        osc.connect(bp);
+        bp.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 2.7);
+      });
+    }
+
+    function stopSoundscape() {
+      if (audioNodes.noise) {
+        try { audioNodes.noise.stop(); } catch(e) {}
+      }
+      if (audioNodes.whistleTimer) {
+        clearTimeout(audioNodes.whistleTimer);
+      }
+    }
+
+    // --- 6. UI Interactions ---
+    function setupUIInteractions() {
+      const timeSlider = document.getElementById('time-slider');
+      timeSlider.addEventListener('input', (e) => {
+        updateTimeOfDayLighting(parseFloat(e.target.value));
+      });
+
+      document.getElementById('preset-dawn').addEventListener('click', () => {
+        timeSlider.value = 6;
+        updateTimeOfDayLighting(6);
+      });
+      document.getElementById('preset-midday').addEventListener('click', () => {
+        timeSlider.value = 12;
+        updateTimeOfDayLighting(12);
+      });
+      document.getElementById('preset-dusk').addEventListener('click', () => {
+        timeSlider.value = 17.5;
+        updateTimeOfDayLighting(17.5);
+      });
+      document.getElementById('preset-night').addEventListener('click', () => {
+        timeSlider.value = 22;
+        updateTimeOfDayLighting(22);
+      });
+
+      const explodeSlider = document.getElementById('explode-slider');
+      explodeSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        document.getElementById('explode-display').textContent = `${val}%`;
+        updateExplosion(val / 100);
+      });
+
+      const cameraBtn = document.getElementById('camera-menu-btn');
+      const cameraMenu = document.getElementById('camera-menu');
+      cameraBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cameraMenu.classList.toggle('hidden');
+      });
+      document.addEventListener('click', () => cameraMenu.classList.add('hidden'));
+
+      // Presets tuned for 2x2x4M scale
+      document.getElementById('view-overview').addEventListener('click', () => tweenCamera(5.5, 4.2, 6.0, 0, 1.8, 0));
+      document.getElementById('view-front').addEventListener('click', () => tweenCamera(0, 1.8, 4.5, 0, 1.8, 0));
+      document.getElementById('view-interior').addEventListener('click', () => tweenCamera(0, 1.1, 2.2, 0, 1.0, 0));
+      document.getElementById('view-roof').addEventListener('click', () => tweenCamera(2.8, 4.5, 2.5, 0, 3.2, -0.2));
+
+      const layerBtn = document.getElementById('layer-toggle-btn');
+      const layerDrawer = document.getElementById('layer-drawer');
+      layerBtn.addEventListener('click', () => layerDrawer.classList.toggle('hidden'));
+      document.getElementById('close-layer-drawer-btn').addEventListener('click', () => layerDrawer.classList.add('hidden'));
+      document.getElementById('show-all-layers-btn').addEventListener('click', () => {
+        COMPONENT_METADATA.forEach(meta => {
+          const group = componentGroups[meta.id];
+          if (group) group.visible = true;
+          const chk = document.getElementById(`chk-${meta.id}`);
+          if (chk) chk.checked = true;
+        });
+        showToast('已全部顯示 14 個零件');
+      });
+
+      const storyBtn = document.getElementById('story-toggle-btn');
+      const storyModal = document.getElementById('story-modal');
+      storyBtn.addEventListener('click', () => storyModal.classList.remove('hidden'));
+      document.getElementById('close-story-modal-btn').addEventListener('click', () => storyModal.classList.add('hidden'));
+
+      document.getElementById('submit-story-btn').addEventListener('click', handleStorySubmit);
+
+      const assetBtn = document.getElementById('asset-modal-btn');
+      const assetModal = document.getElementById('asset-modal');
+      assetBtn.addEventListener('click', () => assetModal.classList.remove('hidden'));
+      document.getElementById('close-asset-modal-btn').addEventListener('click', () => assetModal.classList.add('hidden'));
+      document.getElementById('save-asset-config-btn').addEventListener('click', () => {
+        assetModal.classList.add('hidden');
+        showToast('設定已更新');
+      });
+      document.getElementById('reset-default-urls-btn').addEventListener('click', () => {
+        renderAssetUrlsList();
+        showToast('已還原為預設路徑');
+      });
+
+      const fileInput = document.getElementById('local-files-input');
+      fileInput.addEventListener('change', handleLocalFilesUpload);
+
+      renderAssetUrlsList();
+    }
+
+    function renderLayerDrawerItems() {
+      const container = document.getElementById('components-list');
+      container.innerHTML = '';
+
+      COMPONENT_METADATA.forEach((meta) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2 rounded-lg bg-stone-900/60 hover:bg-stone-800/80 border border-stone-800/80 transition';
+
+        item.innerHTML = `
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <input id="chk-${meta.id}" type="checkbox" checked class="rounded border-stone-700 text-amber-600 focus:ring-0 cursor-pointer">
+            <span class="truncate text-stone-300 font-medium">${meta.name}</span>
+          </div>
+          <button data-id="${meta.id}" class="isolate-btn text-[10px] text-amber-500/80 hover:text-amber-300 px-1.5 py-0.5 rounded border border-amber-900/40 hover:bg-amber-950/60 transition ml-2">單獨</button>
+        `;
+
+        container.appendChild(item);
+
+        const chk = item.querySelector(`#chk-${meta.id}`);
+        chk.addEventListener('change', (e) => {
+          if (componentGroups[meta.id]) {
+            componentGroups[meta.id].visible = e.target.checked;
+          }
+        });
+
+        const isoBtn = item.querySelector('.isolate-btn');
+        isoBtn.addEventListener('click', () => {
+          COMPONENT_METADATA.forEach(m => {
+            const isTarget = (m.id === meta.id);
+            if (componentGroups[m.id]) componentGroups[m.id].visible = isTarget;
+            const targetChk = document.getElementById(`chk-${m.id}`);
+            if (targetChk) targetChk.checked = isTarget;
+          });
+          showToast(`已單獨檢視：${meta.name}`);
+        });
+      });
+    }
+
+    function handleLocalFilesUpload(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      const loader = new THREE.OBJLoader();
+      Array.from(files).forEach(file => {
+        const matchedMeta = COMPONENT_METADATA.find(m => file.name.includes(m.id.split('_')[0]));
+        if (!matchedMeta) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const text = evt.target.result;
+          try {
+            const obj = loader.parse(text);
+            // ZBrush exports are in cm: scale 0.01 to convert to meters
+            obj.scale.set(0.01, 0.01, 0.01);
+            obj.position.set(0, 1.01, -1.01);
+            obj.traverse(child => {
+              if (child.isMesh) {
+                child.material.side = THREE.DoubleSide;
+                child.castShadow = true;
+                child.receiveShadow = true;
+              }
+            });
+
+            if (componentGroups[matchedMeta.id]) {
+              scene.remove(componentGroups[matchedMeta.id]);
+            }
+            componentGroups[matchedMeta.id] = obj;
+            basePositions[matchedMeta.id] = obj.position.clone();
+            scene.add(obj);
+
+            showToast(`已載入實體零件：${matchedMeta.name}`);
+          } catch(err) {
+            console.error('OBJ Parse error', file.name, err);
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    function getStoredStories() {
+      try {
+        const stored = localStorage.getItem('beizhong_stories');
+        return stored ? JSON.parse(stored) : DEFAULT_STORIES;
+      } catch(e) {
+        return DEFAULT_STORIES;
+      }
+    }
+
+    function renderStoryEntries() {
+      const container = document.getElementById('story-entries-container');
+      const stories = getStoredStories();
+      container.innerHTML = '';
+
+      stories.forEach(story => {
+        const card = document.createElement('div');
+        card.className = 'glass-card p-3 rounded-xl border border-stone-800 space-y-1.5';
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-stone-200 text-xs">${escapeHTML(story.author)}</span>
+            <span class="text-[10px] text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-900/50">${escapeHTML(story.tag)}</span>
+          </div>
+          <p class="text-stone-300 text-xs leading-relaxed">${escapeHTML(story.content)}</p>
+          <div class="text-[10px] text-stone-500 text-right">${escapeHTML(story.time)}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function handleStorySubmit() {
+      const authorInput = document.getElementById('note-author-input');
+      const tagInput = document.getElementById('note-tag-input');
+      const contentInput = document.getElementById('note-content-input');
+
+      const author = authorInput.value.trim() || '常民旅人';
+      const tag = tagInput.value.trim() || '歷史記憶';
+      const content = contentInput.value.trim();
+
+      if (!content) {
+        showToast('請填寫留言內容再送出');
+        return;
+      }
+
+      const stories = getStoredStories();
+      stories.unshift({
+        id: Date.now(),
+        author: author,
+        tag: tag,
+        content: content,
+        time: '剛才'
+      });
+
+      try {
+        localStorage.setItem('beizhong_stories', JSON.stringify(stories));
+      } catch(e) {}
+
+      authorInput.value = '';
+      tagInput.value = '';
+      contentInput.value = '';
+
+      renderStoryEntries();
+      showToast('記憶碎片已成功寫入留言板！');
+    }
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[tag] || tag));
+    }
+
+    function renderAssetUrlsList() {
+      const container = document.getElementById('asset-urls-list');
+      container.innerHTML = '';
+      COMPONENT_METADATA.forEach(meta => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2';
+        row.innerHTML = `
+          <span class="w-24 truncate text-stone-400 font-mono text-[11px]">${meta.id}</span>
+          <input type="text" value="./models/${meta.file || meta.id + '.obj'}" class="flex-1 bg-stone-900 border border-stone-800 rounded px-2 py-1 text-[11px] text-stone-300 focus:outline-none focus:border-amber-500">
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function tweenCamera(x, y, z, tx, ty, tz) {
+      const startPos = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const endPos = new THREE.Vector3(x, y, z);
+      const endTarget = new THREE.Vector3(tx, ty, tz);
+      const startTime = performance.now();
+      const duration = 1200;
+
+      function updateTween(time) {
+        const elapsed = time - startTime;
+        const progress = Math.min(elapsed / duration, 1.0);
+        const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        camera.position.lerpVectors(startPos, endPos, ease);
+        controls.target.lerpVectors(startTarget, endTarget, ease);
+        controls.update();
+
+        if (progress < 1.0) {
+          requestAnimationFrame(updateTween);
+        }
+      }
+      requestAnimationFrame(updateTween);
+    }
+
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('status-toast');
+      const text = document.getElementById('toast-message');
+      text.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+      }, 3500);
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('canvas-container');
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+
+      if (currentExplodeRatio === 0) {
+        scene.rotation.y += 0.0008;
+      }
+
+      renderer.render(scene, camera);
+    }
+  </script>
+</body>
+</html>
