@@ -5,4 +5,4 @@ Built in the 1930s during the Showa era (or earlier), this modest Japanese-style
 
 This 3D digital heritage preservation project created by Elements Lab (實驗元素工作室), reconstructing a Showa-era wooden house in Tainan, Taiwan, and reviving the everyday memories of the 1960s. 
 
-Dedicated my best friend's parents.
+Dedicated to my best friend's parents.
