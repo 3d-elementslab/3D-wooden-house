@@ -217,24 +217,6 @@
       </div>
     </header>
 
-    <!-- FLOATING SUBTITLE / COMPONENT EXPLANATION OVERLAY -->
-    <div id="subtitle-card" class="absolute top-20 left-1/2 -translate-x-1/2 z-20 pointer-events-auto w-[92%] sm:w-auto sm:max-w-xl glass-panel px-4 sm:px-5 py-3 rounded-2xl shadow-2xl border border-amber-600/40 transition-all duration-300">
-      <div class="flex items-start justify-between gap-3">
-        <div class="space-y-1">
-          <div class="flex items-center gap-2">
-            <span id="subtitle-tag" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-600/40 text-amber-200 border border-amber-500/50">歷史考證標本</span>
-            <span id="subtitle-title" class="font-serif-tc font-bold text-sm sm:text-base text-amber-100">台南北忠街小屋舍</span>
-          </div>
-          <p id="subtitle-body" class="text-xs text-stone-200 leading-relaxed font-sans">
-            座落在台南火車站附近福隆宮旁的北忠街長屋屋舍原本是一整排背靠背的日式木屋建築，一樓空間約 2×2×2 公尺，二樓是斜屋頂的閣樓，這樣為一個單位，背靠背並排蓋成一排屋舍。
-          </p>
-        </div>
-        <button id="toggle-subtitle-btn" class="text-stone-400 hover:text-amber-200 p-1" title="收起/展開字幕">
-          <svg id="subtitle-arrow" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-        </button>
-      </div>
-    </div>
-
     <!-- INTERACTION HINT TOAST -->
     <div id="toast-hint" class="fixed top-36 left-1/2 -translate-x-1/2 z-30 pointer-events-none opacity-0 transition-opacity duration-300 bg-stone-900/90 text-amber-300 text-xs px-3.5 py-1.5 rounded-full border border-amber-500/40 shadow-lg">
       提示訊息
@@ -242,29 +224,25 @@
 
     <!-- BOTTOM TOOLBAR (Item 1: 14 Icons in Bottom Row; Item 4: Exploded View) -->
     <footer class="absolute bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-20 pointer-events-none flex flex-col items-center gap-2">
-      <!-- Item 4: Exploded View Slider & Door Action -->
+      <!-- Bottom Controls: Exploded View Slider & Front Door Slider -->
       <div class="pointer-events-auto glass-panel px-4 py-2 rounded-2xl shadow-2xl flex flex-wrap items-center justify-center gap-3 sm:gap-6 border border-amber-600/40">
         <!-- Exploded View Slider -->
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2">
           <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono uppercase tracking-wider">
             <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
             Exploded View:
           </span>
-          <input id="explode-slider" type="range" min="0" max="100" value="0" class="w-24 sm:w-36 h-1.5 bg-stone-700 rounded-lg cursor-pointer">
-          <span id="explode-percent-text" class="font-mono text-xs text-amber-400 font-bold w-16 text-left">0% (組裝)</span>
+          <input id="explode-slider" type="range" min="0" max="100" value="0" class="w-20 sm:w-28 h-1.5 bg-stone-700 rounded-lg cursor-pointer">
+          <span id="explode-percent-text" class="font-mono text-xs text-amber-400 font-bold w-12 text-left">0%</span>
         </div>
 
-        <!-- Quick Action Buttons -->
+        <!-- Front Door Slider (前拉門拉條：0%閉合 ➜ 100%開啟重疊) -->
         <div class="flex items-center gap-2 border-l border-stone-700/70 pl-3">
-          <button id="btn-assemble-all" class="glass-btn px-2.5 py-1 rounded-xl text-xs text-amber-200 font-medium hover:text-white flex items-center gap-1">
-            <span>🔄</span> 全部組裝
-          </button>
-          <button id="btn-explode-all" class="glass-btn px-2.5 py-1 rounded-xl text-xs text-amber-200 font-medium hover:text-white flex items-center gap-1">
-            <span>💥</span> 一鍵拆解
-          </button>
-          <button id="btn-toggle-doors" class="glass-btn px-2.5 py-1 rounded-xl text-xs text-amber-200 font-medium hover:text-white flex items-center gap-1 border-amber-500/50">
-            <span>🚪</span> <span id="door-btn-label">開啟拉門</span>
-          </button>
+          <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono tracking-wider">
+            <span>🚪</span> 前拉門:
+          </span>
+          <input id="door-slider" type="range" min="0" max="100" value="0" class="w-20 sm:w-28 h-1.5 bg-stone-700 rounded-lg cursor-pointer" title="左右滑動控制前拉門開關">
+          <span id="door-percent-text" class="font-mono text-xs text-amber-400 font-bold w-16 text-left">0% (閉合)</span>
         </div>
       </div>
 
@@ -272,11 +250,16 @@
       <div class="pointer-events-auto w-full max-w-5xl glass-panel px-2.5 py-2 rounded-2xl shadow-2xl border border-amber-600/40">
         <div class="flex items-center justify-between px-2 pb-1 border-b border-stone-700/60 text-[11px] text-stone-300">
           <span class="font-bold text-amber-400 flex items-center gap-1">
-            <span>🏛️</span> 14 項建築構造零件 (點選下方圖示解析)
+            <span>🏛️</span> 14 項建築零件 (點擊個別顯示 / 隱藏)
           </span>
-          <button id="btn-show-all-components" class="text-amber-300 hover:text-amber-100 font-medium text-[11px]">
-            [顯示全棟]
-          </button>
+          <div class="flex items-center gap-3">
+            <button id="btn-show-all" class="text-amber-300 hover:text-white font-medium text-[11px] hover:underline">
+              [全部顯示]
+            </button>
+            <button id="btn-hide-all" class="text-stone-400 hover:text-amber-200 font-medium text-[11px] hover:underline">
+              [全部隱藏]
+            </button>
+          </div>
         </div>
 
         <!-- Horizontal Scrolling List of 14 Simple Icons -->
@@ -292,146 +275,20 @@
   <script>
     // --- 14 Architectural Components Definition ---
     const COMPONENT_METADATA = [
-      {
-        id: '01_1F',
-        name: '01 主柱樑',
-        shortDesc: '一樓 2×2×2M 主木構柱樑與架高檜木地板',
-        fullDesc: '一樓以 2×2×2 公尺（約 1.2 坪）為微型基底，四角立有 10×10 公分實木主柱，搭配地梁、踏石與頂部貫梁，形成穩固抗震的箱型木構單元。',
-        color: 0x8b5a2b,
-        icon: '🪵',
-        category: 'structure',
-        explodeOffset: [0, 0, 0]
-      },
-      {
-        id: '02_2F',
-        name: '02 閣樓骨架',
-        shortDesc: '二樓 4M 單斜屋頂垂直增建木構架',
-        fullDesc: '在 2 公尺一樓頂部垂直加蓋閣樓木骨架，後牆高達近 4 公尺、前簷傾斜至 2.65 公尺，以精巧的桁條與斜撐創造垂直生活空間。',
-        color: 0x9c6634,
-        icon: '📐',
-        category: 'structure',
-        explodeOffset: [0, 1.4, 0]
-      },
-      {
-        id: '03_淋雨板1',
-        name: '03 閣樓山牆',
-        shortDesc: '二樓左側山牆通風透氣杉木板',
-        fullDesc: '閣樓側邊山牆採用台灣杉木橫向搭接之防雨板（下見板），阻絕台南夏季暴雨，中央預留通風木窗格。',
-        color: 0x6e4a27,
-        icon: '🏠',
-        category: 'exterior',
-        explodeOffset: [-1.4, 0.5, 0]
-      },
-      {
-        id: '04_淋雨板2',
-        name: '04 一樓側牆',
-        shortDesc: '一樓側向防雨杉木外壁板與後背牆',
-        fullDesc: '一樓側牆與背向實木板壁，歷經數十年風雨洗禮呈現深褐溫潤質感，阻隔巷弄濕氣。',
-        color: 0x6e4a27,
-        icon: '🧱',
-        category: 'exterior',
-        explodeOffset: [-1.4, 0, 0]
-      },
-      {
-        id: '05_淋雨板3',
-        name: '05 正面前牆',
-        shortDesc: '正立面拉門上方短遮雨板壁',
-        fullDesc: '臨街正門拉門上方之短牆木板壁，介於 1.95 公尺門楣與 2.65 公尺斜屋簷之間，形成臨街端莊立面。',
-        color: 0x6e4a27,
-        icon: '🚪',
-        category: 'exterior',
-        explodeOffset: [0, 0.4, 1.3]
-      },
-      {
-        id: '06_屋頂',
-        name: '06 單斜屋頂',
-        shortDesc: '4 公尺高日式單斜屋頂與黑瓦簷口',
-        fullDesc: '整棟建築最核心特徵：後高前低的 4 公尺單斜屋頂（Shed Roof），左側外懸 25 公分雨遮，鋪設日式水泥黑瓦與鐵皮浪板，雨水順暢向前街傾洩。',
-        color: 0x3d3835,
-        icon: '🛖',
-        category: 'structure',
-        explodeOffset: [0, 2.2, 0]
-      },
-      {
-        id: '07_竹編床',
-        name: '07 竹編床',
-        shortDesc: '常民起居手工編織涼感竹床 (1.5×0.8M)',
-        fullDesc: '配置於一樓右側的傳統手工編織竹床，通風涼爽且質地強韌，是戰後庶民夜間安眠與日間起居的多功能家具。',
-        color: 0xc2a649,
-        icon: '🛏️',
-        category: 'interior',
-        explodeOffset: [0.9, 0.2, 0.2]
-      },
-      {
-        id: '08_竹梯',
-        name: '08 閣樓竹梯',
-        shortDesc: '通往二樓閣樓之陡峭攀爬手工竹梯',
-        fullDesc: '以台灣原生厚竹剖製而成之攀爬梯，斜靠於閣樓開口，寸土寸金之中省卻傳統樓梯體積，上下靈巧。',
-        color: 0xb59838,
-        icon: '🪜',
-        category: 'interior',
-        explodeOffset: [-0.6, 0.5, -0.4]
-      },
-      {
-        id: '09_桌子',
-        name: '09 生活木桌',
-        shortDesc: '一樓左前角日常起居與備餐檜木桌',
-        fullDesc: '放置於一樓前窗旁的檜木小餐桌，既是全家人進餐、喝茶之所，亦是烹飪瓦斯爐具之基台。',
-        color: 0x7c4e24,
-        icon: '🪵',
-        category: 'interior',
-        explodeOffset: [-0.6, 0.2, 0.6]
-      },
-      {
-        id: '10_瓦斯爐',
-        name: '10 瓦斯爐',
-        shortDesc: '桌上型雙口鑄鐵生活瓦斯爐',
-        fullDesc: '1970 年代家戶現代化必備之桌上雙口瓦斯爐，見證台灣庶民告別燃煤柴薪、邁入瓦斯煮食之歷史轉折。',
-        color: 0x4a5568,
-        icon: '🔥',
-        category: 'interior',
-        explodeOffset: [-0.7, 0.6, 0.6]
-      },
-      {
-        id: '11_瓦斯桶',
-        name: '11 瓦斯鋼桶',
-        shortDesc: '臨牆擺放 20kg 傳統液化石油氣鋼瓶',
-        fullDesc: '桌旁立置的 20 公斤液化石油氣鐵桶，印有防爆檢驗環與減壓閥，是當時街坊瓦斯行定時人力車載送更換之日常記憶。',
-        color: 0x718096,
-        icon: '🛢️',
-        category: 'interior',
-        explodeOffset: [-1.2, 0.2, 0.7]
-      },
-      {
-        id: '12_窗格',
-        name: '12 透氣窗格',
-        shortDesc: '二樓山牆高處實木直欞通風木窗格',
-        fullDesc: '位於閣樓山牆中央的木窗格，採用直欞設計，利於熱氣自 4 公尺頂部自然對流排出，兼顧採光與隱私防盜。',
-        color: 0x5c3d1e,
-        icon: '🪟',
-        category: 'exterior',
-        explodeOffset: [-1.5, 0.8, 0]
-      },
-      {
-        id: '13_後拉門',
-        name: '13 內軌拉門',
-        shortDesc: '臨街正門內側滑軌實木格扇拉門 (右側 92cm)',
-        fullDesc: '寬 92 公分之內軌實木拉門，門板以檜木邊框與杉木企口板密合，推拉輕巧，閉合時與外軌拉門交疊防風。',
-        color: 0x734822,
-        icon: '🚪',
-        category: 'exterior',
-        explodeOffset: [0.6, 0, 1.4]
-      },
-      {
-        id: '14_前拉門',
-        name: '14 外軌拉門',
-        shortDesc: '臨街正門外側滑軌實木格扇拉門 (左側 92cm)',
-        fullDesc: '寬 92 公分之外軌實木拉門，配置凹槽暗把手與黃銅滑輪，可順暢向右推開，與內軌門片重疊開啟大門通道。',
-        color: 0x734822,
-        icon: '🚪',
-        category: 'exterior',
-        explodeOffset: [-0.6, 0, 1.7]
-      }
+      { id: '01_1F', name: '01_1F', color: 0x8b5a2b, explodeOffset: [0, 0, 0] },
+      { id: '02_2F', name: '02_2F', color: 0x9c6634, explodeOffset: [0, 1.4, 0] },
+      { id: '03_淋雨板1', name: '03_淋雨板1', color: 0x6e4a27, explodeOffset: [-1.4, 0.5, 0] },
+      { id: '04_淋雨板2', name: '04_淋雨板2', color: 0x6e4a27, explodeOffset: [-1.4, 0, 0] },
+      { id: '05_淋雨板3', name: '05_淋雨板2', color: 0x6e4a27, explodeOffset: [0, 0.4, 1.3] },
+      { id: '06_屋頂', name: '06_屋頂', color: 0x3d4348, explodeOffset: [0, 2.2, 0] },
+      { id: '07_竹編床', name: '07_竹編床', color: 0xbfa04d, explodeOffset: [0.9, 0.2, 0.2] },
+      { id: '08_竹梯', name: '08_竹梯', color: 0xb8923a, explodeOffset: [-0.6, 0.5, -0.4] },
+      { id: '09_桌子', name: '09_桌子', color: 0x75471f, explodeOffset: [-0.6, 0.2, 0.6] },
+      { id: '10_瓦斯爐', name: '10_瓦斯爐', color: 0x4a5568, explodeOffset: [-0.7, 0.6, 0.6] },
+      { id: '11_瓦斯桶', name: '11_挖斯桶', color: 0x718096, explodeOffset: [-1.2, 0.2, 0.7] },
+      { id: '12_窗格', name: '12_窗格', color: 0x5c3d1e, explodeOffset: [-1.5, 0.8, 0] },
+      { id: '13_後拉門', name: '13_後拉門', color: 0x734822, explodeOffset: [0.6, 0, 1.4] },
+      { id: '14_前拉門', name: '14_前拉門', color: 0x734822, explodeOffset: [-0.6, 0, 1.7] }
     ];
 
     // Global 3D Variables
@@ -439,23 +296,18 @@
     let componentGroups = {};
     let basePositions = {};
     let currentExplodeRatio = 0.0;
+    let currentDoorRatio = 0.0; // 0.0 = fully closed (-0.6018m), 1.0 = fully open (+0.3082m)
     let selectedComponentId = null;
 
-    // Lighting & Environment (Item 2: 文資展廳黑金 Curatorial Dark)
+    // Lighting & Environment (Curatorial Dark)
     let ambientLight, dirSunLight, fillLight, roomSpotLight;
     let starPoints = null;
-
-    // Door State
-    const doorState = {
-      '14_前拉門': { open: false, currentX: 0, targetX: 0, maxSlide: 0.82 },
-      '13_後拉門': { open: false, currentX: 0, targetX: 0, maxSlide: 0.82 }
-    };
 
     // Web Audio State
     let audioCtx = null;
     let isAudioPlaying = false;
     let audioNodes = {};
-    let currentPeriod = 'noon'; // morning, noon, evening, night
+    let currentPeriod = 'noon';
 
     // Raycasting
     const raycaster = new THREE.Raycaster();
@@ -503,6 +355,7 @@
       attemptAutoLoadRepoModels();
       renderBottomComponentDock();
       setupEvents();
+      updateComponentTransforms();
 
       // Start render loop
       animate();
@@ -816,111 +669,75 @@
     }
 
     // ==========================================
-    // 5. BOTTOM 14-COMPONENT DOCK UI (Item 1)
+    // 5. BOTTOM 14-COMPONENT DOCK UI & VISIBILITY TOGGLE
     // ==========================================
     function renderBottomComponentDock() {
       const container = document.getElementById('components-dock');
+      if (!container) return;
       container.innerHTML = '';
 
       COMPONENT_METADATA.forEach(meta => {
         const btn = document.createElement('button');
         btn.id = `dock-btn-${meta.id}`;
-        btn.className = 'component-chip flex-shrink-0 glass-btn px-2.5 py-1.5 rounded-xl text-left border border-stone-700/80 hover:border-amber-500/70 flex items-center gap-2 group';
-        btn.title = meta.fullDesc;
+        btn.className = 'component-chip flex-shrink-0 px-2.5 py-1 rounded-xl text-xs font-mono font-medium flex items-center gap-1.5 border border-amber-500/60 bg-amber-950/40 text-amber-200 hover:bg-amber-900/60 transition-all';
+        btn.title = `點擊切換顯示/隱藏 ${meta.name}`;
 
         btn.innerHTML = `
-          <span class="text-base group-hover:scale-110 transition-transform">${meta.icon}</span>
-          <div class="leading-tight">
-            <div class="text-[11px] font-bold text-stone-200 group-hover:text-amber-300 font-mono">${meta.name}</div>
-            <div class="text-[9px] text-stone-400 group-hover:text-stone-300 truncate max-w-[80px]">${meta.category === 'structure' ? '結構' : (meta.category === 'exterior' ? '外壁' : '家具')}</div>
-          </div>
+          <span class="indicator text-[11px]">👁️</span>
+          <span>${meta.name}</span>
         `;
 
         btn.addEventListener('click', () => {
-          selectAndHighlightComponent(meta.id);
+          toggleComponentVisibility(meta.id);
         });
 
         container.appendChild(btn);
       });
     }
 
-    function selectAndHighlightComponent(id) {
-      selectedComponentId = id;
+    function toggleComponentVisibility(id) {
+      const group = componentGroups[id];
       const meta = COMPONENT_METADATA.find(m => m.id === id);
-      if (!meta) return;
+      if (!group || !meta) return;
 
-      COMPONENT_METADATA.forEach(m => {
-        const b = document.getElementById(`dock-btn-${m.id}`);
-        if (b) {
-          if (m.id === id) {
-            b.classList.add('active', 'border-amber-400', 'bg-amber-900/40');
-            b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      group.visible = !group.visible;
+      const isVisible = group.visible;
+
+      const btn = document.getElementById(`dock-btn-${id}`);
+      if (btn) {
+        if (isVisible) {
+          btn.className = 'component-chip flex-shrink-0 px-2.5 py-1 rounded-xl text-xs font-mono font-medium flex items-center gap-1.5 border border-amber-500/60 bg-amber-950/40 text-amber-200 hover:bg-amber-900/60 transition-all';
+          btn.querySelector('.indicator').textContent = '👁️';
+        } else {
+          btn.className = 'component-chip flex-shrink-0 px-2.5 py-1 rounded-xl text-xs font-mono font-medium flex items-center gap-1.5 border border-stone-700 bg-stone-900/80 text-stone-500 line-through opacity-50 hover:opacity-80 transition-all';
+          btn.querySelector('.indicator').textContent = '🚫';
+        }
+      }
+
+      showToast(`${meta.name} 已${isVisible ? '顯示' : '隱藏'}`);
+    }
+
+    function setAllComponentsVisibility(visible) {
+      COMPONENT_METADATA.forEach(meta => {
+        const group = componentGroups[meta.id];
+        if (group) group.visible = visible;
+
+        const btn = document.getElementById(`dock-btn-${meta.id}`);
+        if (btn) {
+          if (visible) {
+            btn.className = 'component-chip flex-shrink-0 px-2.5 py-1 rounded-xl text-xs font-mono font-medium flex items-center gap-1.5 border border-amber-500/60 bg-amber-950/40 text-amber-200 hover:bg-amber-900/60 transition-all';
+            btn.querySelector('.indicator').textContent = '👁️';
           } else {
-            b.classList.remove('active', 'border-amber-400', 'bg-amber-900/40');
+            btn.className = 'component-chip flex-shrink-0 px-2.5 py-1 rounded-xl text-xs font-mono font-medium flex items-center gap-1.5 border border-stone-700 bg-stone-900/80 text-stone-500 line-through opacity-50 hover:opacity-80 transition-all';
+            btn.querySelector('.indicator').textContent = '🚫';
           }
         }
       });
-
-      updateSubtitle(
-        `${meta.icon} ${meta.name} — ${meta.shortDesc}`,
-        meta.fullDesc,
-        `第 ${id.split('_')[0]} 號考證零件`
-      );
-
-      COMPONENT_METADATA.forEach(m => {
-        const grp = componentGroups[m.id];
-        if (!grp) return;
-
-        grp.traverse(child => {
-          if (child.isMesh && child.material) {
-            if (m.id === id) {
-              child.material.emissive = new THREE.Color(0xd97706);
-              child.material.emissiveIntensity = 0.35;
-            } else {
-              child.material.emissive = new THREE.Color(0x000000);
-              child.material.emissiveIntensity = 0.0;
-            }
-          }
-        });
-      });
-
-      focusCameraOnComponent(id);
-    }
-
-    function resetComponentHighlights() {
-      selectedComponentId = null;
-      COMPONENT_METADATA.forEach(m => {
-        const b = document.getElementById(`dock-btn-${m.id}`);
-        if (b) b.classList.remove('active', 'border-amber-400', 'bg-amber-900/40');
-
-        const grp = componentGroups[m.id];
-        if (grp) {
-          grp.traverse(child => {
-            if (child.isMesh && child.material) {
-              child.material.emissive = new THREE.Color(0x000000);
-              child.material.emissiveIntensity = 0.0;
-            }
-          });
-        }
-      });
-      restoreDefaultSubtitle();
-    }
-
-    function focusCameraOnComponent(id) {
-      const grp = componentGroups[id];
-      if (!grp) return;
-
-      const box = new THREE.Box3().setFromObject(grp);
-      const center = box.getCenter(new THREE.Vector3());
-
-      new TWEEN.Tween(controls.target)
-        .to({ x: center.x, y: Math.max(0.6, center.y), z: center.z }, 800)
-        .easing(TWEEN.Easing.Cubic.Out)
-        .start();
+      showToast(visible ? '已全部顯示 14 項零件' : '已全部隱藏 14 項零件');
     }
 
     // ==========================================
-    // 6. EXPLODED VIEW ENGINE (Item 4)
+    // 6. EXPLODED VIEW & FRONT DOOR SLIDER ENGINE
     // ==========================================
     function updateComponentTransforms() {
       COMPONENT_METADATA.forEach(meta => {
@@ -930,8 +747,12 @@
 
         const [ox, oy, oz] = meta.explodeOffset || [0, 0, 0];
         let doorOffsetX = 0;
-        if (doorState[meta.id]) {
-          doorOffsetX = doorState[meta.id].currentX;
+
+        // Front Door Sliding:
+        // Closed (0%): offset = -0.6018m (covers left half X=[-0.91, 0.00]m of doorway)
+        // Open (100%): offset = +0.3082m (overlaps right rear door X=[0.00, +0.91]m)
+        if (meta.id === '14_前拉門') {
+          doorOffsetX = -0.6018 + currentDoorRatio * 0.9100;
         }
 
         group.position.set(
@@ -940,6 +761,35 @@
           basePos.z + oz * currentExplodeRatio
         );
       });
+    }
+
+    function setDoorRatio(ratio, animate = false) {
+      ratio = Math.max(0, Math.min(1, ratio));
+      if (animate) {
+        new TWEEN.Tween({ r: currentDoorRatio })
+          .to({ r: ratio }, 400)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .onUpdate(obj => {
+            currentDoorRatio = obj.r;
+            updateComponentTransforms();
+            syncDoorUI();
+          })
+          .start();
+      } else {
+        currentDoorRatio = ratio;
+        updateComponentTransforms();
+        syncDoorUI();
+      }
+    }
+
+    function syncDoorUI() {
+      const slider = document.getElementById('door-slider');
+      const text = document.getElementById('door-percent-text');
+      const pct = Math.round(currentDoorRatio * 100);
+      if (slider) slider.value = pct;
+      if (text) {
+        text.textContent = pct === 0 ? '0% (閉合)' : (pct === 100 ? '100% (開啟)' : `${pct}%`);
+      }
     }
 
     function setExplodeRatio(ratio, animate = false) {
@@ -970,30 +820,6 @@
       if (text) {
         text.textContent = pct === 0 ? '0% (組裝)' : (pct === 100 ? '100% (拆解)' : `${pct}%`);
       }
-    }
-
-    // ==========================================
-    // 7. SLIDING DOOR INTERACTION
-    // ==========================================
-    function toggleSlidingDoors() {
-      const frontDoor = doorState['14_前拉門'];
-      const rearDoor = doorState['13_後拉門'];
-
-      const targetOpen = !(frontDoor.open || rearDoor.open);
-      frontDoor.open = targetOpen;
-      rearDoor.open = targetOpen;
-
-      frontDoor.targetX = targetOpen ? frontDoor.maxSlide : 0;
-      rearDoor.targetX = targetOpen ? -rearDoor.maxSlide : 0;
-
-      playDoorSlideSound();
-
-      const label = document.getElementById('door-btn-label');
-      if (label) {
-        label.textContent = targetOpen ? '關閉拉門' : '開啟拉門';
-      }
-
-      showToast(targetOpen ? '已推開實木拉門，可由大門窺探屋內起居配置' : '實木拉門已滑動閉合');
     }
 
     // ==========================================
@@ -1155,7 +981,7 @@
       filter.frequency.setValueAtTime(320, audioCtx.currentTime);
 
       const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(0.025, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.045, audioCtx.currentTime);
 
       noise.connect(filter);
       filter.connect(gain);
@@ -1181,7 +1007,7 @@
       osc2.frequency.exponentialRampToValueAtTime(566, t + 1.2);
 
       g.gain.setValueAtTime(0.001, t);
-      g.gain.exponentialRampToValueAtTime(0.05, t + 0.3);
+      g.gain.exponentialRampToValueAtTime(0.22, t + 0.3);
       g.gain.exponentialRampToValueAtTime(0.001, t + 2.2);
 
       osc1.connect(g); osc2.connect(g);
@@ -1206,7 +1032,7 @@
         osc.frequency.setValueAtTime(f, start);
 
         g.gain.setValueAtTime(0.001, start);
-        g.gain.linearRampToValueAtTime(0.04, start + 0.03);
+        g.gain.linearRampToValueAtTime(0.22, start + 0.03);
         g.gain.exponentialRampToValueAtTime(0.001, start + dur);
 
         osc.connect(g);
@@ -1232,7 +1058,7 @@
         filter.Q.setValueAtTime(3.0, t + offset);
 
         g.gain.setValueAtTime(0.001, t + offset);
-        g.gain.linearRampToValueAtTime(0.02, t + offset + 0.08);
+        g.gain.linearRampToValueAtTime(0.18, t + offset + 0.08);
         g.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.28);
 
         osc.connect(filter);
@@ -1253,7 +1079,7 @@
         osc.frequency.setValueAtTime(95, t + offset);
         osc.frequency.exponentialRampToValueAtTime(38, t + offset + 0.08);
 
-        g.gain.setValueAtTime(0.04, t + offset);
+        g.gain.setValueAtTime(0.20, t + offset);
         g.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.08);
 
         osc.connect(g);
@@ -1280,7 +1106,7 @@
       filter.Q.setValueAtTime(3.5, t);
 
       g.gain.setValueAtTime(0.001, t);
-      g.gain.linearRampToValueAtTime(0.035, t + 0.1);
+      g.gain.linearRampToValueAtTime(0.20, t + 0.1);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
 
       osc.connect(filter);
@@ -1302,7 +1128,7 @@
       osc.frequency.exponentialRampToValueAtTime(520, t + 0.75);
 
       g.gain.setValueAtTime(0.001, t);
-      g.gain.linearRampToValueAtTime(0.03, t + 0.15);
+      g.gain.linearRampToValueAtTime(0.20, t + 0.15);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.75);
 
       osc.connect(g);
@@ -1322,7 +1148,7 @@
         osc.frequency.setValueAtTime(310, t + offset);
         osc.frequency.exponentialRampToValueAtTime(140, t + offset + 0.14);
 
-        g.gain.setValueAtTime(0.045, t + offset);
+        g.gain.setValueAtTime(0.22, t + offset);
         g.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.14);
 
         osc.connect(g);
@@ -1355,7 +1181,7 @@
 
       const g = audioCtx.createGain();
       g.gain.setValueAtTime(0.001, t);
-      g.gain.linearRampToValueAtTime(0.06, t + 0.08);
+      g.gain.linearRampToValueAtTime(0.22, t + 0.08);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
 
       noise.connect(filter);
@@ -1366,156 +1192,21 @@
     }
 
     // ==========================================
-    // 10. SUBTITLE & TOAST CONTROLLER
     // ==========================================
-    function updateSubtitle(title, body, tag = '歷史考證標本') {
-      const titleEl = document.getElementById('subtitle-title');
-      const bodyEl = document.getElementById('subtitle-body');
-      const tagEl = document.getElementById('subtitle-tag');
-      const card = document.getElementById('subtitle-card');
-
-      if (titleEl) titleEl.textContent = title;
-      if (bodyEl) bodyEl.textContent = body;
-      if (tagEl) tagEl.textContent = tag;
-      if (card) {
-        card.classList.remove('opacity-0', 'pointer-events-none');
-      }
-    }
-
-    function restoreDefaultSubtitle() {
-      updateSubtitle(
-        '台南北忠街小屋舍',
-        '座落在台南火車站附近福隆宮旁的北忠街長屋屋舍原本是一整排背靠背的日式木屋建築，一樓空間約 2×2×2 公尺，二樓是斜屋頂的閣樓，這樣為一個單位，背靠背並排蓋成一排屋舍。',
-        '歷史考證標本'
-      );
-    }
-
+    // 10. TOAST CONTROLLER
+    // ==========================================
     function showToast(msg) {
-      const toast = document.getElementById('toast-hint');
+      const toast = document.getElementById("toast-hint");
       if (!toast) return;
       toast.textContent = msg;
-      toast.classList.remove('opacity-0');
-      toast.classList.add('opacity-100');
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
       clearTimeout(toast._timer);
       toast._timer = setTimeout(() => {
-        toast.classList.remove('opacity-100');
-        toast.classList.add('opacity-0');
-      }, 2500);
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+      }, 2000);
     }
-
-    // ==========================================
-    // 11. EVENT LISTENERS SETUP
-    // ==========================================
-    function setupEvents() {
-      const viewLanding = document.getElementById('view-landing');
-      const heroEnterBtn = document.getElementById('hero-enter-3d-btn');
-      const backToIntroBtn = document.getElementById('back-to-intro-btn');
-
-      // Enter 3D from landing page
-      heroEnterBtn.addEventListener('click', () => {
-        viewLanding.classList.add('opacity-0', 'pointer-events-none');
-        setTimeout(() => {
-          viewLanding.classList.add('hidden');
-          onWindowResize();
-          showToast('已進入 3D 空間！模型持續緩緩轉動，底部可點選構件');
-        }, 500);
-      });
-
-      // Back to Intro
-      backToIntroBtn.addEventListener('click', () => {
-        viewLanding.classList.remove('hidden');
-        setTimeout(() => {
-          viewLanding.classList.remove('opacity-0', 'pointer-events-none');
-        }, 20);
-      });
-
-      // Item 5: Time Line Buttons (Morning, Noon, Evening, Night)
-      document.getElementById('btn-time-morning').addEventListener('click', () => setTimeLinePeriod('morning'));
-      document.getElementById('btn-time-noon').addEventListener('click', () => setTimeLinePeriod('noon'));
-      document.getElementById('btn-time-evening').addEventListener('click', () => setTimeLinePeriod('evening'));
-      document.getElementById('btn-time-night').addEventListener('click', () => setTimeLinePeriod('night'));
-      // Initialize noon state
-      setTimeLinePeriod('noon', 0);
-
-      // Item 4: Exploded View Controls
-      const explodeSlider = document.getElementById('explode-slider');
-      if (explodeSlider) {
-        explodeSlider.addEventListener('input', e => setExplodeRatio(parseFloat(e.target.value) / 100));
-      }
-      document.getElementById('btn-assemble-all').addEventListener('click', () => setExplodeRatio(0, true));
-      document.getElementById('btn-explode-all').addEventListener('click', () => setExplodeRatio(1, true));
-
-      // Sliding Doors
-      document.getElementById('btn-toggle-doors').addEventListener('click', toggleSlidingDoors);
-
-      // Show All Components
-      document.getElementById('btn-show-all-components').addEventListener('click', () => {
-        resetComponentHighlights();
-        showToast('已重設為全棟建築總覽視角');
-      });
-
-      // Subtitle Accordion Toggle
-      const subToggleBtn = document.getElementById('toggle-subtitle-btn');
-      const subBody = document.getElementById('subtitle-body');
-      const subArrow = document.getElementById('subtitle-arrow');
-      let subExpanded = true;
-      if (subToggleBtn) {
-        subToggleBtn.addEventListener('click', () => {
-          subExpanded = !subExpanded;
-          if (subExpanded) {
-            subBody.classList.remove('hidden');
-            subArrow.classList.remove('rotate-180');
-          } else {
-            subBody.classList.add('hidden');
-            subArrow.classList.add('rotate-180');
-          }
-        });
-      }
-
-      // Reset Camera
-      document.getElementById('reset-cam-btn').addEventListener('click', () => {
-        new TWEEN.Tween(camera.position)
-          .to({ x: 4.6, y: 3.2, z: 5.6 }, 800)
-          .easing(TWEEN.Easing.Cubic.Out)
-          .start();
-        new TWEEN.Tween(controls.target)
-          .to({ x: 0, y: 1.8, z: 0 }, 800)
-          .easing(TWEEN.Easing.Cubic.Out)
-          .start();
-      });
-
-      // Audio Engine Setup
-      setupAudioEngine();
-
-      // Click / Pointerdown on 3D Objects
-      renderer.domElement.addEventListener('pointerdown', on3DPointerDown, { passive: true });
-
-      // Window resize
-      window.addEventListener('resize', onWindowResize);
-    }
-
-    function on3DPointerDown(e) {
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-
-      const intersects = raycaster.intersectObjects(scene.children, true);
-      for (const hit of intersects) {
-        let cur = hit.object;
-        while (cur && cur !== scene) {
-          if (cur.userData && cur.userData.isDoor) {
-            toggleSlidingDoors();
-            return;
-          }
-          if (cur.userData && cur.userData.id) {
-            selectAndHighlightComponent(cur.userData.id);
-            return;
-          }
-          cur = cur.parent;
-        }
-      }
-    }
-
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -1535,20 +1226,7 @@
         starPoints.rotation.y += 0.0003;
       }
 
-      // Smooth Sliding Door Animation
-      let doorsMoving = false;
-      ['14_前拉門', '13_後拉門'].forEach(id => {
-        const d = doorState[id];
-        if (Math.abs(d.currentX - d.targetX) > 0.005) {
-          d.currentX += (d.targetX - d.currentX) * 0.12;
-          doorsMoving = true;
-        } else {
-          d.currentX = d.targetX;
-        }
-      });
-      if (doorsMoving) {
-        updateComponentTransforms();
-      }
+
 
       // Item 1: controls.autoRotate is enabled, so controls.update() smoothly turns the house!
       controls.update();
