@@ -1,3 +1,15 @@
+<!--
+================================================================================
+🏛️ 台南北忠街小屋舍 3D 數位文資保存專案 (1969–1971)
+Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reserved.
+
+【智慧財產權與法律保護聲明】
+本專案之 3D 建築幾何模型、結構拆解參數、聲景合成演算法與歷史文案，
+皆為「實驗元素工作室 Elements Lab」原創研發與數位文資保存資產。
+未經著作權人正式書面授權，嚴禁任何個人或組織進行下載拷貝、逆向提取、
+模型重構、二次發布或任何形式之商業使用。版權所有，侵權必究。
+================================================================================
+-->
 <!DOCTYPE html>
 <html lang="zh-TW" class="h-full">
 <head>
@@ -78,6 +90,8 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
   <!-- SEO & Studio Metadata -->
   <meta name="author" content="實驗元素工作室 Elements Lab">
+  <meta name="copyright" content="Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reserved.">
+  <meta name="robots" content="noindex, nofollow, noarchive">
   <link rel="author" href="https://elementslab.net/">
   <meta property="og:site_name" content="實驗元素工作室 Elements Lab">
 </style>
@@ -155,10 +169,15 @@
 
     </div>
 
-    <!-- Bottom Footer Note & Item 9 Credits -->
+    <!-- Bottom Footer Note & Intellectual Property Declaration -->
     <div class="max-w-4xl w-full mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 pt-4 border-t border-stone-800/80 gap-2">
-      <span>點擊上方按鈕直接進入 1:1 建築 3D 模型空間，自由漫遊、拆解構造與體驗日照聲景。</span>
-      <a href="https://elementslab.net/" target="_blank" rel="noopener noreferrer" class="text-amber-500/80 hover:text-amber-300 font-mono text-[11px] tracking-wider transition-colors inline-flex items-center gap-1" title="Visit Elements Lab"><span>Presented by Elements Lab</span><span class="text-xs">↗</span></a>
+      <span>點擊上方按鈕進入 1:1 建築 3D 模型空間，自由漫遊、拆解構造與體驗日照聲景。</span>
+      <div class="flex items-center gap-2">
+        <a href="https://elementslab.net/" target="_blank" rel="noopener noreferrer" class="text-amber-500/80 hover:text-amber-300 font-mono text-[11px] tracking-wider transition-colors inline-flex items-center gap-1" title="Visit Elements Lab"><span>Presented by Elements Lab</span><span class="text-xs">↗</span></a>
+      </div>
+    </div>
+    <div class="max-w-4xl w-full mx-auto text-center text-[10px] text-stone-500 pt-1">
+      (c) 2024–2026 實驗元素工作室 Elements Lab · 版權所有 · 3D模型與程式碼未經授權禁止拷貝、提取或商業使用
     </div>
 
   </div>
@@ -186,9 +205,9 @@
           </div>
 
         </div>
-        <button id="back-to-intro-btn" class="ml-2 glass-btn text-xs text-stone-300 hover:text-amber-200 px-2.5 py-1 rounded-xl flex items-center gap-1 border-stone-700" title="返回歷史說明頁">
+        <button id="back-to-intro-btn" class="ml-2 glass-btn text-xs text-stone-300 hover:text-amber-200 px-2.5 py-1 rounded-xl flex items-center gap-1 border-stone-700 font-serif-tc tracking-wider whitespace-nowrap" title="返回歷史背景 / Background">
           <span>📜</span>
-          <span>說明頁</span>
+          <span>背景 / Background</span>
         </button>
       </div>
 
@@ -289,6 +308,12 @@
 
   <!-- Application Logic -->
   <script>
+    // 自動清理舊版殘留的錨點（如 #section-sketches），讓網址永遠保持純淨
+    if (window.location.hash) {
+      try {
+        history.replaceState(null, document.title, window.location.pathname + window.location.search);
+      } catch (e) {}
+    }
     // --- 14 Architectural Components Definition ---
     const COMPONENT_METADATA = [
       { id: '01_1F', name: '01_1F', color: 0x8b5a2b, explodeOffset: [0, 0, 0] },
