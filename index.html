@@ -232,12 +232,8 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
 
       <!-- Item 5: Time Line (Morning, Noon, Evening, Night) & Sound Controls -->
       <div class="pointer-events-auto glass-panel px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-2.5 sm:gap-3.5 border border-amber-600/40">
-        <!-- Time Line Header & Preset Buttons -->
+        <!-- Preset Time Buttons (取消 Time Line 字樣，只留時間選項) -->
         <div class="flex items-center gap-1 sm:gap-1.5">
-          <span class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1 mr-1">
-            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Time Line
-          </span>
           <button id="btn-time-morning" class="glass-btn px-2 py-1 rounded-lg text-xs flex items-center gap-1 text-amber-200" title="Morning (06:30)">
             <span>🌅</span>
             <span class="text-[11px]">Morning</span>
@@ -279,50 +275,57 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
     <!-- BOTTOM TOOLBAR (Item 1: 14 Icons in Bottom Row; Item 4: Exploded View) -->
     <footer class="absolute bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-20 pointer-events-none flex flex-col items-center gap-2">
       <!-- Bottom Controls: Recenter Button & Exploded View Slider & Front Door Slider -->
-      <div class="pointer-events-auto glass-panel px-4 py-2 rounded-2xl shadow-2xl flex flex-wrap items-center justify-center gap-3 sm:gap-6 border border-amber-600/40">
-        <!-- 一鍵歸零回到 000 原位按鍵 (方便一般用戶隨時置中復位) -->
-        <button id="btn-recenter-origin" class="glass-btn px-2.5 py-1 rounded-xl text-xs font-medium text-amber-300 hover:text-white flex items-center gap-1 border-amber-500/50" title="一鍵視角歸零回到 (0,0,0) 原位置中">
+      <div class="pointer-events-auto glass-panel px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl shadow-2xl flex flex-wrap items-center justify-center gap-2.5 sm:gap-6 border border-amber-600/40">
+        <!-- 一鍵歸零回到 000 原位按鍵 (手機版隱藏，桌機版顯示) -->
+        <button id="btn-recenter-origin" class="hidden sm:flex glass-btn px-2.5 py-1 rounded-xl text-xs font-medium text-amber-300 hover:text-white items-center gap-1 border-amber-500/50" title="一鍵視角歸零回到 (0,0,0) 原位置中">
           <span>🎯</span> 視角歸位
         </button>
 
-        <!-- Exploded View Slider -->
-        <div class="flex items-center gap-2 border-l border-stone-700/70 pl-3">
-          <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono uppercase tracking-wider">
+        <!-- Exploded View Slider (拿掉 "組裝" 字樣，純保留百分比) -->
+        <div class="flex items-center gap-1.5 sm:gap-2 sm:border-l sm:border-stone-700/70 sm:pl-3">
+          <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono uppercase tracking-wider whitespace-nowrap">
             <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-            Exploded View:
+            Exploded:
           </span>
-          <input id="explode-slider" type="range" min="0" max="100" value="0" class="w-20 sm:w-28 h-1.5 bg-stone-700 rounded-lg cursor-pointer">
-          <span id="explode-percent-text" class="font-mono text-xs text-amber-400 font-bold w-12 text-left">0%</span>
+          <input id="explode-slider" type="range" min="0" max="100" value="0" class="w-16 sm:w-28 h-1.5 bg-stone-700 rounded-lg cursor-pointer">
+          <span id="explode-percent-text" class="font-mono text-xs text-amber-400 font-bold w-8 text-left">0%</span>
         </div>
 
-        <!-- Front Door Slider (前拉門拉條：0%閉合 ➜ 100%開啟重疊) -->
-        <div class="flex items-center gap-2 border-l border-stone-700/70 pl-3">
-          <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono tracking-wider">
+        <!-- Front Door Slider (前拉門拉條：拿掉 "開啟/閉合" 字樣，純保留百分比) -->
+        <div class="flex items-center gap-1.5 sm:gap-2 border-l border-stone-700/70 pl-2.5 sm:pl-3">
+          <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono tracking-wider whitespace-nowrap">
             <span>🚪</span> 前拉門:
           </span>
-          <input id="door-slider" type="range" min="0" max="100" value="0" class="w-20 sm:w-28 h-1.5 bg-stone-700 rounded-lg cursor-pointer" title="左右滑動控制前拉門開關">
-          <span id="door-percent-text" class="font-mono text-xs text-amber-400 font-bold w-16 text-left">0% (閉合)</span>
+          <input id="door-slider" type="range" min="0" max="100" value="0" class="w-16 sm:w-28 h-1.5 bg-stone-700 rounded-lg cursor-pointer" title="左右滑動控制前拉門開關">
+          <span id="door-percent-text" class="font-mono text-xs text-amber-400 font-bold w-8 text-left">0%</span>
         </div>
       </div>
 
-      <!-- Item 1: 14 Simple Icons Arranged in Bottom Horizontal Row (手機友善不擋視線) -->
-      <div class="pointer-events-auto w-full max-w-5xl glass-panel px-2.5 py-2 rounded-2xl shadow-2xl border border-amber-600/40">
-        <div class="flex items-center justify-between px-2 pb-1 border-b border-stone-700/60 text-[11px] text-stone-300">
-          <span class="font-bold text-amber-400 flex items-center gap-1">
-            <span>🏛️</span> 14 項建築零件 (點擊個別顯示 / 隱藏)
+      <!-- Item 1: 14 Simple Icons Arranged in Bottom Horizontal Row (手機折疊面盤，只露第一行) -->
+      <div id="dock-panel" class="pointer-events-auto w-full max-w-5xl glass-panel px-2.5 py-1.5 sm:py-2 rounded-2xl shadow-2xl border border-amber-600/40 transition-all duration-300">
+        <!-- 面盤標題列：手機版點擊展開/收合，桌機版固定顯示 -->
+        <div id="dock-toggle-bar" class="flex items-center justify-between px-2 py-0.5 sm:pb-1 sm:border-b sm:border-stone-700/60 text-[11px] text-stone-300 cursor-pointer sm:cursor-default select-none" title="點擊切換零件面盤展開 / 收合">
+          <span class="font-bold text-amber-400 flex items-center gap-1.5">
+            <span>🏛️</span>
+            <span>14 項建築零件</span>
+            <!-- 手機版箭頭指示器 (展開/收合提示) -->
+            <span id="dock-arrow" class="sm:hidden text-[10px] text-amber-400/90 bg-amber-950/70 px-1.5 py-0.5 rounded border border-amber-700/50 flex items-center gap-0.5 ml-1 font-sans">
+              <span id="dock-arrow-text">展開</span>
+              <svg id="dock-arrow-icon" class="w-3 h-3 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </span>
           </span>
-          <div class="flex items-center gap-3">
-            <button id="btn-show-all" class="text-amber-300 hover:text-white font-medium text-[11px] hover:underline">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <button id="btn-show-all" class="text-amber-300 hover:text-white font-medium text-[11px] hover:underline px-1 py-0.5" title="顯示所有零件">
               [全部顯示]
             </button>
-            <button id="btn-hide-all" class="text-stone-400 hover:text-amber-200 font-medium text-[11px] hover:underline">
+            <button id="btn-hide-all" class="text-stone-400 hover:text-amber-200 font-medium text-[11px] hover:underline px-1 py-0.5" title="隱藏所有零件">
               [全部隱藏]
             </button>
           </div>
         </div>
 
-        <!-- Horizontal Scrolling List of 14 Simple Icons -->
-        <div id="components-dock" class="grid grid-cols-7 sm:flex sm:items-center sm:justify-center gap-1.5 sm:gap-2 pt-1.5 pb-0.5">
+        <!-- 14個零件按鈕容器：手機版預設隱藏(收合)，展開時為 grid grid-cols-7；桌機版永遠維持 sm:flex -->
+        <div id="components-dock" class="hidden sm:flex sm:items-center sm:justify-center gap-1.5 sm:gap-2 pt-1.5 pb-0.5 border-t border-stone-700/60 sm:border-t-0">
           <!-- Rendered dynamically by JavaScript -->
         </div>
       </div>
@@ -860,7 +863,7 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
       const pct = Math.round(currentDoorRatio * 100);
       if (slider) slider.value = pct;
       if (text) {
-        text.textContent = pct === 0 ? '0% (閉合)' : (pct === 100 ? '100% (開啟)' : `${pct}%`);
+        text.textContent = `${pct}%`;
       }
     }
 
@@ -890,7 +893,7 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
       const pct = Math.round(currentExplodeRatio * 100);
       if (slider) slider.value = pct;
       if (text) {
-        text.textContent = pct === 0 ? '0% (組裝)' : (pct === 100 ? '100% (拆解)' : `${pct}%`);
+        text.textContent = `${pct}%`;
       }
     }
 
@@ -1413,11 +1416,45 @@ function scheduleRandomAmbientSounds() {
       // Show All / Hide All Components
       const btnShowAll = document.getElementById('btn-show-all');
       if (btnShowAll) {
-        btnShowAll.addEventListener('click', () => setAllComponentsVisibility(true));
+        btnShowAll.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setAllComponentsVisibility(true);
+        });
       }
       const btnHideAll = document.getElementById('btn-hide-all');
       if (btnHideAll) {
-        btnHideAll.addEventListener('click', () => setAllComponentsVisibility(false));
+        btnHideAll.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setAllComponentsVisibility(false);
+        });
+      }
+
+      // Mobile collapsible dock panel toggle
+      const dockToggleBar = document.getElementById('dock-toggle-bar');
+      const componentsDock = document.getElementById('components-dock');
+      const dockArrowIcon = document.getElementById('dock-arrow-icon');
+      const dockArrowText = document.getElementById('dock-arrow-text');
+
+      if (dockToggleBar && componentsDock) {
+        dockToggleBar.addEventListener('click', (e) => {
+          if (e.target.closest('#btn-show-all') || e.target.closest('#btn-hide-all')) {
+            return;
+          }
+          if (window.innerWidth < 640) {
+            const isHidden = componentsDock.classList.contains('hidden');
+            if (isHidden) {
+              componentsDock.classList.remove('hidden');
+              componentsDock.classList.add('grid', 'grid-cols-7');
+              if (dockArrowIcon) dockArrowIcon.classList.add('rotate-180');
+              if (dockArrowText) dockArrowText.textContent = '收合';
+            } else {
+              componentsDock.classList.add('hidden');
+              componentsDock.classList.remove('grid', 'grid-cols-7');
+              if (dockArrowIcon) dockArrowIcon.classList.remove('rotate-180');
+              if (dockArrowText) dockArrowText.textContent = '展開';
+            }
+          }
+        });
       }
 
       // Reset Camera View
