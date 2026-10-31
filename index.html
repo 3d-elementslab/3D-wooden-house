@@ -253,11 +253,11 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
           <span class="text-xs text-amber-500">↗</span>
         </a>
 
-        <!-- 訪客計數板 (Visitors Counter, 680 起算，低調呈現於下方) -->
-        <div class="text-stone-400 font-mono text-xs py-1 px-3 rounded-full bg-stone-900/40 border border-stone-800 flex items-center gap-1.5 cursor-default select-none shadow-sm" title="總造訪人次 (自 680 起算)">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <!-- 訪客計數板 (Visitors Counter, 168 起算，全網雲端同步) -->
+        <div class="text-stone-400 font-mono text-xs py-1 px-3 rounded-full bg-stone-900/40 border border-stone-800 flex items-center gap-1.5 cursor-default select-none shadow-sm" title="總造訪人次 (自 168 起算，全網雲端同步)">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
           <span class="text-stone-400 text-[11px]">Visitors:</span>
-          <span id="visitor-count" class="text-amber-300 font-bold">680</span>
+          <span id="visitor-count" class="text-amber-300 font-bold">168</span>
         </div>
 
         <!-- 彈跳框式常民留言板觸發按鈕 -->
@@ -359,37 +359,48 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
 
     <!-- BOTTOM TOOLBAR (Item 1: 14 Icons in Bottom Row; Item 4: Exploded View) -->
     <footer class="absolute bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-20 pointer-events-none flex flex-col items-center gap-2">
-      <!-- Bottom Controls: Recenter Button, Guestbook, Exploded Slider & Door Slider -->
-      <div class="pointer-events-auto glass-panel px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl shadow-2xl flex flex-wrap items-center justify-center gap-2 sm:gap-4 border border-amber-600/40">
-        <!-- 一鍵歸零回到 000 原位按鍵 (手機版隱藏，桌機版顯示) -->
-        <button id="btn-recenter-origin" class="hidden sm:flex glass-btn px-2.5 py-1 rounded-xl text-xs font-medium text-amber-300 hover:text-white items-center gap-1 border-amber-500/50" title="一鍵視角歸零回到 (0,0,0) 原位置中">
-          <span>🎯</span> 視角歸位
-        </button>
+      <!-- Bottom Controls: 2-Column Responsive Dashboard (Left: Recenter & Guestbook; Right: Exploded & Door) -->
+      <div class="pointer-events-auto glass-panel px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-2xl border border-amber-600/40 max-w-lg mx-auto w-full">
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-4 items-center">
+          
+          <!-- 左欄 (Left Column)：視角歸位 與 留言板 (上下垂直放置、寬度齊頭一致) -->
+          <div class="flex flex-col gap-1.5 justify-center">
+            <!-- 視角歸位按鈕 (手機/桌機皆顯示，齊頭對齊) -->
+            <button id="btn-recenter-origin" class="glass-btn px-2 sm:px-2.5 py-1 rounded-xl text-xs font-medium text-amber-300 hover:text-white flex items-center justify-center gap-1.5 border-amber-500/50 w-full shadow-sm select-none" title="一鍵視角歸零回到 (0,0,0) 原位置中">
+              <span>🎯</span>
+              <span class="whitespace-nowrap">視角歸位</span>
+            </button>
 
-        <!-- 常民記憶留言板按鈕 (移至底部控制列，位於 Exploded 前方空格) -->
-        <button id="btn-open-guestbook-3d" class="glass-btn text-xs text-amber-300 hover:text-white px-2.5 py-1 rounded-xl flex items-center gap-1.5 border-amber-600/40 font-serif-tc tracking-wider whitespace-nowrap shadow" title="開啟常民記憶留言板 / Guestbook">
-          <span>💬</span>
-          <span>留言板</span>
-        </button>
+            <!-- 常民留言板按鈕 (上下同欄齊頭對齊) -->
+            <button id="btn-open-guestbook-3d" class="glass-btn text-xs text-amber-300 hover:text-white px-2 sm:px-2.5 py-1 rounded-xl flex items-center justify-center gap-1.5 border-amber-600/40 font-serif-tc tracking-wider w-full whitespace-nowrap shadow-sm select-none" title="開啟常民記憶留言板 / Guestbook">
+              <span>💬</span>
+              <span class="whitespace-nowrap">留言板</span>
+            </button>
+          </div>
 
-        <!-- Exploded View Slider (與 Door 齊頭對齊) -->
-        <div class="flex items-center gap-1.5 sm:gap-2 border-l border-stone-700/70 pl-2 sm:pl-3">
-          <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5 font-mono uppercase tracking-wider whitespace-nowrap min-w-[76px] sm:min-w-[82px]">
-            <svg class="w-3.5 h-3.5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-            <span>Exploded:</span>
-          </span>
-          <input id="explode-slider" type="range" min="0" max="100" value="0" class="w-16 sm:w-28 h-1.5 bg-stone-700 rounded-lg cursor-pointer">
-          <span id="explode-percent-text" class="font-mono text-xs text-amber-400 font-bold w-7 sm:w-8 text-left">0%</span>
-        </div>
+          <!-- 右欄 (Right Column)：Exploded 與 Door (上下垂直放置、標籤與滑動條精確齊頭對齊) -->
+          <div class="flex flex-col gap-1.5 border-l border-stone-700/70 pl-2.5 sm:pl-3 justify-center">
+            <!-- Exploded View Slider -->
+            <div class="flex items-center gap-1 sm:gap-1.5">
+              <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono uppercase tracking-wider whitespace-nowrap min-w-[70px] sm:min-w-[76px]">
+                <svg class="w-3.5 h-3.5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span>Exploded:</span>
+              </span>
+              <input id="explode-slider" type="range" min="0" max="100" value="0" class="w-14 sm:w-24 h-1.5 bg-stone-700 rounded-lg cursor-pointer flex-1">
+              <span id="explode-percent-text" class="font-mono text-xs text-amber-400 font-bold w-6 sm:w-7 text-left">0%</span>
+            </div>
 
-        <!-- Door Slider (前拉門改英文 Door，結構與寬度與 Exploded 齊頭對齊) -->
-        <div class="flex items-center gap-1.5 sm:gap-2 border-l border-stone-700/70 pl-2 sm:pl-3">
-          <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5 font-mono uppercase tracking-wider whitespace-nowrap min-w-[76px] sm:min-w-[82px]">
-            <span>🚪</span>
-            <span>Door:</span>
-          </span>
-          <input id="door-slider" type="range" min="0" max="100" value="0" class="w-16 sm:w-28 h-1.5 bg-stone-700 rounded-lg cursor-pointer" title="左右滑動控制前拉門開關">
-          <span id="door-percent-text" class="font-mono text-xs text-amber-400 font-bold w-7 sm:w-8 text-left">0%</span>
+            <!-- Door Slider (前拉門改英文 Door，結構與 Exploded 幾何齊頭對齊) -->
+            <div class="flex items-center gap-1 sm:gap-1.5">
+              <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono uppercase tracking-wider whitespace-nowrap min-w-[70px] sm:min-w-[76px]">
+                <span>🚪</span>
+                <span>Door:</span>
+              </span>
+              <input id="door-slider" type="range" min="0" max="100" value="0" class="w-14 sm:w-24 h-1.5 bg-stone-700 rounded-lg cursor-pointer flex-1" title="左右滑動控制前拉門開關">
+              <span id="door-percent-text" class="font-mono text-xs text-amber-400 font-bold w-6 sm:w-7 text-left">0%</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -1988,24 +1999,49 @@ function scheduleRandomAmbientSounds() {
 
     
     // ==========================================
-    // VISITOR COUNTER (680人起算，低調呈現在頁腳)
+    // VISITOR COUNTER (168人起算，全網雲端同步 API + 本機容錯)
     // ==========================================
-    function initVisitorCounter() {
-      const BASE_VISITORS = 680;
-      let count = parseInt(localStorage.getItem('beizhong_house_visitors') || '0', 10);
-      const sessionVisited = sessionStorage.getItem('beizhong_session_visited');
+    async function initVisitorCounter() {
+      const BASE_VISITORS = 168;
+      const countEl = document.getElementById('visitor-count');
+      const sessionVisited = sessionStorage.getItem('beizhong_session_visited_168');
+      const COUNTER_KEY = 'elementslab_beizhong_house_v168';
       
-      if (!sessionVisited) {
-        count = (count === 0) ? BASE_VISITORS : count + 1;
-        localStorage.setItem('beizhong_house_visitors', count);
-        sessionStorage.setItem('beizhong_session_visited', 'true');
-      } else if (count === 0) {
-        count = BASE_VISITORS;
-        localStorage.setItem('beizhong_house_visitors', count);
+      // Fallback local count
+      let localCount = parseInt(localStorage.getItem('beizhong_house_visitors_168') || '0', 10);
+      if (localCount < BASE_VISITORS) localCount = BASE_VISITORS;
+
+      // Display immediate cached or base value first (instant UI, no waiting)
+      if (countEl) countEl.textContent = localCount.toLocaleString();
+
+      // Cloud synchronization via CountAPI
+      try {
+        const endpoint = !sessionVisited 
+          ? 'https://countapi.mileshilliard.com/api/v1/hit/' + COUNTER_KEY
+          : 'https://countapi.mileshilliard.com/api/v1/get/' + COUNTER_KEY;
+        
+        const res = await fetch(endpoint, { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data.value === 'number') {
+            const globalTotal = BASE_VISITORS + data.value;
+            localStorage.setItem('beizhong_house_visitors_168', globalTotal);
+            sessionStorage.setItem('beizhong_session_visited_168', 'true');
+            if (countEl) countEl.textContent = globalTotal.toLocaleString();
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Cloud visitor counter sync fallback to local:', err);
       }
-      
-      const el = document.getElementById('visitor-count');
-      if (el) el.textContent = count.toLocaleString();
+
+      // If cloud fetch fails (e.g. offline/network firewall), increment locally once per session
+      if (!sessionVisited) {
+        localCount += 1;
+        localStorage.setItem('beizhong_house_visitors_168', localCount);
+        sessionStorage.setItem('beizhong_session_visited_168', 'true');
+        if (countEl) countEl.textContent = localCount.toLocaleString();
+      }
     }
 
     // ==========================================
@@ -2278,46 +2314,7 @@ function scheduleRandomAmbientSounds() {
     }
 
 
-    // ==========================================
-    // VISITOR COUNTER (680人起算，低調呈現在頁腳)
-    // ==========================================
-    function initVisitorCounter() {
-      const BASE_VISITORS = 680;
-      let count = parseInt(localStorage.getItem('beizhong_house_visitors') || '0', 10);
-      const sessionVisited = sessionStorage.getItem('beizhong_session_visited');
-      
-      if (!sessionVisited) {
-        count = (count === 0) ? BASE_VISITORS : count + 1;
-        localStorage.setItem('beizhong_house_visitors', count);
-        sessionStorage.setItem('beizhong_session_visited', 'true');
-      } else if (count === 0) {
-        count = BASE_VISITORS;
-        localStorage.setItem('beizhong_house_visitors', count);
-      }
-      
-      const el = document.getElementById('visitor-count');
-      if (el) el.textContent = count.toLocaleString();
-    }
 
-    // ==========================================
-    // COMMUNITY GUESTBOOK & PROFANITY FILTER
-    function initVisitorCounter() {
-      const BASE_VISITORS = 680;
-      let count = parseInt(localStorage.getItem('beizhong_house_visitors') || '0', 10);
-      const sessionVisited = sessionStorage.getItem('beizhong_session_visited');
-      
-      if (!sessionVisited) {
-        count = (count === 0) ? BASE_VISITORS : count + 1;
-        localStorage.setItem('beizhong_house_visitors', count);
-        sessionStorage.setItem('beizhong_session_visited', 'true');
-      } else if (count === 0) {
-        count = BASE_VISITORS;
-        localStorage.setItem('beizhong_house_visitors', count);
-      }
-      
-      const el = document.getElementById('visitor-count');
-      if (el) el.textContent = count.toLocaleString();
-    }
 
     window.addEventListener('DOMContentLoaded', () => {
       initScene();
