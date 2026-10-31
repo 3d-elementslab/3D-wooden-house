@@ -15,22 +15,22 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>台南北忠街小屋舍 3D 互動空間 | 紀念 1969–1971 | Elements Lab</title>
-  <meta name="description" content="走入1960年代的台南生活記憶：1:1 探索 2×2×2 公尺日式微型木構、14項結構全零件拆解與常民生活聲景。紀念 1969–1971。">
+  <title>北忠街小屋舍數位孿生空間 | 紀念 1969–1971 | Elements Lab</title>
+  <meta name="description" content="北忠街小屋舍數位孿生空間：走入1960年代的台南生活記憶，1:1 探索 2×2×2 公尺日式微型木構、結構全零件拆解與常民生活聲景。紀念 1969–1971。">
   
   <!-- Open Graph / Facebook / LINE Preview Metadata -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://3d.elementslab.net/">
-  <meta property="og:title" content="台南北忠街小屋舍 3D 互動空間 | 紀念 1969–1971">
-  <meta property="og:description" content="走入1960年代的台南生活記憶：1:1 探索 2×2×2 公尺日式微型木構、14項結構全零件拆解與常民生活聲景。">
+  <meta property="og:title" content="北忠街小屋舍數位孿生空間 | 紀念 1969–1971">
+  <meta property="og:description" content="北忠街小屋舍數位孿生空間：走入1960年代的台南生活記憶，1:1 探索 2×2×2 公尺日式微型木構、結構全零件拆解與常民生活聲景。">
   <meta property="og:image" content="https://3d.elementslab.net/01.JPG">
   <meta property="og:site_name" content="實驗元素工作室 Elements Lab">
 
   <!-- Twitter Card Metadata -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://3d.elementslab.net/">
-  <meta name="twitter:title" content="台南北忠街小屋舍 3D 互動空間 | 紀念 1969–1971">
-  <meta name="twitter:description" content="走入1960年代的台南生活記憶：1:1 探索 2×2×2 公尺日式微型木構、14項結構全零件拆解與常民生活聲景。">
+  <meta name="twitter:title" content="北忠街小屋舍數位孿生空間 | 紀念 1969–1971">
+  <meta name="twitter:description" content="北忠街小屋舍數位孿生空間：走入1960年代的台南生活記憶，1:1 探索 2×2×2 公尺日式微型木構、結構全零件拆解與常民生活聲景。">
   <meta name="twitter:image" content="https://3d.elementslab.net/01.JPG">
   <meta name="author" content="實驗元素工作室 Elements Lab">
   <link rel="author" href="https://elementslab.net/">
@@ -103,6 +103,18 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
     }
     input[type=range] {
       accent-color: #d97706;
+    }
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marqueeScroll 22s linear infinite;
+    }
+    .marquee-track:hover {
+      animation-play-state: paused;
     }
   </style>
   <!-- OBJLoader CDN fallback -->
@@ -233,13 +245,26 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
 
     </div>
 
-    <!-- Bottom Footer: Centered Presented by Elements Lab & Intellectual Property Declaration -->
+    <!-- Bottom Footer: Centered Presented by Elements Lab, Visitors Counter & Guestbook Button -->
     <footer class="max-w-4xl w-full mx-auto pt-6 pb-2 border-t border-stone-800/80 text-center space-y-2.5">
-      <div class="flex items-center justify-center">
+      <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5">
         <a href="https://elementslab.net/" target="_blank" rel="noopener noreferrer" class="text-amber-400/90 hover:text-amber-300 font-mono text-xs sm:text-sm tracking-widest uppercase transition-colors inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-stone-900/50 border border-amber-900/40 hover:border-amber-700/70 shadow-sm" title="Visit Elements Lab (實驗元素工作室)">
           <span>Presented by Elements Lab</span>
           <span class="text-xs text-amber-500">↗</span>
         </a>
+
+        <!-- 訪客計數板 (Visitors Counter, 680 起算，低調呈現於下方) -->
+        <div class="text-stone-400 font-mono text-xs py-1 px-3 rounded-full bg-stone-900/40 border border-stone-800 flex items-center gap-1.5 cursor-default select-none shadow-sm" title="總造訪人次 (自 680 起算)">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-stone-400 text-[11px]">Visitors:</span>
+          <span id="visitor-count" class="text-amber-300 font-bold">680</span>
+        </div>
+
+        <!-- 彈跳框式常民留言板觸發按鈕 -->
+        <button id="btn-open-guestbook-landing" class="text-amber-400 hover:text-amber-200 font-mono text-xs py-1 px-3 rounded-full bg-amber-950/40 border border-amber-600/40 hover:border-amber-500/70 flex items-center gap-1.5 transition-all shadow-sm" title="打開常民記憶留言板">
+          <span>💬</span>
+          <span>常民留言板</span>
+        </button>
       </div>
       <div class="text-[10px] sm:text-[11px] text-stone-500 tracking-wider">
         © 2024–2026 實驗元素工作室 Elements Lab · 版權所有 · 3D模型與程式碼未經授權禁止拷貝、提取或商業使用
@@ -257,8 +282,27 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
     <!-- 3D WebGL Canvas Container -->
     <div id="canvas-container" class="absolute inset-0 z-0"></div>
 
+    <!-- 3D 空間頂部獨立跑馬燈橫幅 (可按 X 關閉，只跑 Public 公開留言) -->
+    <div id="top-marquee-banner" class="absolute top-2 sm:top-2.5 left-2 right-2 sm:left-6 sm:right-6 z-30 pointer-events-auto flex items-center justify-between gap-2.5 py-1 px-3 rounded-full glass-panel border border-amber-600/50 shadow-2xl overflow-hidden text-xs max-w-4xl mx-auto transition-all duration-300">
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <!-- 關閉跑馬燈按鈕 X (現代人都知道 X 是關閉) -->
+        <button id="btn-close-marquee" class="w-5 h-5 rounded-full flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-800/80 transition" title="關閉跑馬燈 (Close Ticker)">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <span class="text-amber-400 font-mono font-bold flex items-center gap-1 text-[10px] uppercase tracking-wider bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-700/50 select-none">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE
+        </span>
+      </div>
+      <!-- Marquee track (只跑 Public 公開留言) -->
+      <div class="overflow-hidden w-full relative">
+        <div id="top-marquee-track" class="marquee-track flex gap-4 text-stone-200 text-[11px] sm:text-xs">
+          <!-- Rendered dynamically with public messages only -->
+        </div>
+      </div>
+    </div>
+
     <!-- TOP HEADER: Title, Time Line & Controls -->
-    <header class="absolute top-3 left-3 right-3 sm:left-6 sm:right-6 z-20 pointer-events-none flex flex-col md:flex-row items-center justify-between gap-3">
+    <header id="main-3d-header" class="absolute top-12 sm:top-14 left-3 right-3 sm:left-6 sm:right-6 z-20 pointer-events-none flex flex-col md:flex-row items-center justify-between gap-3 transition-all duration-300">
       <!-- Title Badge & Back to Intro Button -->
       <div class="pointer-events-auto glass-panel px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-3 border border-amber-600/40">
         <div class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></div>
@@ -274,11 +318,15 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
           <span>📜</span>
           <span>背景 / Background</span>
         </button>
+        <button id="btn-open-guestbook-3d" class="glass-btn text-xs text-amber-300 hover:text-white px-2.5 py-1 rounded-xl flex items-center gap-1 border-amber-600/40 font-serif-tc tracking-wider whitespace-nowrap" title="開啟常民記憶留言板 / Guestbook">
+          <span>💬</span>
+          <span>留言板</span>
+        </button>
       </div>
 
       <!-- Item 5: Time Line (Morning, Noon, Evening, Night) & Sound Controls -->
       <div class="pointer-events-auto glass-panel px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-2.5 sm:gap-3.5 border border-amber-600/40">
-        <!-- Preset Time Buttons (取消 Time Line 字樣，只留時間選項) -->
+        <!-- Preset Time Buttons (晨曦、正午、黃昏、深夜四大經典時段) -->
         <div class="flex items-center gap-1 sm:gap-1.5">
           <button id="btn-time-morning" class="glass-btn px-2 py-1 rounded-lg text-xs flex items-center gap-1 text-amber-200" title="Morning (06:30)">
             <span>🌅</span>
@@ -298,18 +346,13 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
           </button>
         </div>
 
-        <!-- Ambient Soundscape Toggle -->
-        <div class="border-l border-stone-700/70 pl-2.5 flex items-center gap-1.5">
-          <button id="global-sound-toggle-btn" class="glass-btn text-amber-300 border-amber-700/60 px-2.5 py-1 rounded-xl text-xs flex items-center gap-1.5 shadow" title="常民生活聲景隨機循環">
+        <!-- Ambient Soundscape Toggle (直接以 sound 呈現，無贅詞) -->
+        <div class="border-l border-stone-700/70 pl-2 sm:pl-2.5 flex items-center gap-1.5">
+          <button id="global-sound-toggle-btn" class="glass-btn text-amber-300 border-amber-700/60 px-2.5 py-1 rounded-xl text-xs flex items-center gap-1.5 shadow" title="sound">
             <span id="sound-icon">🔈</span>
-            <span class="hidden sm:inline font-medium text-[11px]" id="sound-text">常民聲景</span>
+            <span class="font-medium text-[11px]" id="sound-text">sound</span>
           </button>
         </div>
-
-        <!-- Reset Camera View -->
-        <button id="reset-cam-btn" class="glass-btn p-1.5 rounded-xl text-stone-300 hover:text-amber-200" title="重設視角">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-        </button>
       </div>
     </header>
 
@@ -416,6 +459,16 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
     // Lighting & Environment (Curatorial Dark)
     let ambientLight, dirSunLight, fillLight, roomSpotLight;
     let starPoints = null;
+    let floorMat = null;
+
+    // Rain & Eaves Droplet Particle System
+    let rainGroup = null;
+    let rainGeo = null, rainParticles = null;
+    let dripGeo = null, dripParticles = null;
+    let rainVelocities = [];
+    let dripVelocities = [];
+    let isRainActive = false;
+    let rainAudioNode = null, rainGainNode = null, rainDripTimer = null;
 
     // Web Audio State
     let audioCtx = null;
@@ -484,7 +537,7 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
 
       // 1. Polished Dark Exhibition Stone Floor
       const floorGeo = new THREE.PlaneGeometry(30, 30);
-      const floorMat = new THREE.MeshStandardMaterial({
+      floorMat = new THREE.MeshStandardMaterial({
         color: 0x25211e,
         roughness: 0.52,
         metalness: 0.15
@@ -494,6 +547,9 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
       floor.position.y = -0.01;
       floor.receiveShadow = true;
       roomGroup.add(floor);
+
+      // Setup 3D Rain & Eaves Dripping Particle System
+      setupRainSystem();
 
       // Gold Brass Edge Ring
       const ringGeo = new THREE.RingGeometry(4.8, 4.88, 64);
@@ -946,6 +1002,117 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
     // ==========================================
     // 8. TIME LINE ENGINE (Item 5 & 6: Morning, Noon, Evening, Night)
     // ==========================================
+        // ==========================================
+    // 3D RAIN & EAVES DRIPPING PARTICLE SYSTEM
+    // ==========================================
+    function setupRainSystem() {
+      rainGroup = new THREE.Group();
+      rainGroup.visible = false;
+      scene.add(rainGroup);
+
+      // 1. Vertical falling rain streaks (空中斜雨絲)
+      const rainCount = 1400;
+      rainGeo = new THREE.BufferGeometry();
+      const rainPos = new Float32Array(rainCount * 3);
+      rainVelocities = [];
+
+      for (let i = 0; i < rainCount; i++) {
+        rainPos[i * 3] = (Math.random() - 0.5) * 12;
+        rainPos[i * 3 + 1] = Math.random() * 8;
+        rainPos[i * 3 + 2] = (Math.random() - 0.5) * 12;
+        rainVelocities.push({
+          vy: 0.16 + Math.random() * 0.08,
+          vx: 0.015,
+          vz: 0.01
+        });
+      }
+      rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+
+      const rainMat = new THREE.PointsMaterial({
+        color: 0xc8d8e8,
+        size: 0.065,
+        transparent: true,
+        opacity: 0.65,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      rainParticles = new THREE.Points(rainGeo, rainMat);
+      rainGroup.add(rainParticles);
+
+      // 2. Eaves dripping particles (單斜黑瓦前簷滴水粒子)
+      // Front lower eaves line: X ∈ [-1.25, 1.0], Y ≈ 2.68, Z ≈ 1.26
+      const dripCount = 45;
+      dripGeo = new THREE.BufferGeometry();
+      const dripPos = new Float32Array(dripCount * 3);
+      dripVelocities = [];
+
+      for (let i = 0; i < dripCount; i++) {
+        const startX = -1.25 + Math.random() * 2.25;
+        dripPos[i * 3] = startX;
+        dripPos[i * 3 + 1] = Math.random() * 2.68;
+        dripPos[i * 3 + 2] = 1.26 + (Math.random() - 0.5) * 0.04;
+        dripVelocities.push({
+          x: startX,
+          vy: 0.02 + Math.random() * 0.06,
+          delay: Math.random() * 60
+        });
+      }
+      dripGeo.setAttribute('position', new THREE.BufferAttribute(dripPos, 3));
+
+      const dripMat = new THREE.PointsMaterial({
+        color: 0xe0ecf8,
+        size: 0.08,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      dripParticles = new THREE.Points(dripGeo, dripMat);
+      rainGroup.add(dripParticles);
+    }
+
+    function updateRainSystem() {
+      if (!isRainActive || !rainGroup || !rainGroup.visible) return;
+
+      if (rainGeo) {
+        const pos = rainGeo.attributes.position.array;
+        for (let i = 0; i < rainVelocities.length; i++) {
+          pos[i * 3] += rainVelocities[i].vx;
+          pos[i * 3 + 1] -= rainVelocities[i].vy;
+          pos[i * 3 + 2] += rainVelocities[i].vz;
+
+          if (pos[i * 3 + 1] < 0) {
+            pos[i * 3] = (Math.random() - 0.5) * 12;
+            pos[i * 3 + 1] = 7.5 + Math.random() * 0.5;
+            pos[i * 3 + 2] = (Math.random() - 0.5) * 12;
+          }
+        }
+        rainGeo.attributes.position.needsUpdate = true;
+      }
+
+      if (dripGeo) {
+        const pos = dripGeo.attributes.position.array;
+        for (let i = 0; i < dripVelocities.length; i++) {
+          const v = dripVelocities[i];
+          if (v.delay > 0) {
+            v.delay--;
+            continue;
+          }
+
+          pos[i * 3 + 1] -= v.vy;
+          v.vy += 0.003;
+
+          if (pos[i * 3 + 1] <= 0.01) {
+            pos[i * 3 + 1] = 2.68;
+            pos[i * 3] = -1.25 + Math.random() * 2.25;
+            v.vy = 0.02 + Math.random() * 0.04;
+            v.delay = 10 + Math.floor(Math.random() * 50);
+          }
+        }
+        dripGeo.attributes.position.needsUpdate = true;
+      }
+    }
+
     function setTimeLinePeriod(period, animDuration = 600) {
       currentPeriod = period;
 
@@ -1021,11 +1188,132 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
       if (starPoints) {
         new TWEEN.Tween(starPoints.material).to({ opacity: starOpacity }, animDuration).start();
       }
+
+      // Wet floor reflection in rain mode
+      if (floorMat) {
+        const floorRoughness = period === 'rain' ? 0.18 : 0.52;
+        const floorMetalness = period === 'rain' ? 0.35 : 0.15;
+        new TWEEN.Tween(floorMat).to({ roughness: floorRoughness, metalness: floorMetalness }, animDuration).start();
+      }
+
+      // Rain particles and soundscape toggle
+      if (period === 'rain') {
+        // Rain shelved
+      } else {
+        isRainActive = false;
+        // Rain shelved
+      }
     }
 
     // ==========================================
     // 9. WEB AUDIO API AMBIENT SOUNDSCAPE
     // ==========================================
+        // ==========================================
+    // RAIN SOUNDSCAPE SYNTHESIS (雨打黑瓦與簷前滴水)
+    // ==========================================
+    function startRainAudio() {
+      if (!audioCtx || !isAudioPlaying) return;
+      try {
+        if (!rainAudioNode) {
+          const bufferSize = audioCtx.sampleRate * 2;
+          const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            b3 = 0.86650 * b3 + white * 0.3104856;
+            b4 = 0.55000 * b4 + white * 0.5329522;
+            b5 = -0.7616 * b5 - white * 0.0168980;
+            output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.08;
+            b6 = white * 0.115926;
+          }
+
+          const whiteNoiseSource = audioCtx.createBufferSource();
+          whiteNoiseSource.buffer = noiseBuffer;
+          whiteNoiseSource.loop = true;
+
+          const rainFilter = audioCtx.createBiquadFilter();
+          rainFilter.type = 'bandpass';
+          rainFilter.frequency.setValueAtTime(850, audioCtx.currentTime);
+          rainFilter.Q.setValueAtTime(1.1, audioCtx.currentTime);
+
+          rainGainNode = audioCtx.createGain();
+          rainGainNode.gain.setValueAtTime(0.001, audioCtx.currentTime);
+          rainGainNode.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 1.2);
+
+          whiteNoiseSource.connect(rainFilter);
+          rainFilter.connect(rainGainNode);
+          rainGainNode.connect(audioCtx.destination);
+          whiteNoiseSource.start();
+
+          rainAudioNode = whiteNoiseSource;
+        }
+
+        if (!rainDripTimer) {
+          scheduleRainDripSounds();
+        }
+      } catch (e) {
+        console.warn("Rain audio error:", e);
+      }
+    }
+
+    function scheduleRainDripSounds() {
+      if (!isRainActive) return;
+      playEavesDripSound();
+      const delay = 1200 + Math.random() * 2200;
+      rainDripTimer = setTimeout(() => {
+        if (isRainActive) scheduleRainDripSounds();
+      }, delay);
+    }
+
+    function playEavesDripSound() {
+      if (!audioCtx || !isAudioPlaying || !isRainActive) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const freq = 1300 + Math.random() * 600;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.6, audioCtx.currentTime + 0.07);
+
+        gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.07, audioCtx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.09);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
+    function stopRainAudio() {
+      if (rainDripTimer) {
+        clearTimeout(rainDripTimer);
+        rainDripTimer = null;
+      }
+      if (rainGainNode && audioCtx) {
+        try {
+          rainGainNode.gain.setValueAtTime(rainGainNode.gain.value, audioCtx.currentTime);
+          rainGainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+          setTimeout(() => {
+            if (rainAudioNode) {
+              try { rainAudioNode.stop(); } catch(e){}
+              rainAudioNode = null;
+            }
+            rainGainNode = null;
+          }, 900);
+        } catch(e) {
+          rainAudioNode = null;
+          rainGainNode = null;
+        }
+      }
+    }
+
     function setupAudioEngine() {
       const toggleBtn = document.getElementById('global-sound-toggle-btn');
       const soundText = document.getElementById('sound-text');
@@ -1044,16 +1332,18 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
 
         if (isAudioPlaying) {
           startSoundscapeLoop();
+          if (isRainActive) startRainAudio();
           toggleBtn.classList.add('border-amber-400', 'bg-amber-900/40');
-          soundText.textContent = '聲景播放中';
+          soundText.textContent = 'sound ON';
           soundIcon.textContent = '🔊';
-          showToast('已開啟常民生活隨機聲景循環（火車、蟬鳴、雞啼、日常人聲）');
+          showToast('Sound ON');
         } else {
           stopSoundscapeLoop();
+          stopRainAudio();
           toggleBtn.classList.remove('border-amber-400', 'bg-amber-900/40');
-          soundText.textContent = '常民聲景';
+          soundText.textContent = 'sound';
           soundIcon.textContent = '🔈';
-          showToast('已關閉生活聲景');
+          showToast('Sound OFF');
         }
       });
     }
@@ -1077,35 +1367,39 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
         function playVintageCarHorn() {
       if (!audioCtx || audioCtx.state === 'suspended') return;
       const t = audioCtx.currentTime;
-      // 1960年代台南街坊老爺車/三輪車雙音經典喇叭「叭叭！」
-      [0, 0.20].forEach(offset => {
+      // 1960年代老爺車雙音喇叭三連音「叭——！叭——！... 叭——！」(長度 2.20 秒)
+      const honks = [
+        { time: 0.0,  dur: 0.55 },
+        { time: 0.72, dur: 0.55 },
+        { time: 1.50, dur: 0.65 }
+      ];
+
+      honks.forEach(h => {
         const osc1 = audioCtx.createOscillator();
         const osc2 = audioCtx.createOscillator();
         const g = audioCtx.createGain();
 
         osc1.type = 'sawtooth';
-        osc1.frequency.setValueAtTime(360, t + offset);
+        osc1.frequency.setValueAtTime(360, t + h.time);
         osc2.type = 'sawtooth';
-        osc2.frequency.setValueAtTime(435, t + offset);
+        osc2.frequency.setValueAtTime(435, t + h.time);
 
         const filter = audioCtx.createBiquadFilter();
         filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(820, t + offset);
-        filter.Q.setValueAtTime(2.5, t + offset);
+        filter.frequency.setValueAtTime(850, t + h.time);
+        filter.Q.setValueAtTime(2.2, t + h.time);
 
-        g.gain.setValueAtTime(0.001, t + offset);
-        g.gain.linearRampToValueAtTime(0.09, t + offset + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.16);
+        g.gain.setValueAtTime(0.001, t + h.time);
+        g.gain.linearRampToValueAtTime(0.32, t + h.time + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.001, t + h.time + h.dur);
 
         osc1.connect(filter);
         osc2.connect(filter);
         filter.connect(g);
         g.connect(audioCtx.destination);
 
-        osc1.start(t + offset);
-        osc2.start(t + offset);
-        osc1.stop(t + offset + 0.17);
-        osc2.stop(t + offset + 0.17);
+        osc1.start(t + h.time); osc2.start(t + h.time);
+        osc1.stop(t + h.time + h.dur + 0.02); osc2.stop(t + h.time + h.dur + 0.02);
       });
     }
 
@@ -1131,8 +1425,8 @@ function scheduleRandomAmbientSounds() {
         console.warn('Audio play error:', e);
       }
 
-      // 依需求：大幅提高頻率，縮短為 3.0 ~ 5.5 秒隨機穿插一次
-      const nextDelay = (3.0 + Math.random() * 2.5) * 1000;
+      // 聲音已全面延長至 2 秒以上，間隔設定為 4.0 ~ 6.5 秒自然隨機穿插
+      const nextDelay = (4.0 + Math.random() * 2.5) * 1000;
       audioNodes.timer = setTimeout(scheduleRandomAmbientSounds, nextDelay);
     }
 
@@ -1263,28 +1557,38 @@ function scheduleRandomAmbientSounds() {
     function playBabyCry() {
       if (!audioCtx || audioCtx.state === 'suspended') return;
       const t = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const filter = audioCtx.createBiquadFilter();
-      const g = audioCtx.createGain();
 
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(430, t);
-      osc.frequency.linearRampToValueAtTime(540, t + 0.25);
-      osc.frequency.linearRampToValueAtTime(450, t + 0.6);
+      // Realistic Two-Pulse Infant Wail ("哇——！哇——！")
+      function cryPulse(startTime, baseFreq, peakFreq, endFreq, duration, maxGain) {
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const g = audioCtx.createGain();
 
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(1250, t);
-      filter.Q.setValueAtTime(3.5, t);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(baseFreq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(peakFreq, startTime + duration * 0.35);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
 
-      g.gain.setValueAtTime(0.001, t);
-      g.gain.linearRampToValueAtTime(0.20, t + 0.1);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.65);
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1450, startTime);
+        filter.Q.setValueAtTime(2.2, startTime);
 
-      osc.connect(filter);
-      filter.connect(g);
-      g.connect(audioCtx.destination);
-      osc.start(t);
-      osc.stop(t + 0.7);
+        g.gain.setValueAtTime(0.001, startTime);
+        g.gain.linearRampToValueAtTime(maxGain, startTime + duration * 0.15);
+        g.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+        osc.connect(filter);
+        filter.connect(g);
+        g.connect(audioCtx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      }
+
+      // First cry pulse: "哇——" (~0.75s)
+      cryPulse(t, 460, 680, 490, 0.75, 0.36);
+      // Second cry pulse: "哇——！" (~0.85s)
+      cryPulse(t + 0.82, 480, 720, 510, 0.85, 0.38);
     }
 
     function playCatMeow() {
@@ -1556,13 +1860,7 @@ function scheduleRandomAmbientSounds() {
         });
       }
 
-      // Reset Camera View
-      const resetCamBtn = document.getElementById('reset-cam-btn');
-      if (resetCamBtn) {
-        resetCamBtn.addEventListener('click', () => {
-          resetToDefaultView();
-        });
-      }
+      // Reset Camera View (Handled by bottom recenter origin button)
 
       // Audio Engine Setup
       setupAudioEngine();
@@ -1573,6 +1871,10 @@ function scheduleRandomAmbientSounds() {
 
       // Window resize
       window.addEventListener('resize', onWindowResize);
+
+      // Initialize Visitors Counter (Base 680) & Community Guestbook
+      initVisitorCounter();
+      initGuestbook();
     }
 
     function on3DPointerDown(e) {
@@ -1620,9 +1922,345 @@ function scheduleRandomAmbientSounds() {
 
 
 
+      // Update Rain & Eaves Dripping particle positions
+      updateRainSystem();
+
       // Item 1: controls.autoRotate is enabled, so controls.update() smoothly turns the house!
       controls.update();
       renderer.render(scene, camera);
+    }
+
+    
+    // ==========================================
+    // VISITOR COUNTER (680人起算，低調呈現在頁腳)
+    // ==========================================
+    function initVisitorCounter() {
+      const BASE_VISITORS = 680;
+      let count = parseInt(localStorage.getItem('beizhong_house_visitors') || '0', 10);
+      const sessionVisited = sessionStorage.getItem('beizhong_session_visited');
+      
+      if (!sessionVisited) {
+        count = (count === 0) ? BASE_VISITORS : count + 1;
+        localStorage.setItem('beizhong_house_visitors', count);
+        sessionStorage.setItem('beizhong_session_visited', 'true');
+      } else if (count === 0) {
+        count = BASE_VISITORS;
+        localStorage.setItem('beizhong_house_visitors', count);
+      }
+      
+      const el = document.getElementById('visitor-count');
+      if (el) el.textContent = count.toLocaleString();
+    }
+
+    // ==========================================
+    // COMMUNITY GUESTBOOK & PROFANITY FILTER
+    // ==========================================
+    // 3 Multilingual Initial Demo Messages (中英日示範留言)
+    const DEFAULT_GUESTBOOK_MESSAGES = [
+      {
+        id: 1,
+        author: 'Alex',
+        time: 'Just now',
+        content: 'Wow, this 3D digital house is amazing',
+        isPrivate: false
+      },
+      {
+        id: 2,
+        author: '阿華',
+        time: '剛剛',
+        content: '有懷舊的感覺，我喜歡這個雨淋板',
+        isPrivate: false
+      },
+      {
+        id: 3,
+        author: 'Kenji',
+        time: 'たった今',
+        content: '戦争前の小屋みたい　かなり狭いね',
+        isPrivate: false
+      }
+    ];
+
+    const PROFANITY_WORDS = [
+      '幹', '操', '肏', '榦', '三小', '靠北', '靠杯', '機掰', '雞掰', '白目', '腦殘', '去死',
+      '王八蛋', '臭婊子', '婊子', '媽的', '破麻', '死全家', '姦', '賤人', '屌', '屄', '垃圾人',
+      '傻逼', '操你妈', '卧槽', '草泥马', '煞笔', '尼玛', '狗日的', '王八羔子', '撕逼',
+      'fuck', 'fucking', 'fucker', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy',
+      'bastard', 'motherfucker', 'whore', 'slut', 'nigger', 'fag', 'fxxk', 'sh*t', 'f*ck'
+    ];
+
+    function checkProfanity(text) {
+      if (!text) return false;
+      const lower = text.toLowerCase().replace(/[\s\-_.,!?~@#$%^&*()+=/\\|<>[\]{}'"`]/g, '');
+      for (const bad of PROFANITY_WORDS) {
+        if (lower.includes(bad.toLowerCase())) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function initGuestbook() {
+      const modal = document.getElementById('guestbook-modal');
+      const btnOpenLanding = document.getElementById('btn-open-guestbook-landing');
+      const btnOpen3D = document.getElementById('btn-open-guestbook-3d');
+      const btnClose = document.getElementById('btn-close-guestbook');
+      const form = document.getElementById('guestbook-form');
+      const list = document.getElementById('guestbook-list');
+      const authorInput = document.getElementById('guestbook-author');
+      const contentInput = document.getElementById('guestbook-content');
+      const warningEl = document.getElementById('guestbook-warning');
+
+      // Top 3D Marquee elements
+      const topMarqueeBanner = document.getElementById('top-marquee-banner');
+      const main3dHeader = document.getElementById('main-3d-header');
+      const btnCloseMarquee = document.getElementById('btn-close-marquee');
+
+      // Close top marquee with X button
+      if (btnCloseMarquee && topMarqueeBanner) {
+        btnCloseMarquee.addEventListener('click', () => {
+          topMarqueeBanner.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
+          setTimeout(() => topMarqueeBanner.classList.add('hidden'), 300);
+          if (main3dHeader) {
+            main3dHeader.classList.remove('top-12', 'sm:top-14');
+            main3dHeader.classList.add('top-2.5', 'sm:top-3');
+          }
+        });
+      }
+
+      function openModal() {
+        if (!modal) return;
+        renderMessages();
+        modal.classList.remove('hidden');
+        if (warningEl) warningEl.classList.add('hidden');
+      }
+
+      function closeModal() {
+        if (!modal) return;
+        modal.classList.add('hidden');
+      }
+
+      if (btnOpenLanding) btnOpenLanding.addEventListener('click', openModal);
+      if (btnOpen3D) btnOpen3D.addEventListener('click', openModal);
+      if (btnClose) btnClose.addEventListener('click', closeModal);
+
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal();
+        });
+      }
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+
+      function getMessages() {
+        try {
+          const raw = localStorage.getItem('beizhong_guestbook_msgs_v5');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
+        } catch(e) {}
+        return DEFAULT_GUESTBOOK_MESSAGES;
+      }
+
+      function saveMessages(msgs) {
+        try {
+          localStorage.setItem('beizhong_guestbook_msgs_v5', JSON.stringify(msgs));
+        } catch(e) {}
+      }
+
+      function renderMessages() {
+        const msgs = getMessages();
+        
+        // 1. Render in Modal List
+        if (list) {
+          list.innerHTML = '';
+          msgs.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'glass-panel p-2.5 sm:p-3 rounded-2xl border border-amber-800/40 bg-stone-900/60 shadow-sm space-y-1';
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'flex items-center justify-between text-[11px]';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'font-bold text-amber-300 font-serif-tc flex items-center gap-1.5';
+            
+            if (m.isPrivate) {
+              const lockBadge = document.createElement('span');
+              lockBadge.className = 'text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-950/80 border border-amber-600/50 text-amber-400';
+              lockBadge.textContent = '🔒 Private';
+              nameSpan.appendChild(lockBadge);
+            } else {
+              const dot = document.createElement('span');
+              dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500';
+              nameSpan.appendChild(dot);
+            }
+            nameSpan.appendChild(document.createTextNode(' ' + (m.author || 'Guest')));
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'text-stone-500 font-mono text-[10px]';
+            timeSpan.textContent = m.time || '';
+            
+            headerDiv.appendChild(nameSpan);
+            headerDiv.appendChild(timeSpan);
+            
+            const contentP = document.createElement('p');
+            contentP.className = 'text-stone-200 text-xs leading-relaxed font-light text-justify pt-0.5';
+            contentP.textContent = m.content || '';
+            
+            card.appendChild(headerDiv);
+            card.appendChild(contentP);
+            list.appendChild(card);
+          });
+        }
+
+        // 2. Render Top 5 Public Messages in Top 3D Marquee Ticker (只跑 Public 公開留言)
+        const publicMsgs = msgs.filter(m => !m.isPrivate);
+        renderTopMarquee(publicMsgs.slice(0, 5));
+      }
+
+      function renderTopMarquee(publicTop5) {
+        const marquee = document.getElementById('top-marquee-track');
+        if (!marquee) return;
+        marquee.innerHTML = '';
+
+        if (!publicTop5 || publicTop5.length === 0) {
+          publicTop5 = DEFAULT_GUESTBOOK_MESSAGES;
+        }
+
+        function createItems() {
+          const frag = document.createDocumentFragment();
+          publicTop5.forEach(m => {
+            const item = document.createElement('div');
+            item.className = 'inline-flex items-center gap-1.5 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-stone-900/80 border border-amber-900/40 flex-shrink-0 shadow-sm';
+            
+            const authorSpan = document.createElement('span');
+            authorSpan.className = 'text-amber-400 font-bold font-mono text-[11px]';
+            authorSpan.textContent = (m.author || 'Guest') + ':';
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'text-stone-200 text-xs';
+            textSpan.textContent = `"${m.content}"`;
+            
+            item.appendChild(authorSpan);
+            item.appendChild(textSpan);
+            frag.appendChild(item);
+          });
+          return frag;
+        }
+
+        // Duplicate for seamless infinite marquee loop
+        marquee.appendChild(createItems());
+        marquee.appendChild(createItems());
+      }
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          let author = authorInput ? authorInput.value.trim() : '';
+          const content = contentInput ? contentInput.value.trim() : '';
+
+          if (!content) return;
+          if (!author) author = 'Guest';
+
+          // Profanity Filter Check
+          if (checkProfanity(author) || checkProfanity(content)) {
+            if (warningEl) {
+              warningEl.textContent = '⚠️ Inappropriate words detected / 包含不當字詞';
+              warningEl.classList.remove('hidden');
+            }
+            if (contentInput) {
+              contentInput.classList.add('border-red-500');
+              setTimeout(() => contentInput.classList.remove('border-red-500'), 3000);
+            }
+            showToast('⚠️ Inappropriate words detected / 已攔截不雅用語');
+            return;
+          }
+
+          if (warningEl) warningEl.classList.add('hidden');
+
+          const visibilityInput = form.querySelector('input[name="guestbook-visibility"]:checked');
+          const isPrivate = visibilityInput ? visibilityInput.value === 'private' : false;
+
+          const now = new Date();
+          const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+          const newMsg = {
+            id: Date.now(),
+            author: author,
+            time: timeStr,
+            content: content,
+            isPrivate: isPrivate
+          };
+
+          const msgs = getMessages();
+          msgs.unshift(newMsg);
+          saveMessages(msgs);
+          renderMessages();
+
+          if (contentInput) contentInput.value = '';
+          if (authorInput) authorInput.value = '';
+
+          if (isPrivate) {
+            showToast('🔒 私人留言已記錄 (僅作者可見，絕不公開跑馬燈)');
+            // Also prepare direct mailto dispatch to elementslab.net@gmail.com
+            const mailtoUrl = `mailto:elementslab.net@gmail.com?subject=${encodeURIComponent('【北忠街小屋舍】訪客私人留言 - ' + author)}&body=${encodeURIComponent('稱呼 / Name: ' + author + '\n時間 / Time: ' + timeStr + '\n\n留言內容 / Message:\n' + content)}`;
+            try {
+              window.open(mailtoUrl, '_blank');
+            } catch(e) {}
+          } else {
+            showToast('✨ Thank you! Public message posted / 公開留言已發布');
+          }
+        });
+      }
+
+      // Initialize top marquee on load
+      renderMessages();
+    }
+
+
+    // ==========================================
+    // VISITOR COUNTER (680人起算，低調呈現在頁腳)
+    // ==========================================
+    function initVisitorCounter() {
+      const BASE_VISITORS = 680;
+      let count = parseInt(localStorage.getItem('beizhong_house_visitors') || '0', 10);
+      const sessionVisited = sessionStorage.getItem('beizhong_session_visited');
+      
+      if (!sessionVisited) {
+        count = (count === 0) ? BASE_VISITORS : count + 1;
+        localStorage.setItem('beizhong_house_visitors', count);
+        sessionStorage.setItem('beizhong_session_visited', 'true');
+      } else if (count === 0) {
+        count = BASE_VISITORS;
+        localStorage.setItem('beizhong_house_visitors', count);
+      }
+      
+      const el = document.getElementById('visitor-count');
+      if (el) el.textContent = count.toLocaleString();
+    }
+
+    // ==========================================
+    // COMMUNITY GUESTBOOK & PROFANITY FILTER
+    function initVisitorCounter() {
+      const BASE_VISITORS = 680;
+      let count = parseInt(localStorage.getItem('beizhong_house_visitors') || '0', 10);
+      const sessionVisited = sessionStorage.getItem('beizhong_session_visited');
+      
+      if (!sessionVisited) {
+        count = (count === 0) ? BASE_VISITORS : count + 1;
+        localStorage.setItem('beizhong_house_visitors', count);
+        sessionStorage.setItem('beizhong_session_visited', 'true');
+      } else if (count === 0) {
+        count = BASE_VISITORS;
+        localStorage.setItem('beizhong_house_visitors', count);
+      }
+      
+      const el = document.getElementById('visitor-count');
+      if (el) el.textContent = count.toLocaleString();
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -832834,5 +833472,64 @@ f 2818 2698 2822
 f 2697 2704 2680
 f 2706 2680 2704
 
- </script>\n</body>
+ </script>\n  <!-- ========================================================================= -->
+  <!-- 彈跳框式常民記憶留言板 (Community Guestbook Modal)                          -->
+  <!-- ========================================================================= -->
+  <div id="guestbook-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 select-text">
+    <div class="max-w-lg w-full glass-panel rounded-3xl border border-amber-600/60 p-5 sm:p-6 shadow-2xl flex flex-col max-h-[88vh] text-stone-200 relative animate-fade-in">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-stone-700/70">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">💬</span>
+          <div>
+            <h3 class="font-bold text-base sm:text-lg text-amber-300 font-serif-tc">Guestbook / 留言板</h3>
+            <p class="text-[11px] text-stone-400">Share your thoughts & memories of the Showa wooden house</p>
+          </div>
+        </div>
+        <button id="btn-close-guestbook" class="text-stone-400 hover:text-white p-1 rounded-lg hover:bg-stone-800/60 transition" title="Close (Esc)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Messages Feed (List of cards) -->
+      <div id="guestbook-list" class="flex-1 overflow-y-auto space-y-2.5 py-3 pr-1 my-1 text-xs">
+        <!-- Rendered dynamically by JavaScript -->
+      </div>
+
+      <!-- Submission Form (Name, Visibility, Message) -->
+      <form id="guestbook-form" class="pt-3 border-t border-stone-700/70 space-y-2.5 text-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+          <input id="guestbook-author" type="text" maxlength="20" placeholder="Name" class="w-full sm:w-1/2 bg-stone-900/80 border border-stone-700 focus:border-amber-500 rounded-xl px-3 py-1.5 text-stone-100 placeholder-stone-500 focus:outline-none transition">
+          
+          <!-- Visibility Selector: Public vs Private -->
+          <div class="flex items-center gap-3 bg-stone-900/80 px-3 py-1.5 rounded-xl border border-stone-700 text-[11px] sm:ml-auto">
+            <span class="text-stone-400 font-mono">Visibility:</span>
+            <label class="flex items-center gap-1 cursor-pointer text-amber-300 font-medium">
+              <input type="radio" name="guestbook-visibility" value="public" checked class="accent-amber-500">
+              <span>Public</span>
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer text-stone-300 hover:text-amber-200">
+              <input type="radio" name="guestbook-visibility" value="private" class="accent-amber-500">
+              <span>Private</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <textarea id="guestbook-content" rows="2" maxlength="200" placeholder="Message (若選 Private 可附上 Email 或電話，僅作者可見)" class="w-full bg-stone-900/80 border border-stone-700 focus:border-amber-500 rounded-xl px-3 py-2 text-stone-100 placeholder-stone-500 focus:outline-none transition resize-none" required></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-0.5">
+          <span id="guestbook-warning" class="text-[11px] text-red-400 font-medium hidden">⚠️ Inappropriate words detected / 包含不當字詞</span>
+          <button type="submit" id="guestbook-submit-btn" class="ml-auto px-5 py-1.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-50 font-semibold rounded-xl shadow transition flex items-center gap-1.5 text-xs">
+            <span>Send</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</body>
 </html>
