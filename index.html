@@ -424,6 +424,59 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
 
   <!-- Application Logic -->
   <script>
+    // =========================================================================
+    // 🛡️ ELEMENTS LAB 網域授權安全鎖 (Domain Authorization Lock)
+    // 僅授權於 3d.elementslab.net、elementslab.net、GitHub Pages 與本機測試環境運行；
+    // 任何未經授權之第三方網域鏡像盜用將自動清除模型數據並重定向至正版官方站點。
+    // =========================================================================
+    (function enforceDomainSecurity() {
+      const allowedHosts = [
+        '3d.elementslab.net',
+        'elementslab.net',
+        'localhost',
+        '127.0.0.1'
+      ];
+      const currentHost = (window.location.hostname || '').toLowerCase();
+      const isAllowed = 
+        allowedHosts.some(h => currentHost === h || currentHost.endsWith('.' + h)) ||
+        currentHost.endsWith('.github.io') ||
+        window.location.protocol === 'file:';
+
+      if (!isAllowed) {
+        try {
+          document.querySelectorAll('script[type="text/plain"]').forEach(s => s.remove());
+        } catch(e) {}
+
+        const defenseScreen = `
+          <div style="position:fixed;inset:0;background:#0d0b09;color:#f5f5f4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;z-index:999999;">
+            <div style="font-size:48px;margin-bottom:16px;">🏛️</div>
+            <h1 style="font-size:22px;color:#f59e0b;margin-bottom:12px;font-weight:bold;">未經授權之鏡像網域 / Unauthorized Domain</h1>
+            <p style="font-size:14px;color:#d6d3d1;max-width:480px;line-height:1.6;margin-bottom:24px;">
+              本「北忠街小屋舍 3D 數位孿生專案」之三維模型幾何數據、聲景合成演算法與文獻，著作權全數隸屬<strong>「實驗元素工作室 Elements Lab」</strong>原創所有。<br><br>
+              未經授權嚴禁跨域鏡像或轉載使用。系統即將為您導向官方正版展示站點：
+            </p>
+            <a href="https://3d.elementslab.net/" style="display:inline-block;padding:12px 28px;background:#d97706;color:#ffffff;text-decoration:none;border-radius:12px;font-weight:bold;font-size:14px;box-shadow:0 4px 14px rgba(217,119,6,0.4);">
+              前往官方站點 / Visit Official Site
+            </a>
+          </div>
+        `;
+
+        if (document.body) {
+          document.body.innerHTML = defenseScreen;
+        } else {
+          document.addEventListener('DOMContentLoaded', () => {
+            document.body.innerHTML = defenseScreen;
+          });
+        }
+
+        setTimeout(() => {
+          window.location.href = 'https://3d.elementslab.net/';
+        }, 3500);
+
+        throw new Error("Unauthorized domain execution terminated by Elements Lab Security.");
+      }
+    })();
+
     // 自動清理舊版殘留的錨點（如 #section-sketches），讓網址永遠保持純淨
     if (window.location.hash) {
       try {
