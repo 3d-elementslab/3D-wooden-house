@@ -15,25 +15,109 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>北忠街小屋舍數位孿生空間 | 紀念 1969–1971 | Elements Lab</title>
-  <meta name="description" content="北忠街小屋舍數位孿生空間：走入1960年代的台南生活記憶，1:1 探索 2×2×2 公尺日式微型木構、結構全零件拆解與常民生活聲景。紀念 1969–1971。">
+  <title>台南北忠街小屋舍 3D 數位孿生空間 | 紀念 1969–1971 | Elements Lab</title>
+  <meta name="description" content="台南北忠街小屋舍 3D 數位孿生空間：走入 1960 年代台南生活記憶，1:1 沉浸式探索 2×2×2 公尺日式微型木造長屋（Nagaya）、14 項建築零件拆解（Exploded View）與常民生活聲景。紀念 1969–1971，由 Elements Lab 實驗元素工作室呈獻。">
+  <meta name="keywords" content="台南北忠街小屋舍, 數位孿生, Digital Twin, 3D建築模型, 日式木造長屋, 昭和建築, 1960年代台南, 雨淋板, 建築零件拆解, Exploded View, 常民聲景, 台南歷史街區, 總爺街, 白金町, 鎮北坊文化園區, 微型住宅, Three.js 3D, WebGL, Elements Lab, 實驗元素工作室, Showa Nagaya, Japanese wooden house, Tainan heritage">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="author" content="實驗元素工作室 Elements Lab">
   
+  <!-- Canonical URL (權重集中標籤：防止 GitHub Pages 與自訂網域權重分散，所有 SEO 權重集中鎖定 3d.elementslab.net) -->
+  <link rel="canonical" href="https://3d.elementslab.net/">
+  <link rel="author" href="https://elementslab.net/">
+
   <!-- Open Graph / Facebook / LINE Preview Metadata -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://3d.elementslab.net/">
-  <meta property="og:title" content="北忠街小屋舍數位孿生空間 | 紀念 1969–1971">
-  <meta property="og:description" content="北忠街小屋舍數位孿生空間：走入1960年代的台南生活記憶，1:1 探索 2×2×2 公尺日式微型木構、結構全零件拆解與常民生活聲景。">
+  <meta property="og:title" content="台南北忠街小屋舍 3D 數位孿生空間 | 紀念 1969–1971">
+  <meta property="og:description" content="走入 1960 年代台南常民生活記憶，1:1 沉浸式探索 2×2×2 公尺日式微型木造長屋，支援 14 項建築零件拆解與生活聲景。">
   <meta property="og:image" content="https://3d.elementslab.net/01.JPG">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="台南北忠街小屋舍 3D 數位孿生模型外觀">
   <meta property="og:site_name" content="實驗元素工作室 Elements Lab">
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:locale:alternate" content="ja_JP">
 
   <!-- Twitter Card Metadata -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://3d.elementslab.net/">
-  <meta name="twitter:title" content="北忠街小屋舍數位孿生空間 | 紀念 1969–1971">
-  <meta name="twitter:description" content="北忠街小屋舍數位孿生空間：走入1960年代的台南生活記憶，1:1 探索 2×2×2 公尺日式微型木構、結構全零件拆解與常民生活聲景。">
+  <meta name="twitter:title" content="台南北忠街小屋舍 3D 數位孿生空間 | 紀念 1969–1971">
+  <meta name="twitter:description" content="走入 1960 年代台南常民生活記憶，1:1 沉浸式探索 2×2×2 公尺日式微型木造長屋，支援 14 項建築零件拆解與生活聲景。">
   <meta name="twitter:image" content="https://3d.elementslab.net/01.JPG">
-  <meta name="author" content="實驗元素工作室 Elements Lab">
-  <link rel="author" href="https://elementslab.net/">
+  <meta name="twitter:image:alt" content="台南北忠街小屋舍 3D 數位孿生空間">
+
+  <!-- Google Schema.org JSON-LD Structured Data (Google 知識圖譜與富媒體搜尋最高規格標記) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://3d.elementslab.net/#website",
+        "url": "https://3d.elementslab.net/",
+        "name": "台南北忠街小屋舍 3D 數位孿生空間",
+        "description": "1960年代台南北忠街1.2坪日式微型木造長屋 3D 數位孿生空間，紀念 1969–1971。",
+        "inLanguage": ["zh-TW", "en", "ja"],
+        "publisher": {
+          "@type": "Organization",
+          "@id": "https://elementslab.net/#organization",
+          "name": "實驗元素工作室 Elements Lab",
+          "url": "https://elementslab.net/"
+        }
+      },
+      {
+        "@type": "VisualArtwork",
+        "@id": "https://3d.elementslab.net/#artwork",
+        "name": "台南北忠街小屋舍 3D 數位孿生 (Beizhong Street Wooden House 3D Digital Twin)",
+        "alternateName": "台南北忠街日式木造長屋數位孿生",
+        "artform": "3D Digital Architecture & WebGL Simulation",
+        "artworkSurface": "Japanese Wood Structure, Sugi Clapboard, Single-slope Tile Roof",
+        "dateCreated": "1969",
+        "temporalCoverage": "1969/1971",
+        "creator": {
+          "@type": "Organization",
+          "name": "Elements Lab 實驗元素工作室",
+          "url": "https://elementslab.net/"
+        },
+        "spatialCoverage": {
+          "@type": "Place",
+          "name": "台南北忠街歷史聚落 (原白金町 / 總爺街周邊)",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "北忠街 (Beizhong St.)",
+            "addressLocality": "北區",
+            "addressRegion": "台南市",
+            "addressCountry": "TW"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "22.9986",
+            "longitude": "120.2110"
+          }
+        },
+        "description": "以 1:1 比例重構 1960 年代台南北忠街 2×2×2 公尺（1.2 坪）微型日式木構長屋，支援 14 項建築構件爆炸圖拆解與程序化常民聲景模擬。"
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://3d.elementslab.net/#webpage",
+        "url": "https://3d.elementslab.net/",
+        "name": "台南北忠街小屋舍 3D 數位孿生空間 | 紀念 1969–1971 | Elements Lab",
+        "isPartOf": {
+          "@id": "https://3d.elementslab.net/#website"
+        },
+        "about": {
+          "@id": "https://3d.elementslab.net/#artwork"
+        },
+        "primaryImageOfPage": {
+          "@type": "ImageObject",
+          "url": "https://3d.elementslab.net/01.JPG"
+        },
+        "relatedLink": "https://elementslab.net/2026/10/29/japanese-wooden-house-digital-twin/"
+      }
+    ]
+  }
+  </script>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <!-- Three.js, OrbitControls, TWEEN -->
