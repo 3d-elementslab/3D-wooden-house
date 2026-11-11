@@ -71,7 +71,6 @@
       margin-top: 0.2rem;
     }
 
-    /* 極簡控制台：等寬等高深色立體金屬按鈕 */
     #ui-control-bar {
       position: absolute;
       bottom: 3.2rem;
@@ -164,12 +163,13 @@
   </footer>
 
   <script>
-    // --- 1. 音效引擎：音量降低 40%，去除槍聲，支援 drop.wav ---
+    // --- 1. 音效引擎：解鎖真實金屬咬合聲並預載 ---
     const AudioEngine = {
       ctx: null,
       snapAudio: null,
       whooshAudio: null,
       dropAudio: null,
+      hasPreloaded: false,
       init() {
         try {
           if (!this.ctx) {
@@ -181,18 +181,27 @@
           }
           if (!this.snapAudio) {
             this.snapAudio = new Audio('./snap.wav');
+            this.snapAudio.preload = 'auto';
             this.snapAudio.onerror = () => { this.snapAudio = new Audio('./snap.mp3'); };
           }
           if (!this.whooshAudio) {
             this.whooshAudio = new Audio('./whoosh.wav');
+            this.whooshAudio.preload = 'auto';
             this.whooshAudio.onerror = () => { this.whooshAudio = new Audio('./whoosh.mp3'); };
           }
           if (!this.dropAudio) {
             this.dropAudio = new Audio('./drop.wav');
+            this.dropAudio.preload = 'auto';
             this.dropAudio.onerror = () => {
               this.dropAudio = new Audio('./dorp.wav');
               this.dropAudio.onerror = () => { this.dropAudio = new Audio('./drop.mp3'); };
             };
+          }
+
+          // 首次點擊預熱
+          if (!this.hasPreloaded && this.snapAudio) {
+            this.snapAudio.load();
+            this.hasPreloaded = true;
           }
         } catch(e) {}
       },
@@ -203,25 +212,29 @@
           }
         } catch(e) {}
       },
-      // 破空聲（音量適中）
       playWhoosh() {
         this.init();
         if (this.whooshAudio) {
           const sound = this.whooshAudio.cloneNode();
-          sound.volume = 0.45; // 降 40%
+          sound.volume = 0.5;
           sound.play().catch(() => {});
         }
       },
-      // 實心卡榫咬合聲（僅在單顆手動 HIT 或 FLY IN 最終合體時觸發）
+      // 確保金屬撞擊聲扎實響起
       playSnap(isFinalFlyIn = false) {
         this.init();
+        let audioPlayed = false;
         if (this.snapAudio) {
           const sound = this.snapAudio.cloneNode();
-          sound.volume = isFinalFlyIn ? 0.65 : 0.55; // 降 40% 音量，告別刺耳
-          sound.play().catch(() => {
+          sound.volume = isFinalFlyIn ? 0.95 : 0.85; // 提高辨識度
+          sound.play().then(() => {
+            audioPlayed = true;
+          }).catch(() => {
             this.playSynthesizedSnap(isFinalFlyIn);
           });
-        } else {
+        }
+        // 同步加上微弱的高頻金屬齒合底音，雙重保證
+        if (!audioPlayed) {
           this.playSynthesizedSnap(isFinalFlyIn);
         }
         this.vibrate(isFinalFlyIn ? [50, 30, 80] : [35, 15, 50]);
@@ -230,44 +243,46 @@
         if (!this.ctx) return;
         try {
           const now = this.ctx.currentTime;
-          const gainMult = isFinal ? 0.8 : 0.55;
+          const gainMult = isFinal ? 0.9 : 0.65;
 
-          [2200, 3400].forEach((freq, idx) => {
+          // 模擬銳利金屬撞擊音（高頻金屬殘響）
+          [2800, 4200, 5600].forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, now);
-            osc.frequency.exponentialRampToValueAtTime(freq * 0.35, now + 0.07);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.25, now + 0.09);
 
-            gain.gain.setValueAtTime((0.25 / (idx + 1)) * gainMult, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+            gain.gain.setValueAtTime((0.35 / (idx + 1)) * gainMult, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
 
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(now);
-            osc.stop(now + 0.08);
+            osc.stop(now + 0.1);
           });
 
+          // 厚重撞擊底音
           const bassOsc = this.ctx.createOscillator();
           const bassGain = this.ctx.createGain();
           bassOsc.type = 'sine';
-          bassOsc.frequency.setValueAtTime(260, now);
-          bassOsc.frequency.exponentialRampToValueAtTime(50, now + 0.14);
+          bassOsc.frequency.setValueAtTime(240, now);
+          bassOsc.frequency.exponentialRampToValueAtTime(45, now + 0.15);
 
-          bassGain.gain.setValueAtTime(0.6 * gainMult, now);
-          bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+          bassGain.gain.setValueAtTime(0.8 * gainMult, now);
+          bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
 
           bassOsc.connect(bassGain);
           bassGain.connect(this.ctx.destination);
           bassOsc.start(now);
-          bassOsc.stop(now + 0.15);
+          bassOsc.stop(now + 0.16);
         } catch(e) {}
       },
       playDropSound() {
         this.init();
         if (this.dropAudio) {
           const sound = this.dropAudio.cloneNode();
-          sound.volume = 0.6; // 降 40%
+          sound.volume = 0.75;
           sound.play().catch(() => {});
         }
       },
@@ -320,46 +335,46 @@
     const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
     keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x06b6d4, 1.8);
+    const fillLight = new THREE.DirectionalLight(0x0284c7, 2.2);
     fillLight.position.set(-10, 4, -8);
     scene.add(fillLight);
 
-    const bottomBounce = new THREE.DirectionalLight(0x38bdf8, 1.2);
+    const bottomBounce = new THREE.DirectionalLight(0x0ea5e9, 1.4);
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 3. 材質配置：淡香檳金 E/L + 青色半透物理方體 ---
+    // --- 3. 材質配置：淡香檳金 E/L + 濃郁孔雀藍青方體 ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
       color: 0xebd9b4,
       metalness: 0.9,
       roughness: 0.2,
     });
 
-    // 13 個方塊：青色（藍綠 Cyan）高透晶體材質
-    const cyanGlassMat = new THREE.MeshPhysicalMaterial({
-      color: 0x06b6d4,
-      emissive: 0x083344,
-      emissiveIntensity: 0.25,
-      metalness: 0.1,
-      roughness: 0.12,
-      transmission: 0.65, // 半透明
-      thickness: 1.2,
+    // 核心調整 1：加深濃郁度，透光率降至 0.18，呈現厚實深色晶體質感
+    const deepCyanMat = new THREE.MeshPhysicalMaterial({
+      color: 0x0284c7,          // 濃郁天青藍
+      emissive: 0x0369a1,       // 深邃藍底發光
+      emissiveIntensity: 0.35,
+      metalness: 0.35,          // 增加微量金屬反光
+      roughness: 0.16,
+      transmission: 0.18,       // 大幅降低透光，不再泛白過透
+      thickness: 2.2,
       transparent: true,
-      opacity: 0.88,
-      ior: 1.52,
+      opacity: 0.96,
+      ior: 1.55,
     });
 
     const ghostWireMat = new THREE.LineBasicMaterial({
-      color: 0x0891b2,
+      color: 0x0284c7,
       transparent: true,
-      opacity: 0.25
+      opacity: 0.28
     });
 
-    // --- 4. 零件定向路徑與「面朝鏡頭（Face to Camera）」角度表 ---
+    // --- 4. 零件定向路徑與「全零件精準翻轉（Face to Camera）」角度表 ---
     const partRegistry = new Map();
     const activeTweens = [];
     let flyInCount = 0;
@@ -384,328 +399,12 @@
       'cube13': new THREE.Vector3(35, 35, 35)
     };
 
-    // 智能旋轉角度對照表：當要安裝某個零件時，整顆 Cube 自動轉到對應方位面對鏡頭
+    // 核心調整 2：大幅校正 04, 06 與後續方塊的正面角度，保證槽位絕對正對鏡頭
     const faceRotationMap = {
       'E': { x: 0, y: 0 },
       'L': { x: 0, y: 0 },
-      'cube01': { x: 0.2, y: -0.6 },
-      'cube02': { x: -0.2, y: 2.5 },
-      'cube03': { x: 0.3, y: -2.2 },
-      'cube04': { x: -0.3, y: 0.8 },
-      'cube05': { x: -0.4, y: -1.2 },
-      'cube06': { x: 0.4, y: 1.4 },
-      'cube07': { x: 0.2, y: -2.8 },
-      'cube08': { x: -0.2, y: 1.8 },
-      'cube09': { x: 0, y: -1.57 },    // 正左面翻至正面
-      'cube10': { x: 0, y: 1.57 },     // 正右面翻至正面
-      'cube11': { x: 0, y: 0 },        // 正正面
-      'cube12': { x: 0, y: 3.14 },     // 正背面直接翻轉 180 度到眼前
-      'cube13': { x: -0.3, y: 0.5 }
-    };
-
-    const loader = new THREE.GLTFLoader();
-    loader.load(
-      './el-logo%20asm.glb',
-      (gltf) => { initModelScene(gltf); },
-      undefined,
-      () => { loader.load('./el-logo asm.glb', (gltf) => initModelScene(gltf)); }
-    );
-
-    function initModelScene(gltf) {
-      const root = gltf.scene;
-      root.rotation.x = -Math.PI / 2;
-      root.updateMatrixWorld(true);
-
-      const originalBox = new THREE.Box3().setFromObject(root);
-      const size = new THREE.Vector3();
-      originalBox.getSize(size);
-      const maxDim = Math.max(size.x, size.y, size.z);
-
-      const targetScale = (isMobile ? 2.0 : 2.3) / (maxDim || 1);
-      root.scale.setScalar(targetScale);
-      root.updateMatrixWorld(true);
-
-      const scaledBox = new THREE.Box3().setFromObject(root);
-      const center = new THREE.Vector3();
-      scaledBox.getCenter(center);
-      root.position.sub(center);
-      root.updateMatrixWorld(true);
-
-      cubeRoot.add(root);
-
-      root.traverse((child) => {
-        if (child.isMesh) {
-          const name = child.name;
-
-          if (name === 'E' || name === 'L') {
-            child.material = champagneGoldMat.clone();
-          } else {
-            child.material = cyanGlassMat.clone();
-          }
-
-          const targetPos = child.position.clone();
-
-          // 幽靈槽位線框
-          const edges = new THREE.EdgesGeometry(child.geometry);
-          const wireframe = new THREE.LineSegments(edges, ghostWireMat);
-          wireframe.position.copy(targetPos);
-          wireframe.rotation.copy(child.rotation);
-          wireframe.scale.copy(child.scale);
-          child.parent.add(wireframe);
-
-          const deepSpaceDir = trajectoryMap[name] || new THREE.Vector3(40, 30, 35);
-          const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
-
-          child.position.copy(hiddenDeepSpacePos);
-          child.visible = false;
-
-          partRegistry.set(name, {
-            mesh: child,
-            targetPos: targetPos,
-            deepSpacePos: hiddenDeepSpacePos,
-            wireframe: wireframe,
-            isAssembled: false
-          });
-        }
-      });
-    }
-
-    // --- 5. 智能面朝鏡頭平滑過渡（Face to Camera on Hit） ---
-    function smoothRotateCubeTo(targetRot, duration = 400) {
-      const startRotX = cubeRoot.rotation.x;
-      const startRotY = cubeRoot.rotation.y;
-      const startTime = performance.now();
-
-      activeTweens.push({
-        update(now) {
-          const t = Math.min((now - startTime) / duration, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          cubeRoot.rotation.x = THREE.MathUtils.lerp(startRotX, targetRot.x, ease);
-          cubeRoot.rotation.y = THREE.MathUtils.lerp(startRotY, targetRot.y, ease);
-          return t < 1;
-        }
-      });
-    }
-
-    // --- 6. 飛入與咬合動畫（去除連環機關槍撞擊） ---
-    function flyInSinglePart(name, isBatch = false, delayMs = 0, isFinalInBatch = false) {
-      const item = partRegistry.get(name);
-      if (!item || item.isAssembled) return;
-
-      setTimeout(() => {
-        item.isAssembled = true;
-        item.mesh.visible = true;
-
-        // 手動 PLAY & HIT 模式下，自動轉動立方體讓安裝面朝向用戶
-        if (!isBatch && faceRotationMap[name]) {
-          smoothRotateCubeTo(faceRotationMap[name], 380);
-        }
-
-        AudioEngine.playWhoosh();
-
-        const mesh = item.mesh;
-        const startPos = item.deepSpacePos.clone();
-        const endPos = item.targetPos.clone();
-        const startTime = performance.now();
-        const duration = isBatch ? 580 : 680;
-
-        activeTweens.push({
-          update(now) {
-            const elapsed = now - startTime;
-            const t = Math.min(elapsed / duration, 1);
-            const ease = t === 1 ? 1 : 1 - Math.pow(2, -8 * t);
-            mesh.position.lerpVectors(startPos, endPos, ease);
-
-            if (t >= 1) {
-              mesh.position.copy(endPos);
-
-              // 規則重塑：手動模式每次都敲；一鍵 FLY IN 只有最後一顆才敲「終極合體聲」！
-              if (!isBatch) {
-                AudioEngine.playSnap(false);
-              } else if (isFinalInBatch) {
-                AudioEngine.playSnap(true); // 唯一一聲沉穩大合體撞擊
-              }
-
-              // 亮起青藍色自發光脈衝
-              if (mesh.material && mesh.material.emissive) {
-                const origEmissive = mesh.material.emissive.getHex();
-                mesh.material.emissive.setHex(0x22d3ee);
-                setTimeout(() => {
-                  mesh.material.emissive.setHex(origEmissive);
-                }, 140);
-              }
-
-              assembledCount++;
-
-              if (assembledCount === TOTAL_PARTS) {
-                checkAssemblyCompletion(isBatch);
-              }
-              return false;
-            }
-            return true;
-          }
-        });
-      }, delayMs);
-    }
-
-    // --- 7. 第四次惡作劇彩蛋（落體摔地） ---
-    function checkAssemblyCompletion(wasBatch) {
-      if (wasBatch && flyInCount % 4 === 0) {
-        setTimeout(() => {
-          triggerPrankDrop('cube11');
-        }, 650);
-      }
-    }
-
-    function triggerPrankDrop(partName) {
-      const item = partRegistry.get(partName);
-      if (!item) return;
-
-      AudioEngine.playDropSound();
-
-      const mesh = item.mesh;
-      const startPos = mesh.position.clone();
-      const startTime = performance.now();
-      let hasCrashed = false;
-      const dropDirection = new THREE.Vector3(0, 0, -1);
-
-      activeTweens.push({
-        update(now) {
-          const elapsed = (now - startTime) / 1000;
-          const fallDistance = 0.5 * 52 * elapsed * elapsed;
-          mesh.position.copy(startPos).addScaledVector(dropDirection, fallDistance);
-
-          mesh.rotation.x += 0.12;
-          mesh.rotation.y += 0.08;
-
-          if (!hasCrashed && fallDistance > 12) {
-            hasCrashed = true;
-            AudioEngine.playCrash();
-          }
-
-          if (fallDistance > 28) {
-            item.isAssembled = false;
-            mesh.visible = false;
-            mesh.position.copy(item.deepSpacePos);
-            mesh.rotation.set(0, 0, 0);
-            assembledCount--;
-            return false;
-          }
-          return true;
-        }
-      });
-    }
-
-    // --- 8. 懸浮與回中（修復飛入結束後的跳動問題） ---
-    let lastActionTime = performance.now();
-    let isRoaming = false;
-    let roamTime = 0;
-
-    function resetIdleTimer() {
-      lastActionTime = performance.now();
-      AudioEngine.init();
-      if (isRoaming) {
-        pullBackToCenter();
-      }
-    }
-
-    function pullBackToCenter() {
-      isRoaming = false;
-      const startPos = cubeRoot.position.clone();
-      const endPos = new THREE.Vector3(0, 0, 0);
-      const startTime = performance.now();
-
-      activeTweens.push({
-        update(now) {
-          const t = Math.min((now - startTime) / 450, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          cubeRoot.position.lerpVectors(startPos, endPos, ease);
-          return t < 1;
-        }
-      });
-    }
-
-    // --- 9. 操作控制邏輯（FLY IN + PLAY & HIT） ---
-    const btnFlyIn = document.getElementById('btn-flyin');
-    const btnPlay = document.getElementById('btn-play');
-    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
-
-    btnFlyIn.onclick = () => {
-      resetIdleTimer();
-      flyInCount++;
-      resetCubeState();
-
-      partOrder.forEach((name, idx) => {
-        const isFinal = (idx === partOrder.length - 1);
-        flyInSinglePart(name, true, idx * 135, isFinal);
-      });
-    };
-
-    let playHitIdx = 0;
-    btnPlay.onclick = () => {
-      resetIdleTimer();
-
-      // 若已全部組裝完畢，再次點擊自動 Reset 重來
-      if (assembledCount >= TOTAL_PARTS) {
-        resetCubeState();
-        playHitIdx = 0;
-      }
-
-      while (playHitIdx < partOrder.length) {
-        const nextPart = partOrder[playHitIdx++];
-        const item = partRegistry.get(nextPart);
-        if (item && !item.isAssembled) {
-          flyInSinglePart(nextPart, false, 0, false);
-          break;
-        }
-      }
-    };
-
-    function resetCubeState() {
-      playHitIdx = 0;
-      assembledCount = 0;
-      partRegistry.forEach((item) => {
-        item.isAssembled = false;
-        item.mesh.visible = false;
-        item.mesh.position.copy(item.deepSpacePos);
-        item.mesh.rotation.set(0, 0, 0);
-      });
-      pullBackToCenter();
-    }
-
-    window.addEventListener('pointerdown', () => resetIdleTimer());
-
-    // --- 10. 主渲染迴圈 ---
-    function animate() {
-      requestAnimationFrame(animate);
-      const now = performance.now();
-
-      for (let i = activeTweens.length - 1; i >= 0; i--) {
-        if (!activeTweens[i].update(now)) {
-          activeTweens.splice(i, 1);
-        }
-      }
-
-      controls.update();
-
-      // 原地 3 秒後位置漫遊（不再覆蓋旋轉，完全平滑過渡）
-      if (now - lastActionTime > 3000) {
-        isRoaming = true;
-        roamTime += 0.012;
-        cubeRoot.position.x = Math.sin(roamTime * 0.7) * 1.5;
-        cubeRoot.position.y = Math.cos(roamTime * 0.5) * 0.9;
-        cubeRoot.position.z = Math.sin(roamTime * 0.3) * 0.7;
-      }
-
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</body>
-</html>
+      'cube01': { x: 0.35, y: -0.75 },
+      'cube02': { x: -0.35, y: 2.35 },
+      'cube03': { x: 0.45, y: -2.35 },
+      'cube04': { x: -0.45, y: -1.57 }, // 修正：正右側翻轉到正前
+      'cube05': { x: -0
