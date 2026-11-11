@@ -206,7 +206,7 @@
         this.init();
         if (this.whooshAudio) {
           const sound = this.whooshAudio.cloneNode();
-          sound.volume = 0.2;
+          sound.volume = 0.22;
           sound.play().catch(() => {});
         }
       },
@@ -214,7 +214,7 @@
         this.init();
         if (this.snapAudio) {
           const sound = this.snapAudio.cloneNode();
-          sound.volume = isFinalFlyIn ? 0.42 : 0.32;
+          sound.volume = isFinalFlyIn ? 0.45 : 0.32;
           sound.play().catch(() => {
             this.playSynthesizedSnap(isFinalFlyIn);
           });
@@ -347,18 +347,18 @@
       roughness: 0.26,
     });
 
-    const blueprintWireMat = new THREE.LineBasicMaterial({
-      color: 0xcbd5e1,
-      transparent: true,
-      opacity: 0.35
+    const singleWireframeMat = new THREE.LineBasicMaterial({
+      color: 0x475569,
+      linewidth: 1.5
     });
 
-    // --- 4. 零件定向路徑與「面朝鏡頭」穩定旋轉矩陣 ---
+    // --- 4. 零件定位與旋轉基準 ---
     const partRegistry = new Map();
     const activeTweens = [];
     let flyInCount = 0;
     let assembledCount = 0;
     const TOTAL_PARTS = 15;
+    let initialWireframeMesh = null;
 
     const HOME_ROTATION = { x: 0, y: 0 };
 
@@ -380,36 +380,80 @@
       'cube13': new THREE.Vector3(35, 35, 35)
     };
 
-    // 精確定義各面旋轉：避免動態計算出 NaN 導致引擎死當
     const faceRotationMap = {
       'E': { x: 0, y: 0 },
       'L': { x: 0, y: 0 },
       'cube01': { x: 0.35, y: -0.75 },
       'cube02': { x: -0.35, y: 2.35 },
       'cube03': { x: 0.45, y: -2.35 },
-      'cube04': { x: 0, y: 1.57 },       // 正正右側
+      'cube04': { x: 0, y: 1.57 },
       'cube05': { x: -0.55, y: 0.75 },
-      'cube06': { x: 0.55, y: 3.14 },    // 正後側翻轉
+      'cube06': { x: 0.55, y: 3.14 },
       'cube07': { x: 0.35, y: -2.95 },
-      'cube08': { x: 0, y: -1.57 },      // 正正左側
+      'cube08': { x: 0, y: -1.57 },
       'cube09': { x: 0, y: -1.57 },
       'cube10': { x: 0, y: 1.57 },
-      'cube11': { x: 0, y: 0 },          // 正正前
-      'cube12': { x: 0, y: 3.14 },       // 正正後
+      'cube11': { x: 0, y: 0 },
+      'cube12': { x: 0, y: 3.14 },
       'cube13': { x: -0.45, y: 0.45 }
     };
 
     const loader = new THREE.GLTFLoader();
+
+    // 1. 優先載入開場單一線稿底模（el-cube-wire.glb）
+    loader.load(
+      './el-cube-wire.glb',
+      (gltf) => {
+        try {
+          const wireScene = gltf.scene;
+          wireScene.rotation.x = -Math.PI / 2;
+          wireScene.updateMatrixWorld(true);
+
+          const box = new THREE.Box3().setFromObject(wireScene);
+          const size = new THREE.Vector3();
+          box.getSize(size);
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const targetScale = (isMobile ? 2.0 : 2.3) / (maxDim || 1);
+          wireScene.scale.setScalar(targetScale);
+          wireScene.updateMatrixWorld(true);
+
+          const center = new THREE.Vector3();
+          new THREE.Box3().setFromObject(wireScene).getCenter(center);
+          wireScene.position.sub(center);
+
+          wireScene.traverse((child) => {
+            if (child.isMesh) {
+              const edges = new THREE.EdgesGeometry(child.geometry);
+              const wire = new THREE.LineSegments(edges, singleWireframeMat);
+              child.visible = false;
+              wire.position.copy(child.position);
+              wire.rotation.copy(child.rotation);
+              wire.scale.copy(child.scale);
+              child.parent.add(wire);
+              initialWireframeMesh = wire;
+            }
+          });
+
+          cubeRoot.add(wireScene);
+        } catch(e) {
+          console.warn("Wireframe load warning:", e);
+        }
+      },
+      undefined,
+      (err) => console.log("Single wireframe not found, will rely on assembly meshes.")
+    );
+
+    // 2. 載入 15 零件裝配體（el-logo asm.glb）
     loader.load(
       './el-logo%20asm.glb',
-      (gltf) => { initModelScene(gltf); },
+      (gltf) => { initAssemblyScene(gltf); },
       undefined,
       () => {
-        loader.load('./el-logo asm.glb', (gltf) => initModelScene(gltf));
+        loader.load('./el-logo asm.glb', (gltf) => initAssemblyScene(gltf));
       }
     );
 
-    function initModelScene(gltf) {
+    function initAssemblyScene(gltf) {
       try {
         const root = gltf.scene;
         root.rotation.x = -Math.PI / 2;
@@ -433,9 +477,13 @@
         cubeRoot.add(root);
 
         root.traverse((child) => {
+          let nodeName = child.name;
+          if (child.parent && child.parent.name && child.parent.name !== 'root' && child.parent.name !== 'AuxScene') {
+            nodeName = child.parent.name;
+          }
+
           if (child.isMesh) {
-            const name = child.name;
-            const isLogoLetter = (name === 'E' || name === 'L');
+            const isLogoLetter = (nodeName === 'E' || nodeName === 'L');
 
             if (isLogoLetter) {
               child.material = champagneGoldMat.clone();
@@ -444,28 +492,16 @@
             }
 
             const targetPos = child.position.clone();
-
-            let wireframe = null;
-            if (!isLogoLetter) {
-              const edges = new THREE.EdgesGeometry(child.geometry);
-              wireframe = new THREE.LineSegments(edges, blueprintWireMat);
-              wireframe.position.copy(targetPos);
-              wireframe.rotation.copy(child.rotation);
-              wireframe.scale.copy(child.scale);
-              child.parent.add(wireframe);
-            }
-
-            const deepSpaceDir = trajectoryMap[name] || new THREE.Vector3(40, 30, 35);
+            const deepSpaceDir = trajectoryMap[nodeName] || new THREE.Vector3(40, 30, 35);
             const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
 
             child.position.copy(hiddenDeepSpacePos);
             child.visible = false;
 
-            partRegistry.set(name, {
+            partRegistry.set(nodeName, {
               mesh: child,
               targetPos: targetPos,
               deepSpacePos: hiddenDeepSpacePos,
-              wireframe: wireframe,
               isAssembled: false
             });
           }
@@ -477,7 +513,7 @@
       }
     }
 
-    // --- 5. 穩定平滑旋轉 ---
+    // --- 5. 旋轉過渡 ---
     function smoothRotateCubeTo(targetRot, duration = 380, onComplete = null) {
       const startRotX = cubeRoot.rotation.x;
       const startRotY = cubeRoot.rotation.y;
@@ -497,12 +533,16 @@
       });
     }
 
-    // --- 6. 飛入與咬合動畫 ---
+    // --- 6. 動態進場與敲擊組裝 ---
     function flyInSinglePart(name, isBatch = false, delayMs = 0, isFinalInBatch = false) {
       const item = partRegistry.get(name);
       if (!item || item.isAssembled) return;
 
       setTimeout(() => {
+        if (initialWireframeMesh) {
+          initialWireframeMesh.visible = false;
+        }
+
         item.isAssembled = true;
         item.mesh.visible = true;
 
@@ -613,3 +653,115 @@
       lastActionTime = performance.now();
       AudioEngine.init();
       if (isRoaming) {
+        pullBackToCenter();
+      }
+    }
+
+    function pullBackToCenter() {
+      isRoaming = false;
+      const startPos = cubeRoot.position.clone();
+      const endPos = new THREE.Vector3(0, 0, 0);
+      const startTime = performance.now();
+
+      activeTweens.push({
+        update(now) {
+          const t = Math.min((now - startTime) / 450, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          cubeRoot.position.lerpVectors(startPos, endPos, ease);
+          return t < 1;
+        }
+      });
+    }
+
+    // --- 9. 按鈕控制 ---
+    const btnFlyIn = document.getElementById('btn-flyin');
+    const btnPlay = document.getElementById('btn-play');
+    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
+
+    btnFlyIn.onclick = () => {
+      resetIdleTimer();
+      flyInCount++;
+      clearAllToDeepSpace();
+
+      smoothRotateCubeTo(HOME_ROTATION, 200);
+
+      partOrder.forEach((name, idx) => {
+        const isFinal = (idx === partOrder.length - 1);
+        flyInSinglePart(name, true, idx * 125, isFinal);
+      });
+    };
+
+    let playHitIdx = 0;
+    btnPlay.onclick = () => {
+      resetIdleTimer();
+
+      if (assembledCount >= TOTAL_PARTS) {
+        clearAllToDeepSpace();
+        playHitIdx = 0;
+      }
+
+      while (playHitIdx < partOrder.length) {
+        const nextPart = partOrder[playHitIdx++];
+        const item = partRegistry.get(nextPart);
+        if (item && !item.isAssembled) {
+          flyInSinglePart(nextPart, false, 0, false);
+          break;
+        }
+      }
+    };
+
+    function clearAllToDeepSpace() {
+      playHitIdx = 0;
+      assembledCount = 0;
+      if (initialWireframeMesh) {
+        initialWireframeMesh.visible = false;
+      }
+      partRegistry.forEach((item) => {
+        item.isAssembled = false;
+        item.mesh.visible = false;
+        item.mesh.position.copy(item.deepSpacePos);
+        item.mesh.rotation.set(0, 0, 0);
+      });
+      cubeRoot.position.set(0, 0, 0);
+    }
+
+    window.addEventListener('pointerdown', () => resetIdleTimer());
+
+    // --- 10. 主渲染迴圈 ---
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+
+      for (let i = activeTweens.length - 1; i >= 0; i--) {
+        try {
+          if (!activeTweens[i].update(now)) {
+            activeTweens.splice(i, 1);
+          }
+        } catch(e) {
+          activeTweens.splice(i, 1);
+        }
+      }
+
+      controls.update();
+
+      if (now - lastActionTime > 2500) {
+        isRoaming = true;
+        roamTime += 0.012;
+
+        cubeRoot.position.x = Math.sin(roamTime * 0.75) * 1.5;
+        cubeRoot.position.y = Math.cos(roamTime * 0.55) * 0.9;
+        cubeRoot.position.z = Math.sin(roamTime * 0.45) * 1.6 - 0.6;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
