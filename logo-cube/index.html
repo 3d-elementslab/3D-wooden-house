@@ -163,7 +163,7 @@
   </footer>
 
   <script>
-    // --- 1. 音效引擎：解鎖真實金屬咬合聲並預載 ---
+    // --- 1. 音效引擎：全面柔化音量，杜絕雙重疊加轟頭 ---
     const AudioEngine = {
       ctx: null,
       snapAudio: null,
@@ -198,14 +198,13 @@
             };
           }
 
-          // 首次點擊預熱
           if (!this.hasPreloaded && this.snapAudio) {
             this.snapAudio.load();
             this.hasPreloaded = true;
           }
         } catch(e) {}
       },
-      vibrate(pattern = [40, 20, 60]) {
+      vibrate(pattern = [30, 15, 45]) {
         try {
           if (typeof navigator !== 'undefined' && navigator.vibrate) {
             navigator.vibrate(pattern);
@@ -216,195 +215,69 @@
         this.init();
         if (this.whooshAudio) {
           const sound = this.whooshAudio.cloneNode();
-          sound.volume = 0.5;
+          sound.volume = 0.22; // 柔和微風呼嘯
           sound.play().catch(() => {});
         }
       },
-      // 確保金屬撞擊聲扎實響起
       playSnap(isFinalFlyIn = false) {
         this.init();
-        let audioPlayed = false;
         if (this.snapAudio) {
           const sound = this.snapAudio.cloneNode();
-          sound.volume = isFinalFlyIn ? 0.95 : 0.85; // 提高辨識度
-          sound.play().then(() => {
-            audioPlayed = true;
-          }).catch(() => {
+          // 單塊手動 0.35，最終大合體 0.45，清脆溫和不轟耳
+          sound.volume = isFinalFlyIn ? 0.45 : 0.35;
+          sound.play().catch(() => {
             this.playSynthesizedSnap(isFinalFlyIn);
           });
-        }
-        // 同步加上微弱的高頻金屬齒合底音，雙重保證
-        if (!audioPlayed) {
+        } else {
           this.playSynthesizedSnap(isFinalFlyIn);
         }
-        this.vibrate(isFinalFlyIn ? [50, 30, 80] : [35, 15, 50]);
+        this.vibrate(isFinalFlyIn ? [40, 20, 60] : [25, 10, 35]);
       },
       playSynthesizedSnap(isFinal) {
         if (!this.ctx) return;
         try {
           const now = this.ctx.currentTime;
-          const gainMult = isFinal ? 0.9 : 0.65;
+          const gainMult = isFinal ? 0.45 : 0.3;
 
-          // 模擬銳利金屬撞擊音（高頻金屬殘響）
-          [2800, 4200, 5600].forEach((freq, idx) => {
+          [2400, 3600].forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, now);
-            osc.frequency.exponentialRampToValueAtTime(freq * 0.25, now + 0.09);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.25, now + 0.06);
 
-            gain.gain.setValueAtTime((0.35 / (idx + 1)) * gainMult, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+            gain.gain.setValueAtTime((0.15 / (idx + 1)) * gainMult, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
 
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(now);
-            osc.stop(now + 0.1);
+            osc.stop(now + 0.07);
           });
 
-          // 厚重撞擊底音
           const bassOsc = this.ctx.createOscillator();
           const bassGain = this.ctx.createGain();
           bassOsc.type = 'sine';
-          bassOsc.frequency.setValueAtTime(240, now);
-          bassOsc.frequency.exponentialRampToValueAtTime(45, now + 0.15);
+          bassOsc.frequency.setValueAtTime(220, now);
+          bassOsc.frequency.exponentialRampToValueAtTime(45, now + 0.12);
 
-          bassGain.gain.setValueAtTime(0.8 * gainMult, now);
-          bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+          bassGain.gain.setValueAtTime(0.35 * gainMult, now);
+          bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
 
           bassOsc.connect(bassGain);
           bassGain.connect(this.ctx.destination);
           bassOsc.start(now);
-          bassOsc.stop(now + 0.16);
+          bassOsc.stop(now + 0.13);
         } catch(e) {}
       },
       playDropSound() {
         this.init();
         if (this.dropAudio) {
           const sound = this.dropAudio.cloneNode();
-          sound.volume = 0.75;
+          sound.volume = 0.4; // 溫和滑稽聲
           sound.play().catch(() => {});
         }
       },
       playCrash() {
         this.init();
         if (!this.ctx) return;
-        try {
-          const now = this.ctx.currentTime;
-          const osc1 = this.ctx.createOscillator();
-          const gain1 = this.ctx.createGain();
-          osc1.type = 'triangle';
-          osc1.frequency.setValueAtTime(150, now);
-          osc1.frequency.exponentialRampToValueAtTime(30, now + 0.35);
-          gain1.gain.setValueAtTime(0.9, now);
-          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-          osc1.connect(gain1);
-          gain1.connect(this.ctx.destination);
-          osc1.start(now);
-          osc1.stop(now + 0.36);
-
-          this.vibrate([60, 40, 90]);
-        } catch(e) {}
-      }
-    };
-
-    // --- 2. Three.js 場景建構 ---
-    const canvas = document.getElementById('webgl-canvas');
-    const scene = new THREE.Scene();
-
-    const cubeRoot = new THREE.Group();
-    scene.add(cubeRoot);
-
-    const isMobile = window.innerWidth <= 768;
-    const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 150);
-    camera.position.set(0, 0, 8.5);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.35;
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.minDistance = 3.5;
-    controls.maxDistance = 25;
-    controls.target.set(0, 0, 0);
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
-    scene.add(ambientLight);
-
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
-    keyLight.position.set(10, 15, 10);
-    scene.add(keyLight);
-
-    const fillLight = new THREE.DirectionalLight(0x0284c7, 2.2);
-    fillLight.position.set(-10, 4, -8);
-    scene.add(fillLight);
-
-    const bottomBounce = new THREE.DirectionalLight(0x0ea5e9, 1.4);
-    bottomBounce.position.set(0, -8, 0);
-    scene.add(bottomBounce);
-
-    // --- 3. 材質配置：淡香檳金 E/L + 濃郁孔雀藍青方體 ---
-    const champagneGoldMat = new THREE.MeshStandardMaterial({
-      color: 0xebd9b4,
-      metalness: 0.9,
-      roughness: 0.2,
-    });
-
-    // 核心調整 1：加深濃郁度，透光率降至 0.18，呈現厚實深色晶體質感
-    const deepCyanMat = new THREE.MeshPhysicalMaterial({
-      color: 0x0284c7,          // 濃郁天青藍
-      emissive: 0x0369a1,       // 深邃藍底發光
-      emissiveIntensity: 0.35,
-      metalness: 0.35,          // 增加微量金屬反光
-      roughness: 0.16,
-      transmission: 0.18,       // 大幅降低透光，不再泛白過透
-      thickness: 2.2,
-      transparent: true,
-      opacity: 0.96,
-      ior: 1.55,
-    });
-
-    const ghostWireMat = new THREE.LineBasicMaterial({
-      color: 0x0284c7,
-      transparent: true,
-      opacity: 0.28
-    });
-
-    // --- 4. 零件定向路徑與「全零件精準翻轉（Face to Camera）」角度表 ---
-    const partRegistry = new Map();
-    const activeTweens = [];
-    let flyInCount = 0;
-    let assembledCount = 0;
-    const TOTAL_PARTS = 15;
-
-    const trajectoryMap = {
-      'E': new THREE.Vector3(0, 45, 15),
-      'L': new THREE.Vector3(0, -45, 15),
-      'cube01': new THREE.Vector3(-45, 30, 30),
-      'cube02': new THREE.Vector3(45, 35, -35),
-      'cube03': new THREE.Vector3(-50, -25, -25),
-      'cube04': new THREE.Vector3(40, -30, 40),
-      'cube05': new THREE.Vector3(-35, 45, -30),
-      'cube06': new THREE.Vector3(50, 25, 30),
-      'cube07': new THREE.Vector3(-45, -35, 30),
-      'cube08': new THREE.Vector3(35, -45, -35),
-      'cube09': new THREE.Vector3(-55, 0, 10),
-      'cube10': new THREE.Vector3(55, 0, -10),
-      'cube11': new THREE.Vector3(0, 10, 50),
-      'cube12': new THREE.Vector3(0, -10, -50),
-      'cube13': new THREE.Vector3(35, 35, 35)
-    };
-
-    // 核心調整 2：大幅校正 04, 06 與後續方塊的正面角度，保證槽位絕對正對鏡頭
-    const faceRotationMap = {
-      'E': { x: 0, y: 0 },
-      'L': { x: 0, y: 0 },
-      'cube01': { x: 0.35, y: -0.75 },
-      'cube02': { x: -0.35, y: 2.35 },
-      'cube03': { x: 0.45, y: -2.35 },
-      'cube04': { x: -0.45, y: -1.57 }, // 修正：正右側翻轉到正前
-      'cube05': { x: -0
