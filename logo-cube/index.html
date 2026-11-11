@@ -9,6 +9,88 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      touch-action: manipulation;
+    }
+    body {
+      background: radial-gradient(circle at 50% 30%, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      color: #1e293b;
+    }
+
+    /* CNC 金屬外框裝飾 */
+    #metal-frame {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border-radius: 12px;
+      pointer-events: none;
+      z-index: 100;
+      box-shadow: 
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8),
+        inset 0 0 0 2px rgba(148, 163, 184, 0.6),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.3),
+        0 0 0 1px rgba(71, 85, 105, 0.3);
+    }
+
+    #webgl-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+    #webgl-canvas:active {
+      cursor: grabbing;
+    }
+    
+    header {
+      position: absolute;
+      top: 1.8rem;
+      left: 2rem;
+      right: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: #0f172a;
+      text-transform: uppercase;
+    }
+    .brand-sub {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      color: #64748b;
+      margin-top: 0.2rem;
+    }
+    .status-badge {
+      pointer-events: auto;
+      font-size: 0.75rem;
+      font-family: monospace;
+      padding: 0.35rem 0.9rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(241,245,249,0.8) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 999px;
+      color: #334155;
+      box-shadow: 0 4px 12px rgba(15, 23<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Elements Lab - 3D Logo Cube Assembly</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       user-select: none;
       -webkit-user-select: none;
       touch-action: manipulation;
