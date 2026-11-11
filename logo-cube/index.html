@@ -163,7 +163,7 @@
   </footer>
 
   <script>
-    // --- 1. 音效引擎 ---
+    // --- 1. 機械咬合音效引擎 ---
     const AudioEngine = {
       ctx: null,
       snapAudio: null,
@@ -346,7 +346,8 @@
       roughness: 0.26,
     });
 
-    const singleWireframeMat = new THREE.LineBasicMaterial({
+    // 高對比深冷鋼灰實線框（清楚可見）
+    const blueprintWireMat = new THREE.LineBasicMaterial({
       color: 0x475569,
       linewidth: 1.5
     });
@@ -355,9 +356,9 @@
     const partRegistry = new Map();
     const activeTweens = [];
     let flyInCount = 0;
-    let assembledCount = 0;
+    let assembledCount = 15; // 核心：預設開場即全部組裝完成（呈現線框模式）
     const TOTAL_PARTS = 15;
-    let initialWireframeMesh = null;
+    let isWireframeMode = true; // 開場是否為線框模式
 
     const HOME_ROTATION = { x: 0, y: 0 };
 
@@ -397,36 +398,353 @@
       'cube13': { x: -0.45, y: 0.45 }
     };
 
+    // --- 5. 專注載入 15 零件組裝檔 ---
     const loader = new THREE.GLTFLoader();
-
-    // 1. 載入開場線稿底模
     loader.load(
-      './el-cube-wire.glb',
-      (gltf) => {
+      './el-logo%20asm.glb',
+      (gltf) => { initAssemblyScene(gltf); },
+      undefined,
+      () => {
+        loader.load('./el-logo asm.glb', (gltf) => initAssemblyScene(gltf));
+      }
+    );
+
+    function initAssemblyScene(gltf) {
+      try {
+        const root = gltf.scene;
+
+        // 解除轉檔器可能鎖定的矩陣
+        root.traverse((node) => {
+          node.matrixAutoUpdate = true;
+        });
+
+        // 重新置中與統一縮放
+        root.updateMatrixWorld(true);
+        const originalBox = new THREE.Box3().setFromObject(root);
+        const size = new THREE.Vector3();
+        originalBox.getSize(size);
+        const maxDim = Math.max(size.x, size.y, size.z);
+
+        const targetScale = (isMobile ? 2.0 : 2.3) / (maxDim || 1);
+        root.scale.setScalar(targetScale);
+        root.updateMatrixWorld(true);
+
+        const scaledBox = new THREE.Box3().setFromObject(root);
+        const center = new THREE.Vector3();
+        scaledBox.getCenter(center);
+        root.position.sub(center);
+        root.updateMatrixWorld(true);
+
+        cubeRoot.add(root);
+
+        const targetPartNames = new Set([
+          'E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05',
+          'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'
+        ]);
+
+        root.traverse((node) => {
+          if (targetPartNames.has(node.name)) {
+            const isLogoLetter = (node.name === 'E' || node.name === 'L');
+            const solidMat = isLogoLetter ? champagneGoldMat.clone() : anodizedTealMat.clone();
+
+            const meshes = [];
+            const wireframes = [];
+
+            node.traverse((child) => {
+              if (child.isMesh) {
+                child.material = solidMat;
+                meshes.push(child);
+
+                // 為每一個幾何體生成清晰可見的線框
+                const edges = new THREE.EdgesGeometry(child.geometry);
+                const wire = new THREE.LineSegments(edges, blueprintWireMat);
+                wire.position.copy(child.position);
+                wire.rotation.copy(child.rotation);
+                wire.scale.copy(child.scale);
+                child.parent.add(wire);
+                wireframes.push(wire);
+              }
+            });
+
+            const targetPos = node.position.clone();
+            const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(40, 30, 35);
+            const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
+
+            // 開場：保留在原位，但開啟線框、隱藏厚重實體（實現純線稿展示）
+            node.position.copy(targetPos);
+            node.visible = true;
+            meshes.forEach(m => m.visible = false);
+            wireframes.forEach(w => w.visible = true);
+
+            partRegistry.set(node.name, {
+              node: node,
+              meshes: meshes,
+              wireframes: wireframes,
+              targetPos: targetPos,
+              deepSpacePos: hiddenDeepSpacePos,
+              isAssembled: true
+            });
+          }
+        });
+
+        console.log(`✅ 成功就緒 15 顆零件: ${partRegistry.size}/15`);
+        cubeRoot.rotation.set(HOME_ROTATION.x, HOME_ROTATION.y, 0);
+      } catch(err) {
+        console.error("Assembly Init Error:", err);
+      }
+    }
+
+    // --- 6. 旋轉過渡 ---
+    function smoothRotateCubeTo(targetRot, duration = 380, onComplete = null) {
+      const startRotX = cubeRoot.rotation.x;
+      const startRotY = cubeRoot.rotation.y;
+      const startTime = performance.now();
+
+      activeTweens.push({
+        update(now) {
+          const t = Math.min((now - startTime) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          cubeRoot.rotation.x = THREE.MathUtils.lerp(startRotX, targetRot.x, ease);
+          cubeRoot.rotation.y = THREE.MathUtils.lerp(startRotY, targetRot.y, ease);
+          if (t >= 1 && onComplete) {
+            onComplete();
+          }
+          return t < 1;
+        }
+      });
+    }
+
+    // --- 7. 動態進場與咬合動畫 ---
+    function flyInSinglePart(name, isBatch = false, delayMs = 0, isFinalInBatch = false) {
+      const item = partRegistry.get(name);
+      if (!item || item.isAssembled) return;
+
+      setTimeout(() => {
+        item.isAssembled = true;
+        item.node.visible = true;
+
+        // 轉為實體金屬零件
+        item.meshes.forEach(m => m.visible = true);
+        item.wireframes.forEach(w => w.visible = false);
+
+        if (!isBatch && faceRotationMap[name]) {
+          smoothRotateCubeTo(faceRotationMap[name], 360);
+        }
+
+        AudioEngine.playWhoosh();
+
+        const node = item.node;
+        const startPos = item.deepSpacePos.clone();
+        const endPos = item.targetPos.clone();
+        const startTime = performance.now();
+        const duration = isBatch ? 540 : 640;
+
+        activeTweens.push({
+          update(now) {
+            const elapsed = now - startTime;
+            const t = Math.min(elapsed / duration, 1);
+            const ease = t === 1 ? 1 : 1 - Math.pow(2, -8 * t);
+            node.position.lerpVectors(startPos, endPos, ease);
+
+            if (t >= 1) {
+              node.position.copy(endPos);
+
+              if (!isBatch) {
+                AudioEngine.playSnap(false);
+              } else if (isFinalInBatch) {
+                AudioEngine.playSnap(true);
+              }
+
+              // 金屬咬合高光閃爍
+              item.meshes.forEach((mesh) => {
+                if (mesh.material && mesh.material.emissive) {
+                  const origEmissive = mesh.material.emissive.getHex();
+                  mesh.material.emissive.setHex(0x475569);
+                  setTimeout(() => {
+                    mesh.material.emissive.setHex(origEmissive);
+                  }, 110);
+                }
+              });
+
+              assembledCount++;
+
+              if (assembledCount === TOTAL_PARTS) {
+                smoothRotateCubeTo(HOME_ROTATION, 500);
+                checkAssemblyCompletion(isBatch);
+              }
+              return false;
+            }
+            return true;
+          }
+        });
+      }, delayMs);
+    }
+
+    // --- 8. 第四次惡作劇彩蛋 ---
+    function checkAssemblyCompletion(wasBatch) {
+      if (wasBatch && flyInCount % 4 === 0) {
+        setTimeout(() => {
+          triggerPrankDrop('cube11');
+        }, 650);
+      }
+    }
+
+    function triggerPrankDrop(partName) {
+      const item = partRegistry.get(partName);
+      if (!item) return;
+
+      AudioEngine.playDropSound();
+
+      const node = item.node;
+      const startPos = node.position.clone();
+      const startTime = performance.now();
+      let hasCrashed = false;
+      const dropDirection = new THREE.Vector3(0, 0, -1);
+
+      activeTweens.push({
+        update(now) {
+          const elapsed = (now - startTime) / 1000;
+          const fallDistance = 0.5 * 52 * elapsed * elapsed;
+          node.position.copy(startPos).addScaledVector(dropDirection, fallDistance);
+
+          node.rotation.x += 0.12;
+          node.rotation.y += 0.08;
+
+          if (!hasCrashed && fallDistance > 12) {
+            hasCrashed = true;
+            AudioEngine.playCrash();
+          }
+
+          if (fallDistance > 28) {
+            item.isAssembled = false;
+            node.visible = false;
+            node.position.copy(item.deepSpacePos);
+            node.rotation.set(0, 0, 0);
+            assembledCount--;
+            return false;
+          }
+          return true;
+        }
+      });
+    }
+
+    // --- 9. 懸浮呼吸漫遊 ---
+    let lastActionTime = performance.now();
+    let isRoaming = false;
+    let roamTime = 0;
+
+    function resetIdleTimer() {
+      lastActionTime = performance.now();
+      AudioEngine.init();
+      if (isRoaming) {
+        pullBackToCenter();
+      }
+    }
+
+    function pullBackToCenter() {
+      isRoaming = false;
+      const startPos = cubeRoot.position.clone();
+      const endPos = new THREE.Vector3(0, 0, 0);
+      const startTime = performance.now();
+
+      activeTweens.push({
+        update(now) {
+          const t = Math.min((now - startTime) / 450, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          cubeRoot.position.lerpVectors(startPos, endPos, ease);
+          return t < 1;
+        }
+      });
+    }
+
+    // --- 10. 按鈕控制 ---
+    const btnFlyIn = document.getElementById('btn-flyin');
+    const btnPlay = document.getElementById('btn-play');
+    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
+
+    btnFlyIn.onclick = () => {
+      resetIdleTimer();
+      flyInCount++;
+      clearAllToDeepSpace();
+
+      smoothRotateCubeTo(HOME_ROTATION, 200);
+
+      partOrder.forEach((name, idx) => {
+        const isFinal = (idx === partOrder.length - 1);
+        flyInSinglePart(name, true, idx * 125, isFinal);
+      });
+    };
+
+    let playHitIdx = 0;
+    btnPlay.onclick = () => {
+      resetIdleTimer();
+
+      if (assembledCount >= TOTAL_PARTS) {
+        clearAllToDeepSpace();
+        playHitIdx = 0;
+      }
+
+      while (playHitIdx < partOrder.length) {
+        const nextPart = partOrder[playHitIdx++];
+        const item = partRegistry.get(nextPart);
+        if (item && !item.isAssembled) {
+          flyInSinglePart(nextPart, false, 0, false);
+          break;
+        }
+      }
+    };
+
+    function clearAllToDeepSpace() {
+      playHitIdx = 0;
+      assembledCount = 0;
+      partRegistry.forEach((item) => {
+        item.isAssembled = false;
+        item.node.visible = false;
+        item.node.position.copy(item.deepSpacePos);
+        item.node.rotation.set(0, 0, 0);
+        item.meshes.forEach(m => m.visible = false);
+        item.wireframes.forEach(w => w.visible = false);
+      });
+      cubeRoot.position.set(0, 0, 0);
+    }
+
+    window.addEventListener('pointerdown', () => resetIdleTimer());
+
+    // --- 11. 主渲染迴圈 ---
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+
+      for (let i = activeTweens.length - 1; i >= 0; i--) {
         try {
-          const wireScene = gltf.scene;
-          wireScene.rotation.x = -Math.PI / 2;
-          wireScene.updateMatrixWorld(true);
+          if (!activeTweens[i].update(now)) {
+            activeTweens.splice(i, 1);
+          }
+        } catch(e) {
+          activeTweens.splice(i, 1);
+        }
+      }
 
-          const box = new THREE.Box3().setFromObject(wireScene);
-          const size = new THREE.Vector3();
-          box.getSize(size);
-          const maxDim = Math.max(size.x, size.y, size.z);
-          const targetScale = (isMobile ? 2.0 : 2.3) / (maxDim || 1);
-          wireScene.scale.setScalar(targetScale);
-          wireScene.updateMatrixWorld(true);
+      controls.update();
 
-          const center = new THREE.Vector3();
-          new THREE.Box3().setFromObject(wireScene).getCenter(center);
-          wireScene.position.sub(center);
+      if (now - lastActionTime > 2500) {
+        isRoaming = true;
+        roamTime += 0.012;
 
-          wireScene.traverse((child) => {
-            if (child.isMesh) {
-              const edges = new THREE.EdgesGeometry(child.geometry);
-              const wire = new THREE.LineSegments(edges, singleWireframeMat);
-              child.visible = false;
-              wire.position.copy(child.position);
-              wire.rotation.copy(child.rotation);
-              wire.scale.copy(child.scale);
-              child.parent.add(wire);
-              initialWireframe
+        cubeRoot.position.x = Math.sin(roamTime * 0.75) * 1.5;
+        cubeRoot.position.y = Math.cos(roamTime * 0.55) * 0.9;
+        cubeRoot.position.z = Math.sin(roamTime * 0.45) * 1.6 - 0.6;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
