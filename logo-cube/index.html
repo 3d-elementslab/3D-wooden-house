@@ -71,6 +71,22 @@
       margin-top: 0.2rem;
     }
 
+    #status-hint {
+      position: absolute;
+      top: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: monospace;
+      font-size: 0.75rem;
+      background: rgba(15, 23, 42, 0.85);
+      color: #38bdf8;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      z-index: 150;
+      pointer-events: none;
+      display: none;
+    }
+
     #ui-control-bar {
       position: absolute;
       bottom: 3.2rem;
@@ -143,6 +159,7 @@
 </head>
 <body>
   <div id="metal-frame"></div>
+  <div id="status-hint">LOADING 3D ASSETS...</div>
 
   <header>
     <div>
@@ -163,13 +180,23 @@
   </footer>
 
   <script>
-    // --- 1. 音效引擎：全面柔化音量，杜絕雙重疊加轟頭 ---
+    const statusHint = document.getElementById('status-hint');
+    function showHint(msg, isError = false) {
+      if (!statusHint) return;
+      statusHint.textContent = msg;
+      statusHint.style.color = isError ? '#f87171' : '#38bdf8';
+      statusHint.style.display = 'block';
+    }
+    function hideHint() {
+      if (statusHint) statusHint.style.display = 'none';
+    }
+
+    // --- 1. 溫和音效引擎 ---
     const AudioEngine = {
       ctx: null,
       snapAudio: null,
       whooshAudio: null,
       dropAudio: null,
-      hasPreloaded: false,
       init() {
         try {
           if (!this.ctx) {
@@ -181,26 +208,18 @@
           }
           if (!this.snapAudio) {
             this.snapAudio = new Audio('./snap.wav');
-            this.snapAudio.preload = 'auto';
             this.snapAudio.onerror = () => { this.snapAudio = new Audio('./snap.mp3'); };
           }
           if (!this.whooshAudio) {
             this.whooshAudio = new Audio('./whoosh.wav');
-            this.whooshAudio.preload = 'auto';
             this.whooshAudio.onerror = () => { this.whooshAudio = new Audio('./whoosh.mp3'); };
           }
           if (!this.dropAudio) {
             this.dropAudio = new Audio('./drop.wav');
-            this.dropAudio.preload = 'auto';
             this.dropAudio.onerror = () => {
               this.dropAudio = new Audio('./dorp.wav');
               this.dropAudio.onerror = () => { this.dropAudio = new Audio('./drop.mp3'); };
             };
-          }
-
-          if (!this.hasPreloaded && this.snapAudio) {
-            this.snapAudio.load();
-            this.hasPreloaded = true;
           }
         } catch(e) {}
       },
@@ -215,7 +234,7 @@
         this.init();
         if (this.whooshAudio) {
           const sound = this.whooshAudio.cloneNode();
-          sound.volume = 0.22; // 柔和微風呼嘯
+          sound.volume = 0.22;
           sound.play().catch(() => {});
         }
       },
@@ -223,7 +242,6 @@
         this.init();
         if (this.snapAudio) {
           const sound = this.snapAudio.cloneNode();
-          // 單塊手動 0.35，最終大合體 0.45，清脆溫和不轟耳
           sound.volume = isFinalFlyIn ? 0.45 : 0.35;
           sound.play().catch(() => {
             this.playSynthesizedSnap(isFinalFlyIn);
@@ -274,10 +292,465 @@
         this.init();
         if (this.dropAudio) {
           const sound = this.dropAudio.cloneNode();
-          sound.volume = 0.4; // 溫和滑稽聲
+          sound.volume = 0.4;
           sound.play().catch(() => {});
         }
       },
       playCrash() {
         this.init();
         if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc1 = this.ctx.createOscillator();
+          const gain1 = this.ctx.createGain();
+          osc1.type = 'triangle';
+          osc1.frequency.setValueAtTime(140, now);
+          osc1.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+          gain1.gain.setValueAtTime(0.45, now);
+          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc1.connect(gain1);
+          gain1.connect(this.ctx.destination);
+          osc1.start(now);
+          osc1.stop(now + 0.31);
+
+          this.vibrate([40, 25, 55]);
+        } catch(e) {}
+      }
+    };
+
+    // --- 2. Three.js 場景建構 ---
+    const canvas = document.getElementById('webgl-canvas');
+    const scene = new THREE.Scene();
+
+    const cubeRoot = new THREE.Group();
+    scene.add(cubeRoot);
+
+    const isMobile = window.innerWidth <= 768;
+    const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 150);
+    camera.position.set(0, 1.2, 8.2);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.35;
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 3.5;
+    controls.maxDistance = 25;
+    controls.target.set(0, 0, 0);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
+    keyLight.position.set(10, 15, 10);
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0x0284c7, 2.2);
+    fillLight.position.set(-10, 4, -8);
+    scene.add(fillLight);
+
+    const bottomBounce = new THREE.DirectionalLight(0x0ea5e9, 1.4);
+    bottomBounce.position.set(0, -8, 0);
+    scene.add(bottomBounce);
+
+    // --- 3. 材質配置 ---
+    const champagneGoldMat = new THREE.MeshStandardMaterial({
+      color: 0xebd9b4,
+      metalness: 0.9,
+      roughness: 0.2,
+    });
+
+    const deepCyanMat = new THREE.MeshPhysicalMaterial({
+      color: 0x0284c7,
+      emissive: 0x0369a1,
+      emissiveIntensity: 0.35,
+      metalness: 0.35,
+      roughness: 0.16,
+      transmission: 0.18,
+      thickness: 2.2,
+      transparent: true,
+      opacity: 0.96,
+      ior: 1.55,
+    });
+
+    // 核心強化：高對比清晰工程線框（Cyber Blueprint Cyan）
+    const blueprintWireMat = new THREE.LineBasicMaterial({
+      color: 0x0284c7,
+      transparent: true,
+      opacity: 0.75, // 加強清晰度，在淺色背景上一目了然
+      linewidth: 1.5
+    });
+
+    // --- 4. 零件路徑與基準 ---
+    const partRegistry = new Map();
+    const activeTweens = [];
+    let flyInCount = 0;
+    let assembledCount = 0; // 開場為 0（純線框狀態）
+    const TOTAL_PARTS = 15;
+
+    const HOME_ROTATION = { x: 0, y: 0 };
+
+    const trajectoryMap = {
+      'E': new THREE.Vector3(0, 45, 15),
+      'L': new THREE.Vector3(0, -45, 15),
+      'cube01': new THREE.Vector3(-45, 30, 30),
+      'cube02': new THREE.Vector3(45, 35, -35),
+      'cube03': new THREE.Vector3(-50, -25, -25),
+      'cube04': new THREE.Vector3(40, -30, 40),
+      'cube05': new THREE.Vector3(-35, 45, -30),
+      'cube06': new THREE.Vector3(50, 25, 30),
+      'cube07': new THREE.Vector3(-45, -35, 30),
+      'cube08': new THREE.Vector3(35, -45, -35),
+      'cube09': new THREE.Vector3(-55, 0, 10),
+      'cube10': new THREE.Vector3(55, 0, -10),
+      'cube11': new THREE.Vector3(0, 10, 50),
+      'cube12': new THREE.Vector3(0, -10, -50),
+      'cube13': new THREE.Vector3(35, 35, 35)
+    };
+
+    const faceRotationMap = {
+      'E': { x: 0, y: 0 },
+      'L': { x: 0, y: 0 },
+      'cube01': { x: 0.35, y: -0.75 },
+      'cube02': { x: -0.35, y: 2.35 },
+      'cube03': { x: 0.45, y: -2.35 },
+      'cube04': { x: -0.45, y: -1.57 },
+      'cube05': { x: -0.55, y: 0.75 },
+      'cube06': { x: 0.55, y: 3.14 },
+      'cube07': { x: 0.35, y: -2.95 },
+      'cube08': { x: -0.35, y: 1.57 },
+      'cube09': { x: 0, y: -1.57 },
+      'cube10': { x: 0, y: 1.57 },
+      'cube11': { x: 0, y: 0 },
+      'cube12': { x: 0, y: 3.14 },
+      'cube13': { x: -0.45, y: 0.45 }
+    };
+
+    const loader = new THREE.GLTFLoader();
+    showHint('LOADING ARCHITECTURAL MATRIX...');
+
+    loader.load(
+      './el-logo%20asm.glb',
+      (gltf) => { hideHint(); initModelScene(gltf); },
+      undefined,
+      () => {
+        loader.load(
+          './el-logo asm.glb',
+          (gltf) => { hideHint(); initModelScene(gltf); },
+          undefined,
+          () => { showHint('CANNOT LOAD MODEL: el-logo asm.glb NOT FOUND', true); }
+        );
+      }
+    );
+
+    function initModelScene(gltf) {
+      const root = gltf.scene;
+      root.rotation.x = -Math.PI / 2;
+      root.updateMatrixWorld(true);
+
+      const originalBox = new THREE.Box3().setFromObject(root);
+      const size = new THREE.Vector3();
+      originalBox.getSize(size);
+      const maxDim = Math.max(size.x, size.y, size.z);
+
+      const targetScale = (isMobile ? 2.0 : 2.3) / (maxDim || 1);
+      root.scale.setScalar(targetScale);
+      root.updateMatrixWorld(true);
+
+      const scaledBox = new THREE.Box3().setFromObject(root);
+      const center = new THREE.Vector3();
+      scaledBox.getCenter(center);
+      root.position.sub(center);
+      root.updateMatrixWorld(true);
+
+      cubeRoot.add(root);
+
+      root.traverse((child) => {
+        if (child.isMesh) {
+          const name = child.name;
+
+          if (name === 'E' || name === 'L') {
+            child.material = champagneGoldMat.clone();
+          } else {
+            child.material = deepCyanMat.clone();
+          }
+
+          const targetPos = child.position.clone();
+
+          // 核心：清晰美觀的藍圖線稿插槽
+          const edges = new THREE.EdgesGeometry(child.geometry);
+          const wireframe = new THREE.LineSegments(edges, blueprintWireMat);
+          wireframe.position.copy(targetPos);
+          wireframe.rotation.copy(child.rotation);
+          wireframe.scale.copy(child.scale);
+          child.parent.add(wireframe);
+
+          const deepSpaceDir = trajectoryMap[name] || new THREE.Vector3(40, 30, 35);
+          const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
+
+          // 初始狀態：實體藏於深空，中央留存純粹線稿
+          child.position.copy(hiddenDeepSpacePos);
+          child.visible = false;
+
+          partRegistry.set(name, {
+            mesh: child,
+            targetPos: targetPos,
+            deepSpacePos: hiddenDeepSpacePos,
+            wireframe: wireframe,
+            isAssembled: false
+          });
+        }
+      });
+
+      cubeRoot.rotation.set(HOME_ROTATION.x, HOME_ROTATION.y, 0);
+    }
+
+    // --- 5. 平滑旋轉 ---
+    function smoothRotateCubeTo(targetRot, duration = 420, onComplete = null) {
+      const startRotX = cubeRoot.rotation.x;
+      const startRotY = cubeRoot.rotation.y;
+      const startTime = performance.now();
+
+      activeTweens.push({
+        update(now) {
+          const t = Math.min((now - startTime) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          cubeRoot.rotation.x = THREE.MathUtils.lerp(startRotX, targetRot.x, ease);
+          cubeRoot.rotation.y = THREE.MathUtils.lerp(startRotY, targetRot.y, ease);
+          if (t >= 1 && onComplete) {
+            onComplete();
+          }
+          return t < 1;
+        }
+      });
+    }
+
+    // --- 6. 飛入與咬合動畫 ---
+    function flyInSinglePart(name, isBatch = false, delayMs = 0, isFinalInBatch = false) {
+      const item = partRegistry.get(name);
+      if (!item || item.isAssembled) return;
+
+      setTimeout(() => {
+        item.isAssembled = true;
+        item.mesh.visible = true;
+
+        if (!isBatch && faceRotationMap[name]) {
+          smoothRotateCubeTo(faceRotationMap[name], 380);
+        }
+
+        AudioEngine.playWhoosh();
+
+        const mesh = item.mesh;
+        const startPos = item.deepSpacePos.clone();
+        const endPos = item.targetPos.clone();
+        const startTime = performance.now();
+        const duration = isBatch ? 580 : 680;
+
+        activeTweens.push({
+          update(now) {
+            const elapsed = now - startTime;
+            const t = Math.min(elapsed / duration, 1);
+            const ease = t === 1 ? 1 : 1 - Math.pow(2, -8 * t);
+            mesh.position.lerpVectors(startPos, endPos, ease);
+
+            if (t >= 1) {
+              mesh.position.copy(endPos);
+
+              if (!isBatch) {
+                AudioEngine.playSnap(false);
+              } else if (isFinalInBatch) {
+                AudioEngine.playSnap(true);
+              }
+
+              if (mesh.material && mesh.material.emissive) {
+                const origEmissive = mesh.material.emissive.getHex();
+                mesh.material.emissive.setHex(0x38bdf8);
+                setTimeout(() => {
+                  mesh.material.emissive.setHex(origEmissive);
+                }, 140);
+              }
+
+              assembledCount++;
+
+              if (assembledCount === TOTAL_PARTS) {
+                smoothRotateCubeTo(HOME_ROTATION, 600);
+                checkAssemblyCompletion(isBatch);
+              }
+              return false;
+            }
+            return true;
+          }
+        });
+      }, delayMs);
+    }
+
+    // --- 7. 第四次惡作劇彩蛋 ---
+    function checkAssemblyCompletion(wasBatch) {
+      if (wasBatch && flyInCount % 4 === 0) {
+        setTimeout(() => {
+          triggerPrankDrop('cube11');
+        }, 650);
+      }
+    }
+
+    function triggerPrankDrop(partName) {
+      const item = partRegistry.get(partName);
+      if (!item) return;
+
+      AudioEngine.playDropSound();
+
+      const mesh = item.mesh;
+      const startPos = mesh.position.clone();
+      const startTime = performance.now();
+      let hasCrashed = false;
+      const dropDirection = new THREE.Vector3(0, 0, -1);
+
+      activeTweens.push({
+        update(now) {
+          const elapsed = (now - startTime) / 1000;
+          const fallDistance = 0.5 * 52 * elapsed * elapsed;
+          mesh.position.copy(startPos).addScaledVector(dropDirection, fallDistance);
+
+          mesh.rotation.x += 0.12;
+          mesh.rotation.y += 0.08;
+
+          if (!hasCrashed && fallDistance > 12) {
+            hasCrashed = true;
+            AudioEngine.playCrash();
+          }
+
+          if (fallDistance > 28) {
+            item.isAssembled = false;
+            mesh.visible = false;
+            mesh.position.copy(item.deepSpacePos);
+            mesh.rotation.set(0, 0, 0);
+            assembledCount--;
+            return false;
+          }
+          return true;
+        }
+      });
+    }
+
+    // --- 8. 懸浮呼吸漫遊（即使是線框也會優雅漫遊） ---
+    let lastActionTime = performance.now();
+    let isRoaming = false;
+    let roamTime = 0;
+
+    function resetIdleTimer() {
+      lastActionTime = performance.now();
+      AudioEngine.init();
+      if (isRoaming) {
+        pullBackToCenter();
+      }
+    }
+
+    function pullBackToCenter() {
+      isRoaming = false;
+      const startPos = cubeRoot.position.clone();
+      const endPos = new THREE.Vector3(0, 0, 0);
+      const startTime = performance.now();
+
+      activeTweens.push({
+        update(now) {
+          const t = Math.min((now - startTime) / 500, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          cubeRoot.position.lerpVectors(startPos, endPos, ease);
+          return t < 1;
+        }
+      });
+    }
+
+    // --- 9. 按鈕控制 ---
+    const btnFlyIn = document.getElementById('btn-flyin');
+    const btnPlay = document.getElementById('btn-play');
+    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
+
+    btnFlyIn.onclick = () => {
+      resetIdleTimer();
+      flyInCount++;
+      clearAllToDeepSpace();
+
+      smoothRotateCubeTo(HOME_ROTATION, 200);
+
+      partOrder.forEach((name, idx) => {
+        const isFinal = (idx === partOrder.length - 1);
+        flyInSinglePart(name, true, idx * 135, isFinal);
+      });
+    };
+
+    let playHitIdx = 0;
+    btnPlay.onclick = () => {
+      resetIdleTimer();
+
+      if (assembledCount >= TOTAL_PARTS) {
+        clearAllToDeepSpace();
+        playHitIdx = 0;
+      }
+
+      while (playHitIdx < partOrder.length) {
+        const nextPart = partOrder[playHitIdx++];
+        const item = partRegistry.get(nextPart);
+        if (item && !item.isAssembled) {
+          flyInSinglePart(nextPart, false, 0, false);
+          break;
+        }
+      }
+    };
+
+    function clearAllToDeepSpace() {
+      playHitIdx = 0;
+      assembledCount = 0;
+      partRegistry.forEach((item) => {
+        item.isAssembled = false;
+        item.mesh.visible = false;
+        item.mesh.position.copy(item.deepSpacePos);
+        item.mesh.rotation.set(0, 0, 0);
+      });
+      cubeRoot.position.set(0, 0, 0);
+    }
+
+    window.addEventListener('pointerdown', () => resetIdleTimer());
+
+    // --- 10. 主渲染迴圈 ---
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+
+      for (let i = activeTweens.length - 1; i >= 0; i--) {
+        try {
+          if (!activeTweens[i].update(now)) {
+            activeTweens.splice(i, 1);
+          }
+        } catch(e) {
+          activeTweens.splice(i, 1);
+        }
+      }
+
+      controls.update();
+
+      if (now - lastActionTime > 2500) {
+        isRoaming = true;
+        roamTime += 0.011;
+
+        cubeRoot.position.x = Math.sin(roamTime * 0.75) * 1.6;
+        cubeRoot.position.y = Math.cos(roamTime * 0.55) * 0.95;
+        cubeRoot.position.z = Math.sin(roamTime * 0.45) * 1.8 - 0.7;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
