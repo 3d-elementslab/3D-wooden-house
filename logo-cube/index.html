@@ -163,42 +163,14 @@
   </footer>
 
   <script>
-    // --- 1. 機械咬合音效引擎 ---
+    // --- 1. 極速輕量音效引擎 ---
     const AudioEngine = {
-      ctx: null,
-      snapAudio: null,
       whooshAudio: null,
-      dropAudio: null,
       init() {
         try {
-          if (!this.ctx) {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (AudioContext) this.ctx = new AudioContext();
-          }
-          if (this.ctx && this.ctx.state === 'suspended') {
-            this.ctx.resume();
-          }
-          if (!this.snapAudio) {
-            this.snapAudio = new Audio('./snap.wav');
-            this.snapAudio.onerror = () => { this.snapAudio = new Audio('./snap.mp3'); };
-          }
           if (!this.whooshAudio) {
             this.whooshAudio = new Audio('./whoosh.wav');
             this.whooshAudio.onerror = () => { this.whooshAudio = new Audio('./whoosh.mp3'); };
-          }
-          if (!this.dropAudio) {
-            this.dropAudio = new Audio('./drop.wav');
-            this.dropAudio.onerror = () => {
-              this.dropAudio = new Audio('./dorp.wav');
-              this.dropAudio.onerror = () => { this.dropAudio = new Audio('./drop.mp3'); };
-            };
-          }
-        } catch(e) {}
-      },
-      vibrate(pattern = [25, 10, 35]) {
-        try {
-          if (typeof navigator !== 'undefined' && navigator.vibrate) {
-            navigator.vibrate(pattern);
           }
         } catch(e) {}
       },
@@ -206,85 +178,15 @@
         this.init();
         if (this.whooshAudio) {
           const sound = this.whooshAudio.cloneNode();
-          sound.volume = 0.22;
+          sound.volume = 0.25;
           sound.play().catch(() => {});
         }
       },
-      playSnap(isFinalFlyIn = false) {
-        this.init();
-        if (this.snapAudio) {
-          const sound = this.snapAudio.cloneNode();
-          sound.volume = isFinalFlyIn ? 0.45 : 0.32;
-          sound.play().catch(() => {
-            this.playSynthesizedSnap(isFinalFlyIn);
-          });
-        } else {
-          this.playSynthesizedSnap(isFinalFlyIn);
-        }
-        this.vibrate(isFinalFlyIn ? [35, 15, 50] : [20, 10, 30]);
-      },
-      playSynthesizedSnap(isFinal) {
-        if (!this.ctx) return;
+      vibrate(pattern = [15]) {
         try {
-          const now = this.ctx.currentTime;
-          const gainMult = isFinal ? 0.4 : 0.28;
-
-          [2400, 3600].forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, now);
-            osc.frequency.exponentialRampToValueAtTime(freq * 0.25, now + 0.06);
-
-            gain.gain.setValueAtTime((0.15 / (idx + 1)) * gainMult, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
-
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.07);
-          });
-
-          const bassOsc = this.ctx.createOscillator();
-          const bassGain = this.ctx.createGain();
-          bassOsc.type = 'sine';
-          bassOsc.frequency.setValueAtTime(220, now);
-          bassOsc.frequency.exponentialRampToValueAtTime(45, now + 0.12);
-
-          bassGain.gain.setValueAtTime(0.35 * gainMult, now);
-          bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-
-          bassOsc.connect(bassGain);
-          bassGain.connect(this.ctx.destination);
-          bassOsc.start(now);
-          bassOsc.stop(now + 0.13);
-        } catch(e) {}
-      },
-      playDropSound() {
-        this.init();
-        if (this.dropAudio) {
-          const sound = this.dropAudio.cloneNode();
-          sound.volume = 0.38;
-          sound.play().catch(() => {});
-        }
-      },
-      playCrash() {
-        if (!this.ctx) return;
-        try {
-          const now = this.ctx.currentTime;
-          const osc1 = this.ctx.createOscillator();
-          const gain1 = this.ctx.createGain();
-          osc1.type = 'triangle';
-          osc1.frequency.setValueAtTime(140, now);
-          osc1.frequency.exponentialRampToValueAtTime(30, now + 0.3);
-          gain1.gain.setValueAtTime(0.4, now);
-          gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-          osc1.connect(gain1);
-          gain1.connect(this.ctx.destination);
-          osc1.start(now);
-          osc1.stop(now + 0.31);
-
-          this.vibrate([35, 20, 50]);
+          if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(pattern);
+          }
         } catch(e) {}
       }
     };
@@ -334,22 +236,19 @@
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 3. 材質配置（加深色彩與對比度） ---
-    // 字母 E/L：微暖金屬緞面金
+    // --- 3. 材質配置（香檳金維持，陽極青藍加深 5% 突顯層次） ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
       color: 0xd9b372,
       metalness: 0.90,
       roughness: 0.22,
     });
 
-    // 方塊：深邃陽極金屬青藍（加深對比）
     const anodizedTealMat = new THREE.MeshStandardMaterial({
-      color: 0x2b4c6f,
-      metalness: 0.55,
-      roughness: 0.28,
+      color: 0x244f78, // 更深邃、在冷藍背景中更突出的陽極青藍
+      metalness: 0.60,
+      roughness: 0.24,
     });
 
-    // 純白精緻線框（過濾細碎圓角邊線）
     const cleanWhiteWireMat = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -402,7 +301,7 @@
       'cube13': { x: -0.45, y: 0.45 }
     };
 
-    // --- 5. 載入單一裝配模型 ---
+    // --- 5. 載入模型 ---
     const loader = new THREE.GLTFLoader();
     loader.load(
       './el-logo%20asm.glb',
@@ -416,10 +315,7 @@
     function initAssemblyScene(gltf) {
       try {
         const root = gltf.scene;
-
-        root.traverse((node) => {
-          node.matrixAutoUpdate = true;
-        });
+        root.traverse((node) => { node.matrixAutoUpdate = true; });
 
         root.updateMatrixWorld(true);
         const originalBox = new THREE.Box3().setFromObject(root);
@@ -457,7 +353,6 @@
                 child.material = solidMat;
                 meshes.push(child);
 
-                // 核心改進：閾值設為 24 度，乾淨過濾圓角切面的雜碎線
                 const edges = new THREE.EdgesGeometry(child.geometry, 24);
                 const wire = new THREE.LineSegments(edges, cleanWhiteWireMat);
                 wire.position.copy(child.position);
@@ -472,8 +367,9 @@
             const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(40, 30, 35);
             const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
 
-            // 開場狀態：原位展示純白外輪廓骨架
+            // 開場狀態：原位展示純白外輪廓骨架（縮小 15% 顯得精緻輕巧）[cite: 2]
             node.position.copy(targetPos);
+            node.scale.setScalar(0.85); 
             node.visible = true;
             meshes.forEach(m => m.visible = false);
             wireframes.forEach(w => w.visible = true);
@@ -495,12 +391,11 @@
       }
     }
 
-    // --- 6. 核心功能：全場景強制歸位（相機與模型同時彈回中心框內） ---
-    function resetCameraAndPosition(duration = 420) {
+    // --- 6. 強制歸位與相機對齊 ---
+    function resetCameraAndPosition(duration = 320) {
       const startCamPos = camera.position.clone();
       const startTarget = controls.target.clone();
       const startCubePos = cubeRoot.position.clone();
-
       const startTime = performance.now();
 
       activeTweens.push({
@@ -518,8 +413,7 @@
       });
     }
 
-    // --- 7. 旋轉過渡 ---
-    function smoothRotateCubeTo(targetRot, duration = 380, onComplete = null) {
+    function smoothRotateCubeTo(targetRot, duration = 280, onComplete = null) {
       const startRotX = cubeRoot.rotation.x;
       const startRotY = cubeRoot.rotation.y;
       const startTime = performance.now();
@@ -530,16 +424,14 @@
           const ease = 1 - Math.pow(1 - t, 3);
           cubeRoot.rotation.x = THREE.MathUtils.lerp(startRotX, targetRot.x, ease);
           cubeRoot.rotation.y = THREE.MathUtils.lerp(startRotY, targetRot.y, ease);
-          if (t >= 1 && onComplete) {
-            onComplete();
-          }
+          if (t >= 1 && onComplete) onComplete();
           return t < 1;
         }
       });
     }
 
-    // --- 8. 動態進場與咬合動畫 ---
-    function flyInSinglePart(name, isBatch = false, delayMs = 0, isFinalInBatch = false) {
+    // --- 7. 進場動畫（復原開場 0.85 縮放至 1.0 完美咬合） ---
+    function flyInSinglePart(name, isBatch = false, delayMs = 0) {
       const item = partRegistry.get(name);
       if (!item || item.isAssembled) return;
 
@@ -551,48 +443,34 @@
         item.wireframes.forEach(w => w.visible = false);
 
         if (!isBatch && faceRotationMap[name]) {
-          smoothRotateCubeTo(faceRotationMap[name], 360);
+          smoothRotateCubeTo(faceRotationMap[name], 280);
         }
 
         AudioEngine.playWhoosh();
+        AudioEngine.vibrate([15]);
 
         const node = item.node;
         const startPos = item.deepSpacePos.clone();
         const endPos = item.targetPos.clone();
         const startTime = performance.now();
-        const duration = isBatch ? 540 : 640;
+        const duration = isBatch ? 350 : 380;
 
         activeTweens.push({
           update(now) {
             const elapsed = now - startTime;
             const t = Math.min(elapsed / duration, 1);
-            const ease = t === 1 ? 1 : 1 - Math.pow(2, -8 * t);
+            const ease = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+            
             node.position.lerpVectors(startPos, endPos, ease);
+            node.scale.setScalar(THREE.MathUtils.lerp(0.85, 1.0, ease));
 
             if (t >= 1) {
               node.position.copy(endPos);
-
-              if (!isBatch) {
-                AudioEngine.playSnap(false);
-              } else if (isFinalInBatch) {
-                AudioEngine.playSnap(true);
-              }
-
-              item.meshes.forEach((mesh) => {
-                if (mesh.material && mesh.material.emissive) {
-                  const origEmissive = mesh.material.emissive.getHex();
-                  mesh.material.emissive.setHex(0x334155);
-                  setTimeout(() => {
-                    mesh.material.emissive.setHex(origEmissive);
-                  }, 120);
-                }
-              });
-
+              node.scale.setScalar(1.0);
               assembledCount++;
 
               if (assembledCount === TOTAL_PARTS) {
-                smoothRotateCubeTo(HOME_ROTATION, 500);
-                checkAssemblyCompletion(isBatch);
+                smoothRotateCubeTo(HOME_ROTATION, 350);
               }
               return false;
             }
@@ -602,55 +480,7 @@
       }, delayMs);
     }
 
-    // --- 9. 第四次惡作劇彩蛋 ---
-    function checkAssemblyCompletion(wasBatch) {
-      if (wasBatch && flyInCount % 4 === 0) {
-        setTimeout(() => {
-          triggerPrankDrop('cube11');
-        }, 650);
-      }
-    }
-
-    function triggerPrankDrop(partName) {
-      const item = partRegistry.get(partName);
-      if (!item) return;
-
-      AudioEngine.playDropSound();
-
-      const node = item.node;
-      const startPos = node.position.clone();
-      const startTime = performance.now();
-      let hasCrashed = false;
-      const dropDirection = new THREE.Vector3(0, 0, -1);
-
-      activeTweens.push({
-        update(now) {
-          const elapsed = (now - startTime) / 1000;
-          const fallDistance = 0.5 * 52 * elapsed * elapsed;
-          node.position.copy(startPos).addScaledVector(dropDirection, fallDistance);
-
-          node.rotation.x += 0.12;
-          node.rotation.y += 0.08;
-
-          if (!hasCrashed && fallDistance > 12) {
-            hasCrashed = true;
-            AudioEngine.playCrash();
-          }
-
-          if (fallDistance > 28) {
-            item.isAssembled = false;
-            node.visible = false;
-            node.position.copy(item.deepSpacePos);
-            node.rotation.set(0, 0, 0);
-            assembledCount--;
-            return false;
-          }
-          return true;
-        }
-      });
-    }
-
-    // --- 10. 懸浮呼吸漫遊（距離加大，但維持在框內） ---
+    // --- 8. 懸浮漫遊（依桌機與手機動態調整振幅） ---
     let lastActionTime = performance.now();
     let isRoaming = false;
     let roamTime = 0;
@@ -659,49 +489,42 @@
       lastActionTime = performance.now();
       AudioEngine.init();
       if (isRoaming) {
-        pullBackToCenter();
+        isRoaming = false;
+        const startPos = cubeRoot.position.clone();
+        const endPos = new THREE.Vector3(0, 0, 0);
+        const startTime = performance.now();
+        activeTweens.push({
+          update(now) {
+            const t = Math.min((now - startTime) / 350, 1);
+            cubeRoot.position.lerpVectors(startPos, endPos, 1 - Math.pow(1 - t, 3));
+            return t < 1;
+          }
+        });
       }
     }
 
-    function pullBackToCenter() {
-      isRoaming = false;
-      const startPos = cubeRoot.position.clone();
-      const endPos = new THREE.Vector3(0, 0, 0);
-      const startTime = performance.now();
-
-      activeTweens.push({
-        update(now) {
-          const t = Math.min((now - startTime) / 450, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          cubeRoot.position.lerpVectors(startPos, endPos, ease);
-          return t < 1;
-        }
-      });
-    }
-
-    // --- 11. 按鈕控制與強制歸位 ---
+    // --- 9. 按鈕控制 ---
     const btnFlyIn = document.getElementById('btn-flyin');
     const btnPlay = document.getElementById('btn-play');
     const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
 
     btnFlyIn.onclick = () => {
       resetIdleTimer();
-      resetCameraAndPosition(); // 強制歸位到視窗中心
+      resetCameraAndPosition();
       flyInCount++;
       clearAllToDeepSpace();
 
-      smoothRotateCubeTo(HOME_ROTATION, 200);
+      smoothRotateCubeTo(HOME_ROTATION, 150);
 
       partOrder.forEach((name, idx) => {
-        const isFinal = (idx === partOrder.length - 1);
-        flyInSinglePart(name, true, idx * 125, isFinal);
+        flyInSinglePart(name, true, idx * 55);
       });
     };
 
     let playHitIdx = 0;
     btnPlay.onclick = () => {
       resetIdleTimer();
-      resetCameraAndPosition(); // 強制歸位到視窗中心
+      resetCameraAndPosition();
 
       if (assembledCount >= TOTAL_PARTS) {
         clearAllToDeepSpace();
@@ -712,7 +535,7 @@
         const nextPart = partOrder[playHitIdx++];
         const item = partRegistry.get(nextPart);
         if (item && !item.isAssembled) {
-          flyInSinglePart(nextPart, false, 0, false);
+          flyInSinglePart(nextPart, false, 0);
           break;
         }
       }
@@ -725,16 +548,17 @@
         item.isAssembled = false;
         item.node.visible = false;
         item.node.position.copy(item.deepSpacePos);
+        item.node.scale.setScalar(0.85);
         item.node.rotation.set(0, 0, 0);
         item.meshes.forEach(m => m.visible = false);
-        item.wireframes.forEach(w => w.visible = false);
+        item.wireframes.forEach(w => w.visible = true); // 清空重置時恢復純白線框狀態
       });
       cubeRoot.position.set(0, 0, 0);
     }
 
     window.addEventListener('pointerdown', () => resetIdleTimer());
 
-    // --- 12. 主渲染迴圈 ---
+    // --- 10. 主渲染迴圈 ---
     function animate() {
       requestAnimationFrame(animate);
       const now = performance.now();
@@ -751,14 +575,14 @@
 
       controls.update();
 
-      // 閒置時更大幅度的立體漂浮，但確保不破出外框邊界
       if (now - lastActionTime > 2500) {
         isRoaming = true;
         roamTime += 0.013;
-
-        cubeRoot.position.x = Math.sin(roamTime * 0.75) * 1.65;
-        cubeRoot.position.y = Math.cos(roamTime * 0.55) * 1.1;
-        cubeRoot.position.z = Math.sin(roamTime * 0.45) * 0.95 - 0.2;
+        // 核心優化：桌機大幅縮減擺動幅度（僅剩 22%），手機保持優雅流暢
+        const ampScale = isMobile ? 1.0 : 0.22;
+        cubeRoot.position.x = Math.sin(roamTime * 0.75) * 1.65 * ampScale;
+        cubeRoot.position.y = Math.cos(roamTime * 0.55) * 1.1 * ampScale;
+        cubeRoot.position.z = Math.sin(roamTime * 0.45) * 0.95 * ampScale - 0.2;
       }
 
       renderer.render(scene, camera);
