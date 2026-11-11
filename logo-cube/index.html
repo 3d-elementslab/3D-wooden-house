@@ -220,11 +220,12 @@
   </footer>
 
   <script>
-    // --- 1. 雙軌音效架構（支援 whoosh 吸入聲與 snap 金屬撞擊聲） ---
+    // --- 1. 多軌音效架構（whoosh 破空 + snap 撞擊 + drop 滑稽下墜） ---
     const AudioEngine = {
       ctx: null,
       snapAudio: null,
       whooshAudio: null,
+      dropAudio: null,
       init() {
         try {
           if (!this.ctx) {
@@ -242,6 +243,14 @@
             this.whooshAudio = new Audio('./whoosh.mp3');
             this.whooshAudio.onerror = () => { this.whooshAudio = new Audio('./whoosh.wav'); };
           }
+          if (!this.dropAudio) {
+            // 同時支援 drop.wav 與 dorp.wav
+            this.dropAudio = new Audio('./drop.wav');
+            this.dropAudio.onerror = () => {
+              this.dropAudio = new Audio('./dorp.wav');
+              this.dropAudio.onerror = () => { this.dropAudio = new Audio('./drop.mp3'); };
+            };
+          }
         } catch(e) {}
       },
       vibrate(pattern = [50, 20, 80]) {
@@ -251,7 +260,6 @@
           }
         } catch(e) {}
       },
-      // 1. 零件起飛呼嘯吸入破空聲
       playWhoosh() {
         this.init();
         if (this.whooshAudio) {
@@ -260,7 +268,6 @@
           sound.play().catch(() => {});
         }
       },
-      // 2. 零件撞擊咬合聲
       playSnap(isFlyIn = false) {
         this.init();
         if (this.snapAudio) {
@@ -311,24 +318,37 @@
           bassOsc.stop(now + 0.15);
         } catch(e) {}
       },
-      playSlip() {
+      // 滑稽下墜音效（優先播放 drop.wav，無檔案則播放滑音合成音）
+      playDropSound() {
         this.init();
+        if (this.dropAudio) {
+          const sound = this.dropAudio.cloneNode();
+          sound.volume = 0.9;
+          sound.play().catch(() => {
+            this.playSynthesizedSlip();
+          });
+        } else {
+          this.playSynthesizedSlip();
+        }
+      },
+      playSynthesizedSlip() {
         if (!this.ctx) return;
         try {
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(600, now);
-          osc.frequency.exponentialRampToValueAtTime(180, now + 0.25);
-          gain.gain.setValueAtTime(0.5, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.frequency.setValueAtTime(650, now);
+          osc.frequency.exponentialRampToValueAtTime(120, now + 0.45);
+          gain.gain.setValueAtTime(0.6, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.26);
+          osc.stop(now + 0.46);
         } catch(e) {}
       },
+      // 落地摔碰聲
       playCrash() {
         this.init();
         if (!this.ctx) return;
@@ -550,7 +570,6 @@
         item.isAssembled = true;
         item.mesh.visible = true;
 
-        // 起飛瞬間觸發破空吸入音效
         AudioEngine.playWhoosh();
 
         const chip = document.getElementById(`chip-${name}`);
@@ -572,8 +591,6 @@
 
             if (t >= 1) {
               mesh.position.copy(endPos);
-              
-              // 咬合瞬間觸發金屬卡榫撞擊聲
               AudioEngine.playSnap(isBatch);
               
               if (mesh.material && mesh.material.emissive) {
@@ -601,7 +618,7 @@
       document.getElementById('status-counter').textContent = `LOCKED · ${assembledCount} / ${TOTAL_PARTS}`;
     }
 
-    // --- 6. 第四次惡作劇彩蛋 ---
+    // --- 6. 第四次惡作劇彩蛋（滑笛下墜音效 + 墜地碰撞重音） ---
     function checkAssemblyCompletion(wasBatch) {
       document.getElementById('btn-reset').style.display = 'inline-block';
 
@@ -618,7 +635,8 @@
       const item = partRegistry.get(partName);
       if (!item) return;
 
-      AudioEngine.playSlip();
+      // 觸發滑稽滑笛下墜聲
+      AudioEngine.playDropSound();
       document.getElementById('status-counter').textContent = 'OOPS! MALFUNCTION · CUBE 11 DROPPED';
 
       const mesh = item.mesh;
