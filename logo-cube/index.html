@@ -12,7 +12,7 @@
       touch-action: manipulation;
     }
     body {
-      background: radial-gradient(circle at 50% 30%, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+      background: radial-gradient(circle at 50% 30%, #e2e8f0 0%, #cbd5e1 50%, #8fa0b5 100%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       overflow: hidden;
       width: 100vw;
@@ -22,15 +22,15 @@
 
     #metal-frame {
       position: fixed;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      bottom: 10px;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
       border-radius: 12px;
       pointer-events: none;
       z-index: 100;
       box-shadow: 
-        inset 0 0 0 1px rgba(255, 255, 255, 0.8),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.85),
         inset 0 0 0 2px rgba(148, 163, 184, 0.6),
         inset 0 0 0 3px rgba(255, 255, 255, 0.3),
         0 0 0 1px rgba(71, 85, 105, 0.3);
@@ -67,7 +67,7 @@
     .brand-sub {
       font-size: 0.7rem;
       letter-spacing: 0.12em;
-      color: #64748b;
+      color: #475569;
       margin-top: 0.2rem;
     }
 
@@ -130,7 +130,7 @@
       text-align: center;
       font-size: 0.62rem;
       letter-spacing: 0.12em;
-      color: #64748b;
+      color: #475569;
       pointer-events: none;
       z-index: 10;
       line-height: 1.2;
@@ -298,7 +298,8 @@
 
     const isMobile = window.innerWidth <= 768;
     const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 150);
-    camera.position.set(0, 1.2, 8.2);
+    const DEFAULT_CAM_POS = new THREE.Vector3(0, 1.2, 8.2);
+    camera.position.copy(DEFAULT_CAM_POS);
 
     const renderer = new THREE.WebGLRenderer({ 
       canvas, 
@@ -309,56 +310,59 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.35;
+    renderer.toneMappingExposure = 1.25;
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 3.5;
-    controls.maxDistance = 25;
+    controls.maxDistance = 20;
     controls.target.set(0, 0, 0);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.9);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
     keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x94a3b8, 1.8);
+    const fillLight = new THREE.DirectionalLight(0x64748b, 1.6);
     fillLight.position.set(-10, 4, -8);
     scene.add(fillLight);
 
-    const bottomBounce = new THREE.DirectionalLight(0xe2e8f0, 1.2);
+    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.1);
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 3. 材質配置 ---
+    // --- 3. 材質配置（加深色彩與對比度） ---
+    // 字母 E/L：微暖金屬緞面金
     const champagneGoldMat = new THREE.MeshStandardMaterial({
-      color: 0xebd9b4,
-      metalness: 0.92,
-      roughness: 0.18,
+      color: 0xd9b372,
+      metalness: 0.90,
+      roughness: 0.22,
     });
 
+    // 方塊：深邃陽極金屬青藍（加深對比）
     const anodizedTealMat = new THREE.MeshStandardMaterial({
-      color: 0x1e3a5f,
-      metalness: 0.45,
-      roughness: 0.26,
+      color: 0x2b4c6f,
+      metalness: 0.55,
+      roughness: 0.28,
     });
 
-    // 高對比深冷鋼灰實線框（清楚可見）
-    const blueprintWireMat = new THREE.LineBasicMaterial({
-      color: 0x475569,
-      linewidth: 1.5
+    // 純白精緻線框（過濾細碎圓角邊線）
+    const cleanWhiteWireMat = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.85,
+      linewidth: 1
     });
 
     // --- 4. 零件定向路徑與旋轉基準 ---
     const partRegistry = new Map();
     const activeTweens = [];
     let flyInCount = 0;
-    let assembledCount = 15; // 核心：預設開場即全部組裝完成（呈現線框模式）
+    let assembledCount = 15;
     const TOTAL_PARTS = 15;
-    let isWireframeMode = true; // 開場是否為線框模式
 
     const HOME_ROTATION = { x: 0, y: 0 };
 
@@ -398,7 +402,7 @@
       'cube13': { x: -0.45, y: 0.45 }
     };
 
-    // --- 5. 專注載入 15 零件組裝檔 ---
+    // --- 5. 載入單一裝配模型 ---
     const loader = new THREE.GLTFLoader();
     loader.load(
       './el-logo%20asm.glb',
@@ -413,12 +417,10 @@
       try {
         const root = gltf.scene;
 
-        // 解除轉檔器可能鎖定的矩陣
         root.traverse((node) => {
           node.matrixAutoUpdate = true;
         });
 
-        // 重新置中與統一縮放
         root.updateMatrixWorld(true);
         const originalBox = new THREE.Box3().setFromObject(root);
         const size = new THREE.Vector3();
@@ -455,9 +457,9 @@
                 child.material = solidMat;
                 meshes.push(child);
 
-                // 為每一個幾何體生成清晰可見的線框
-                const edges = new THREE.EdgesGeometry(child.geometry);
-                const wire = new THREE.LineSegments(edges, blueprintWireMat);
+                // 核心改進：閾值設為 24 度，乾淨過濾圓角切面的雜碎線
+                const edges = new THREE.EdgesGeometry(child.geometry, 24);
+                const wire = new THREE.LineSegments(edges, cleanWhiteWireMat);
                 wire.position.copy(child.position);
                 wire.rotation.copy(child.rotation);
                 wire.scale.copy(child.scale);
@@ -470,7 +472,7 @@
             const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(40, 30, 35);
             const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
 
-            // 開場：保留在原位，但開啟線框、隱藏厚重實體（實現純線稿展示）
+            // 開場狀態：原位展示純白外輪廓骨架
             node.position.copy(targetPos);
             node.visible = true;
             meshes.forEach(m => m.visible = false);
@@ -487,14 +489,36 @@
           }
         });
 
-        console.log(`✅ 成功就緒 15 顆零件: ${partRegistry.size}/15`);
         cubeRoot.rotation.set(HOME_ROTATION.x, HOME_ROTATION.y, 0);
       } catch(err) {
         console.error("Assembly Init Error:", err);
       }
     }
 
-    // --- 6. 旋轉過渡 ---
+    // --- 6. 核心功能：全場景強制歸位（相機與模型同時彈回中心框內） ---
+    function resetCameraAndPosition(duration = 420) {
+      const startCamPos = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const startCubePos = cubeRoot.position.clone();
+
+      const startTime = performance.now();
+
+      activeTweens.push({
+        update(now) {
+          const t = Math.min((now - startTime) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+
+          camera.position.lerpVectors(startCamPos, DEFAULT_CAM_POS, ease);
+          controls.target.lerpVectors(startTarget, new THREE.Vector3(0, 0, 0), ease);
+          cubeRoot.position.lerpVectors(startCubePos, new THREE.Vector3(0, 0, 0), ease);
+
+          controls.update();
+          return t < 1;
+        }
+      });
+    }
+
+    // --- 7. 旋轉過渡 ---
     function smoothRotateCubeTo(targetRot, duration = 380, onComplete = null) {
       const startRotX = cubeRoot.rotation.x;
       const startRotY = cubeRoot.rotation.y;
@@ -514,7 +538,7 @@
       });
     }
 
-    // --- 7. 動態進場與咬合動畫 ---
+    // --- 8. 動態進場與咬合動畫 ---
     function flyInSinglePart(name, isBatch = false, delayMs = 0, isFinalInBatch = false) {
       const item = partRegistry.get(name);
       if (!item || item.isAssembled) return;
@@ -523,7 +547,6 @@
         item.isAssembled = true;
         item.node.visible = true;
 
-        // 轉為實體金屬零件
         item.meshes.forEach(m => m.visible = true);
         item.wireframes.forEach(w => w.visible = false);
 
@@ -555,14 +578,13 @@
                 AudioEngine.playSnap(true);
               }
 
-              // 金屬咬合高光閃爍
               item.meshes.forEach((mesh) => {
                 if (mesh.material && mesh.material.emissive) {
                   const origEmissive = mesh.material.emissive.getHex();
-                  mesh.material.emissive.setHex(0x475569);
+                  mesh.material.emissive.setHex(0x334155);
                   setTimeout(() => {
                     mesh.material.emissive.setHex(origEmissive);
-                  }, 110);
+                  }, 120);
                 }
               });
 
@@ -580,7 +602,7 @@
       }, delayMs);
     }
 
-    // --- 8. 第四次惡作劇彩蛋 ---
+    // --- 9. 第四次惡作劇彩蛋 ---
     function checkAssemblyCompletion(wasBatch) {
       if (wasBatch && flyInCount % 4 === 0) {
         setTimeout(() => {
@@ -628,7 +650,7 @@
       });
     }
 
-    // --- 9. 懸浮呼吸漫遊 ---
+    // --- 10. 懸浮呼吸漫遊（距離加大，但維持在框內） ---
     let lastActionTime = performance.now();
     let isRoaming = false;
     let roamTime = 0;
@@ -657,13 +679,14 @@
       });
     }
 
-    // --- 10. 按鈕控制 ---
+    // --- 11. 按鈕控制與強制歸位 ---
     const btnFlyIn = document.getElementById('btn-flyin');
     const btnPlay = document.getElementById('btn-play');
     const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
 
     btnFlyIn.onclick = () => {
       resetIdleTimer();
+      resetCameraAndPosition(); // 強制歸位到視窗中心
       flyInCount++;
       clearAllToDeepSpace();
 
@@ -678,6 +701,7 @@
     let playHitIdx = 0;
     btnPlay.onclick = () => {
       resetIdleTimer();
+      resetCameraAndPosition(); // 強制歸位到視窗中心
 
       if (assembledCount >= TOTAL_PARTS) {
         clearAllToDeepSpace();
@@ -710,7 +734,7 @@
 
     window.addEventListener('pointerdown', () => resetIdleTimer());
 
-    // --- 11. 主渲染迴圈 ---
+    // --- 12. 主渲染迴圈 ---
     function animate() {
       requestAnimationFrame(animate);
       const now = performance.now();
@@ -727,13 +751,14 @@
 
       controls.update();
 
+      // 閒置時更大幅度的立體漂浮，但確保不破出外框邊界
       if (now - lastActionTime > 2500) {
         isRoaming = true;
-        roamTime += 0.012;
+        roamTime += 0.013;
 
-        cubeRoot.position.x = Math.sin(roamTime * 0.75) * 1.5;
-        cubeRoot.position.y = Math.cos(roamTime * 0.55) * 0.9;
-        cubeRoot.position.z = Math.sin(roamTime * 0.45) * 1.6 - 0.6;
+        cubeRoot.position.x = Math.sin(roamTime * 0.75) * 1.65;
+        cubeRoot.position.y = Math.cos(roamTime * 0.55) * 1.1;
+        cubeRoot.position.z = Math.sin(roamTime * 0.45) * 0.95 - 0.2;
       }
 
       renderer.render(scene, camera);
