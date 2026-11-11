@@ -70,27 +70,17 @@
       color: #64748b;
       margin-top: 0.2rem;
     }
-    .status-badge {
-      pointer-events: auto;
-      font-size: 0.75rem;
-      font-family: monospace;
-      padding: 0.35rem 0.9rem;
-      background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(241,245,249,0.8) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      border-radius: 999px;
-      color: #334155;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-    }
 
+    /* 極簡控制台：等寬等高深色立體金屬按鈕 */
     #ui-control-bar {
       position: absolute;
-      bottom: 3.5rem;
+      bottom: 3.2rem;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 0.9rem;
+      gap: 1.2rem;
       align-items: center;
-      padding: 0.45rem 0.8rem;
+      padding: 0.5rem 0.8rem;
       background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(226,232,240,0.7) 100%);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.9);
@@ -102,77 +92,35 @@
     }
 
     .action-btn {
-      padding: 0.6rem 1.4rem;
-      font-size: 0.78rem;
+      width: 135px;
+      height: 42px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.76rem;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: #1e293b;
-      background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 50%, #cbd5e1 100%);
-      border: 1px solid #94a3b8;
-      border-bottom: 2px solid #64748b;
+      color: #f8fafc;
+      background: linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
+      border: 1px solid #475569;
+      border-bottom: 2px solid #020617;
       border-radius: 999px;
       cursor: pointer;
       box-shadow: 
-        0 2px 4px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-      transition: all 0.1s ease;
+        0 3px 8px rgba(15, 23, 42, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transition: all 0.12s ease;
+    }
+    .action-btn:hover {
+      background: linear-gradient(180deg, #475569 0%, #334155 50%, #1e293b 100%);
     }
     .action-btn:active {
       transform: translateY(2px);
-      border-bottom: 1px solid #64748b;
+      border-bottom: 1px solid #020617;
       box-shadow: 
-        0 1px 2px rgba(0, 0, 0, 0.1),
-        inset 0 1px 2px rgba(0, 0, 0, 0.15);
-    }
-
-    .action-btn.primary {
-      color: #451a03;
-      background: linear-gradient(180deg, #fef3c7 0%, #fde68a 50%, #f59e0b 100%);
-      border: 1px solid #d97706;
-      border-bottom: 2px solid #b45309;
-      box-shadow: 
-        0 2px 6px rgba(217, 119, 6, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    }
-    .action-btn.primary:active {
-      transform: translateY(2px);
-      border-bottom: 1px solid #b45309;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
-    }
-
-    #manual-selector {
-      position: absolute;
-      bottom: 7rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: none;
-      gap: 0.35rem;
-      padding: 0.5rem 0.8rem;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(226, 232, 240, 0.9);
-      border-radius: 0.75rem;
-      max-width: 92vw;
-      overflow-x: auto;
-      z-index: 15;
-    }
-    .part-chip {
-      padding: 0.35rem 0.65rem;
-      font-size: 0.7rem;
-      font-family: monospace;
-      font-weight: 600;
-      color: #475569;
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      border-radius: 0.35rem;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .part-chip.assembled {
-      opacity: 0.25;
-      pointer-events: none;
-      text-decoration: line-through;
+        0 1px 3px rgba(15, 23, 42, 0.3),
+        inset 0 1px 2px rgba(0, 0, 0, 0.35);
     }
 
     footer {
@@ -202,17 +150,13 @@
       <div class="brand-title">ELEMENTS LAB</div>
       <div class="brand-sub">Modular Assembly Simulator</div>
     </div>
-    <div class="status-badge" id="status-counter">STANDBY · 0 / 15</div>
   </header>
 
   <canvas id="webgl-canvas"></canvas>
 
-  <div id="manual-selector"></div>
-
   <div id="ui-control-bar">
-    <button class="action-btn primary" id="btn-flyin">FLY IN</button>
-    <button class="action-btn" id="btn-play">PLAY</button>
-    <button class="action-btn" id="btn-reset" style="display:none;">RESET</button>
+    <button class="action-btn" id="btn-flyin">FLY IN</button>
+    <button class="action-btn" id="btn-play">PLAY & HIT</button>
   </div>
 
   <footer>
@@ -220,7 +164,7 @@
   </footer>
 
   <script>
-    // --- 1. 多軌音效架構（whoosh 破空 + snap 撞擊 + drop 滑稽下墜） ---
+    // --- 1. 音效引擎：音量降低 40%，去除槍聲，支援 drop.wav ---
     const AudioEngine = {
       ctx: null,
       snapAudio: null,
@@ -236,15 +180,14 @@
             this.ctx.resume();
           }
           if (!this.snapAudio) {
-            this.snapAudio = new Audio('./snap.mp3');
-            this.snapAudio.onerror = () => { this.snapAudio = new Audio('./snap.wav'); };
+            this.snapAudio = new Audio('./snap.wav');
+            this.snapAudio.onerror = () => { this.snapAudio = new Audio('./snap.mp3'); };
           }
           if (!this.whooshAudio) {
-            this.whooshAudio = new Audio('./whoosh.mp3');
-            this.whooshAudio.onerror = () => { this.whooshAudio = new Audio('./whoosh.wav'); };
+            this.whooshAudio = new Audio('./whoosh.wav');
+            this.whooshAudio.onerror = () => { this.whooshAudio = new Audio('./whoosh.mp3'); };
           }
           if (!this.dropAudio) {
-            // 同時支援 drop.wav 與 dorp.wav
             this.dropAudio = new Audio('./drop.wav');
             this.dropAudio.onerror = () => {
               this.dropAudio = new Audio('./dorp.wav');
@@ -253,39 +196,41 @@
           }
         } catch(e) {}
       },
-      vibrate(pattern = [50, 20, 80]) {
+      vibrate(pattern = [40, 20, 60]) {
         try {
           if (typeof navigator !== 'undefined' && navigator.vibrate) {
             navigator.vibrate(pattern);
           }
         } catch(e) {}
       },
+      // 破空聲（音量適中）
       playWhoosh() {
         this.init();
         if (this.whooshAudio) {
           const sound = this.whooshAudio.cloneNode();
-          sound.volume = 0.6;
+          sound.volume = 0.45; // 降 40%
           sound.play().catch(() => {});
         }
       },
-      playSnap(isFlyIn = false) {
+      // 實心卡榫咬合聲（僅在單顆手動 HIT 或 FLY IN 最終合體時觸發）
+      playSnap(isFinalFlyIn = false) {
         this.init();
         if (this.snapAudio) {
           const sound = this.snapAudio.cloneNode();
-          sound.volume = isFlyIn ? 1.0 : 0.8;
+          sound.volume = isFinalFlyIn ? 0.65 : 0.55; // 降 40% 音量，告別刺耳
           sound.play().catch(() => {
-            this.playSynthesizedSnap(isFlyIn);
+            this.playSynthesizedSnap(isFinalFlyIn);
           });
         } else {
-          this.playSynthesizedSnap(isFlyIn);
+          this.playSynthesizedSnap(isFinalFlyIn);
         }
-        this.vibrate(isFlyIn ? [40, 20, 60] : [50, 20, 80]);
+        this.vibrate(isFinalFlyIn ? [50, 30, 80] : [35, 15, 50]);
       },
-      playSynthesizedSnap(isFlyIn) {
+      playSynthesizedSnap(isFinal) {
         if (!this.ctx) return;
         try {
           const now = this.ctx.currentTime;
-          const gainMult = isFlyIn ? 1.4 : 1.1;
+          const gainMult = isFinal ? 0.8 : 0.55;
 
           [2200, 3400].forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
@@ -294,7 +239,7 @@
             osc.frequency.setValueAtTime(freq, now);
             osc.frequency.exponentialRampToValueAtTime(freq * 0.35, now + 0.07);
 
-            gain.gain.setValueAtTime((0.35 / (idx + 1)) * gainMult, now);
+            gain.gain.setValueAtTime((0.25 / (idx + 1)) * gainMult, now);
             gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
 
             osc.connect(gain);
@@ -306,10 +251,10 @@
           const bassOsc = this.ctx.createOscillator();
           const bassGain = this.ctx.createGain();
           bassOsc.type = 'sine';
-          bassOsc.frequency.setValueAtTime(280, now);
+          bassOsc.frequency.setValueAtTime(260, now);
           bassOsc.frequency.exponentialRampToValueAtTime(50, now + 0.14);
 
-          bassGain.gain.setValueAtTime(1.0 * gainMult, now);
+          bassGain.gain.setValueAtTime(0.6 * gainMult, now);
           bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
 
           bassOsc.connect(bassGain);
@@ -318,37 +263,14 @@
           bassOsc.stop(now + 0.15);
         } catch(e) {}
       },
-      // 滑稽下墜音效（優先播放 drop.wav，無檔案則播放滑音合成音）
       playDropSound() {
         this.init();
         if (this.dropAudio) {
           const sound = this.dropAudio.cloneNode();
-          sound.volume = 0.9;
-          sound.play().catch(() => {
-            this.playSynthesizedSlip();
-          });
-        } else {
-          this.playSynthesizedSlip();
+          sound.volume = 0.6; // 降 40%
+          sound.play().catch(() => {});
         }
       },
-      playSynthesizedSlip() {
-        if (!this.ctx) return;
-        try {
-          const now = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(650, now);
-          osc.frequency.exponentialRampToValueAtTime(120, now + 0.45);
-          gain.gain.setValueAtTime(0.6, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.46);
-        } catch(e) {}
-      },
-      // 落地摔碰聲
       playCrash() {
         this.init();
         if (!this.ctx) return;
@@ -357,28 +279,16 @@
           const osc1 = this.ctx.createOscillator();
           const gain1 = this.ctx.createGain();
           osc1.type = 'triangle';
-          osc1.frequency.setValueAtTime(160, now);
+          osc1.frequency.setValueAtTime(150, now);
           osc1.frequency.exponentialRampToValueAtTime(30, now + 0.35);
-          gain1.gain.setValueAtTime(1.5, now);
+          gain1.gain.setValueAtTime(0.9, now);
           gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
           osc1.connect(gain1);
           gain1.connect(this.ctx.destination);
           osc1.start(now);
           osc1.stop(now + 0.36);
 
-          const osc2 = this.ctx.createOscillator();
-          const gain2 = this.ctx.createGain();
-          osc2.type = 'sawtooth';
-          osc2.frequency.setValueAtTime(800, now);
-          osc2.frequency.exponentialRampToValueAtTime(80, now + 0.2);
-          gain2.gain.setValueAtTime(0.7, now);
-          gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-          osc2.connect(gain2);
-          gain2.connect(this.ctx.destination);
-          osc2.start(now);
-          osc2.stop(now + 0.21);
-
-          this.vibrate([80, 50, 120]);
+          this.vibrate([60, 40, 90]);
         } catch(e) {}
       }
     };
@@ -407,44 +317,51 @@
     controls.maxDistance = 25;
     controls.target.set(0, 0, 0);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
     keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xdbeafe, 2.0);
+    const fillLight = new THREE.DirectionalLight(0x06b6d4, 1.8);
     fillLight.position.set(-10, 4, -8);
     scene.add(fillLight);
 
-    const bottomBounce = new THREE.DirectionalLight(0xffedd5, 1.2);
+    const bottomBounce = new THREE.DirectionalLight(0x38bdf8, 1.2);
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 3. 材質配置 ---
+    // --- 3. 材質配置：淡香檳金 E/L + 青色半透物理方體 ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
-      color: 0xeadbb6,
-      metalness: 0.88,
-      roughness: 0.22,
+      color: 0xebd9b4,
+      metalness: 0.9,
+      roughness: 0.2,
     });
 
-    const silverWhiteMat = new THREE.MeshStandardMaterial({
-      color: 0xf8fafc,
-      metalness: 0.95,
-      roughness: 0.16,
+    // 13 個方塊：青色（藍綠 Cyan）高透晶體材質
+    const cyanGlassMat = new THREE.MeshPhysicalMaterial({
+      color: 0x06b6d4,
+      emissive: 0x083344,
+      emissiveIntensity: 0.25,
+      metalness: 0.1,
+      roughness: 0.12,
+      transmission: 0.65, // 半透明
+      thickness: 1.2,
+      transparent: true,
+      opacity: 0.88,
+      ior: 1.52,
     });
 
     const ghostWireMat = new THREE.LineBasicMaterial({
-      color: 0x94a3b8,
+      color: 0x0891b2,
       transparent: true,
       opacity: 0.25
     });
 
-    // --- 4. 零件路徑與模型載入 ---
+    // --- 4. 零件定向路徑與「面朝鏡頭（Face to Camera）」角度表 ---
     const partRegistry = new Map();
     const activeTweens = [];
-    const interactiveMeshes = [];
     let flyInCount = 0;
     let assembledCount = 0;
     const TOTAL_PARTS = 15;
@@ -467,21 +384,35 @@
       'cube13': new THREE.Vector3(35, 35, 35)
     };
 
+    // 智能旋轉角度對照表：當要安裝某個零件時，整顆 Cube 自動轉到對應方位面對鏡頭
+    const faceRotationMap = {
+      'E': { x: 0, y: 0 },
+      'L': { x: 0, y: 0 },
+      'cube01': { x: 0.2, y: -0.6 },
+      'cube02': { x: -0.2, y: 2.5 },
+      'cube03': { x: 0.3, y: -2.2 },
+      'cube04': { x: -0.3, y: 0.8 },
+      'cube05': { x: -0.4, y: -1.2 },
+      'cube06': { x: 0.4, y: 1.4 },
+      'cube07': { x: 0.2, y: -2.8 },
+      'cube08': { x: -0.2, y: 1.8 },
+      'cube09': { x: 0, y: -1.57 },    // 正左面翻至正面
+      'cube10': { x: 0, y: 1.57 },     // 正右面翻至正面
+      'cube11': { x: 0, y: 0 },        // 正正面
+      'cube12': { x: 0, y: 3.14 },     // 正背面直接翻轉 180 度到眼前
+      'cube13': { x: -0.3, y: 0.5 }
+    };
+
     const loader = new THREE.GLTFLoader();
     loader.load(
       './el-logo%20asm.glb',
-      (gltf) => {
-        initModelScene(gltf);
-      },
+      (gltf) => { initModelScene(gltf); },
       undefined,
-      () => {
-        loader.load('./el-logo asm.glb', (gltf) => initModelScene(gltf));
-      }
+      () => { loader.load('./el-logo asm.glb', (gltf) => initModelScene(gltf)); }
     );
 
     function initModelScene(gltf) {
       const root = gltf.scene;
-
       root.rotation.x = -Math.PI / 2;
       root.updateMatrixWorld(true);
 
@@ -509,11 +440,12 @@
           if (name === 'E' || name === 'L') {
             child.material = champagneGoldMat.clone();
           } else {
-            child.material = silverWhiteMat.clone();
+            child.material = cyanGlassMat.clone();
           }
 
           const targetPos = child.position.clone();
 
+          // 幽靈槽位線框
           const edges = new THREE.EdgesGeometry(child.geometry);
           const wireframe = new THREE.LineSegments(edges, ghostWireMat);
           wireframe.position.copy(targetPos);
@@ -534,35 +466,29 @@
             wireframe: wireframe,
             isAssembled: false
           });
-
-          interactiveMeshes.push(child);
         }
       });
-
-      document.getElementById('status-counter').textContent = `STANDBY · 0 / ${TOTAL_PARTS}`;
-      buildManualDockUI();
     }
 
-    function buildManualDockUI() {
-      const selector = document.getElementById('manual-selector');
-      const order = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
-      
-      order.forEach(name => {
-        if (!partRegistry.has(name)) return;
-        const btn = document.createElement('button');
-        btn.className = 'part-chip';
-        btn.textContent = name;
-        btn.id = `chip-${name}`;
-        btn.onclick = () => {
-          resetIdleTimer();
-          flyInSinglePart(name, false);
-        };
-        selector.appendChild(btn);
+    // --- 5. 智能面朝鏡頭平滑過渡（Face to Camera on Hit） ---
+    function smoothRotateCubeTo(targetRot, duration = 400) {
+      const startRotX = cubeRoot.rotation.x;
+      const startRotY = cubeRoot.rotation.y;
+      const startTime = performance.now();
+
+      activeTweens.push({
+        update(now) {
+          const t = Math.min((now - startTime) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          cubeRoot.rotation.x = THREE.MathUtils.lerp(startRotX, targetRot.x, ease);
+          cubeRoot.rotation.y = THREE.MathUtils.lerp(startRotY, targetRot.y, ease);
+          return t < 1;
+        }
       });
     }
 
-    // --- 5. 鋼鐵人雙音效著裝飛入 ---
-    function flyInSinglePart(name, isBatch = false, delayMs = 0) {
+    // --- 6. 飛入與咬合動畫（去除連環機關槍撞擊） ---
+    function flyInSinglePart(name, isBatch = false, delayMs = 0, isFinalInBatch = false) {
       const item = partRegistry.get(name);
       if (!item || item.isAssembled) return;
 
@@ -570,38 +496,46 @@
         item.isAssembled = true;
         item.mesh.visible = true;
 
-        AudioEngine.playWhoosh();
+        // 手動 PLAY & HIT 模式下，自動轉動立方體讓安裝面朝向用戶
+        if (!isBatch && faceRotationMap[name]) {
+          smoothRotateCubeTo(faceRotationMap[name], 380);
+        }
 
-        const chip = document.getElementById(`chip-${name}`);
-        if (chip) chip.classList.add('assembled');
+        AudioEngine.playWhoosh();
 
         const mesh = item.mesh;
         const startPos = item.deepSpacePos.clone();
         const endPos = item.targetPos.clone();
         const startTime = performance.now();
-        const duration = isBatch ? 600 : 700;
+        const duration = isBatch ? 580 : 680;
 
         activeTweens.push({
           update(now) {
             const elapsed = now - startTime;
             const t = Math.min(elapsed / duration, 1);
-            
             const ease = t === 1 ? 1 : 1 - Math.pow(2, -8 * t);
             mesh.position.lerpVectors(startPos, endPos, ease);
 
             if (t >= 1) {
               mesh.position.copy(endPos);
-              AudioEngine.playSnap(isBatch);
-              
+
+              // 規則重塑：手動模式每次都敲；一鍵 FLY IN 只有最後一顆才敲「終極合體聲」！
+              if (!isBatch) {
+                AudioEngine.playSnap(false);
+              } else if (isFinalInBatch) {
+                AudioEngine.playSnap(true); // 唯一一聲沉穩大合體撞擊
+              }
+
+              // 亮起青藍色自發光脈衝
               if (mesh.material && mesh.material.emissive) {
-                mesh.material.emissive.setHex(0x64748b);
+                const origEmissive = mesh.material.emissive.getHex();
+                mesh.material.emissive.setHex(0x22d3ee);
                 setTimeout(() => {
-                  mesh.material.emissive.setHex(0x000000);
-                }, 120);
+                  mesh.material.emissive.setHex(origEmissive);
+                }, 140);
               }
 
               assembledCount++;
-              updateProgressBadge();
 
               if (assembledCount === TOTAL_PARTS) {
                 checkAssemblyCompletion(isBatch);
@@ -614,20 +548,12 @@
       }, delayMs);
     }
 
-    function updateProgressBadge() {
-      document.getElementById('status-counter').textContent = `LOCKED · ${assembledCount} / ${TOTAL_PARTS}`;
-    }
-
-    // --- 6. 第四次惡作劇彩蛋（滑笛下墜音效 + 墜地碰撞重音） ---
+    // --- 7. 第四次惡作劇彩蛋（落體摔地） ---
     function checkAssemblyCompletion(wasBatch) {
-      document.getElementById('btn-reset').style.display = 'inline-block';
-
       if (wasBatch && flyInCount % 4 === 0) {
         setTimeout(() => {
           triggerPrankDrop('cube11');
         }, 650);
-      } else {
-        document.getElementById('status-counter').textContent = 'PERFECTLY LOCKED';
       }
     }
 
@@ -635,15 +561,12 @@
       const item = partRegistry.get(partName);
       if (!item) return;
 
-      // 觸發滑稽滑笛下墜聲
       AudioEngine.playDropSound();
-      document.getElementById('status-counter').textContent = 'OOPS! MALFUNCTION · CUBE 11 DROPPED';
 
       const mesh = item.mesh;
       const startPos = mesh.position.clone();
       const startTime = performance.now();
       let hasCrashed = false;
-
       const dropDirection = new THREE.Vector3(0, 0, -1);
 
       activeTweens.push({
@@ -665,10 +588,7 @@
             mesh.visible = false;
             mesh.position.copy(item.deepSpacePos);
             mesh.rotation.set(0, 0, 0);
-            const chip = document.getElementById(`chip-${partName}`);
-            if (chip) chip.classList.remove('assembled');
             assembledCount--;
-            updateProgressBadge();
             return false;
           }
           return true;
@@ -676,7 +596,7 @@
       });
     }
 
-    // --- 7. 3 秒後位置漫遊 ---
+    // --- 8. 懸浮與回中（修復飛入結束後的跳動問題） ---
     let lastActionTime = performance.now();
     let isRoaming = false;
     let roamTime = 0;
@@ -697,7 +617,7 @@
 
       activeTweens.push({
         update(now) {
-          const t = Math.min((now - startTime) / 500, 1);
+          const t = Math.min((now - startTime) / 450, 1);
           const ease = 1 - Math.pow(1 - t, 3);
           cubeRoot.position.lerpVectors(startPos, endPos, ease);
           return t < 1;
@@ -705,62 +625,57 @@
       });
     }
 
-    // --- 8. 按鈕監聽 ---
+    // --- 9. 操作控制邏輯（FLY IN + PLAY & HIT） ---
     const btnFlyIn = document.getElementById('btn-flyin');
     const btnPlay = document.getElementById('btn-play');
-    const btnReset = document.getElementById('btn-reset');
-    const manualSelector = document.getElementById('manual-selector');
+    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
 
     btnFlyIn.onclick = () => {
       resetIdleTimer();
       flyInCount++;
       resetCubeState();
 
-      const order = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
-      order.forEach((name, idx) => {
-        flyInSinglePart(name, true, idx * 140);
+      partOrder.forEach((name, idx) => {
+        const isFinal = (idx === partOrder.length - 1);
+        flyInSinglePart(name, true, idx * 135, isFinal);
       });
     };
 
-    let playSequenceIdx = 0;
+    let playHitIdx = 0;
     btnPlay.onclick = () => {
       resetIdleTimer();
-      manualSelector.style.display = manualSelector.style.display === 'flex' ? 'none' : 'flex';
 
-      const order = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
-      while (playSequenceIdx < order.length) {
-        const nextPart = order[playSequenceIdx++];
-        if (!partRegistry.get(nextPart).isAssembled) {
-          flyInSinglePart(nextPart, false, 0);
+      // 若已全部組裝完畢，再次點擊自動 Reset 重來
+      if (assembledCount >= TOTAL_PARTS) {
+        resetCubeState();
+        playHitIdx = 0;
+      }
+
+      while (playHitIdx < partOrder.length) {
+        const nextPart = partOrder[playHitIdx++];
+        const item = partRegistry.get(nextPart);
+        if (item && !item.isAssembled) {
+          flyInSinglePart(nextPart, false, 0, false);
           break;
         }
       }
     };
 
-    btnReset.onclick = () => {
-      resetIdleTimer();
-      resetCubeState();
-    };
-
     function resetCubeState() {
-      playSequenceIdx = 0;
+      playHitIdx = 0;
       assembledCount = 0;
-      partRegistry.forEach((item, name) => {
+      partRegistry.forEach((item) => {
         item.isAssembled = false;
         item.mesh.visible = false;
         item.mesh.position.copy(item.deepSpacePos);
         item.mesh.rotation.set(0, 0, 0);
-        const chip = document.getElementById(`chip-${name}`);
-        if (chip) chip.classList.remove('assembled');
       });
-      document.getElementById('status-counter').textContent = `STANDBY · 0 / ${TOTAL_PARTS}`;
-      document.getElementById('btn-reset').style.display = 'none';
       pullBackToCenter();
     }
 
     window.addEventListener('pointerdown', () => resetIdleTimer());
 
-    // --- 9. 主渲染迴圈 ---
+    // --- 10. 主渲染迴圈 ---
     function animate() {
       requestAnimationFrame(animate);
       const now = performance.now();
@@ -773,6 +688,7 @@
 
       controls.update();
 
+      // 原地 3 秒後位置漫遊（不再覆蓋旋轉，完全平滑過渡）
       if (now - lastActionTime > 3000) {
         isRoaming = true;
         roamTime += 0.012;
