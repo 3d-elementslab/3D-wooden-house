@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Elements Lab - 3D Logo Cube Assembly (Refined Edition)</title>
+  <title>Elements Lab - 3D Logo Cube Assembly (Final Quiet Luxury Edition)</title>
   <style>
     * {
       box-sizing: border-box;
@@ -156,6 +156,27 @@
         inset 0 1px 2px rgba(0, 0, 0, 0.35);
     }
 
+    /* SVG 預覽開場層：完美對應你的等角工程圖 */
+    #svg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    #svg-overlay img {
+      width: 38vw;
+      max-width: 380px;
+      height: auto;
+      filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.15));
+    }
+
     footer {
       position: absolute;
       bottom: 0.9rem;
@@ -170,7 +191,6 @@
       line-height: 1.5;
     }
 
-    /* 底部工作室連結：滑鼠懸停時平順變為香檳金 */
     footer .studio-link {
       color: #334155;
       text-decoration: none;
@@ -195,12 +215,12 @@
     }
 
     footer .studio-link:hover {
-      color: #bfa16b; /* 懸停時變為精緻柔和的香檳金 */
+      color: #ebd2a0;
     }
 
     footer .studio-link:hover::after {
       transform: scaleX(1);
-      background-color: #bfa16b;
+      background-color: #ebd2a0;
       opacity: 1;
     }
   </style>
@@ -211,6 +231,11 @@
 </head>
 <body>
   <div id="metal-frame"></div>
+
+  <!-- SVG 線稿開場圖層 -->
+  <div id="svg-overlay">
+    <img src="./logo-wire.svg" alt="Logo Wireframe">
+  </div>
 
   <header>
     <div>
@@ -249,48 +274,42 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.40; // 完美拉高金屬高光通透感，徹底擺脫塑膠感
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 3.5;
-    controls.maxDistance = 20;
+    controls.minDistance = 1.8;  // 允許拉近觀察極致工藝
+    controls.maxDistance = 45.0; // 允許縮得極小，當作精緻漂浮飾品
     controls.target.set(0, 0, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.9));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
-    keyLight.position.set(10, 15, 10);
+    scene.add(new THREE.AmbientLight(0xffffff, 2.1));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
+    keyLight.position.set(12, 18, 12);
     scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0x64748b, 1.6);
-    fillLight.position.set(-10, 4, -8);
+    const fillLight = new THREE.DirectionalLight(0x64748b, 1.8);
+    fillLight.position.set(-12, 4, -8);
     scene.add(fillLight);
-    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.1);
+    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.3);
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 2. 材質配置（最完美的淡香檳金與通透淡青藍） ---
+    // --- 2. 頂級安靜奢華金屬材質 ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
-      color: 0xebd2a0,
-      metalness: 0.82,
-      roughness: 0.25,
+      color: 0xecd6a8,
+      metalness: 0.95,
+      roughness: 0.15,
     });
 
     const anodizedTealMat = new THREE.MeshStandardMaterial({
-      color: 0x4a729c,
-      metalness: 0.55,
-      roughness: 0.28,
-    });
-
-    const cleanWhiteWireMat = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.65,
+      color: 0x3f6b98,
+      metalness: 0.82,
+      roughness: 0.19,
     });
 
     const partRegistry = new Map();
     const activeTweens = [];
-    let assembledCount = 15;
+    let assembledCount = 0; // 初始未組裝，由 SVG 呈現代替
     const TOTAL_PARTS = 15;
     const HOME_ROTATION = { x: 0.25, y: -0.65 };
 
@@ -312,22 +331,23 @@
       'cube13': new THREE.Vector3(35, 35, 35)
     };
 
+    // 精準卡榫視角對位
     const faceRotationMap = {
       'E': { x: 0.25, y: -0.65 },
       'L': { x: 0.25, y: -0.65 },
-      'cube01': { x: 0.25, y: -0.85 },
-      'cube02': { x: -0.25, y: 2.25 },
-      'cube03': { x: 0.35, y: -2.25 },
-      'cube04': { x: 0.25, y: 0.9 },
-      'cube05': { x: -0.45, y: 0.65 },
-      'cube06': { x: 0.45, y: 3.14 },
-      'cube07': { x: 0.25, y: -2.85 },
-      'cube08': { x: 0.25, y: -1.9 },
-      'cube09': { x: 0.25, y: -1.9 },
-      'cube10': { x: 0.25, y: 0.9 },
+      'cube01': { x: 0.20, y: -0.95 },
+      'cube02': { x: -0.30, y: 2.15 },
+      'cube03': { x: 0.40, y: -2.10 },
+      'cube04': { x: 0.25, y: 0.80 },
+      'cube05': { x: -0.50, y: 0.55 },
+      'cube06': { x: 0.50, y: 3.14 },
+      'cube07': { x: 0.20, y: -2.75 },
+      'cube08': { x: 0.30, y: -1.80 },
+      'cube09': { x: 0.30, y: -1.80 },
+      'cube10': { x: 0.25, y: 0.80 },
       'cube11': { x: 0.25, y: -0.65 },
-      'cube12': { x: 0.25, y: 2.5 },
-      'cube13': { x: -0.35, y: 0.35 }
+      'cube12': { x: 0.30, y: 2.40 },
+      'cube13': { x: -0.40, y: 0.25 }
     };
 
     // --- 3. 載入模型 ---
@@ -353,20 +373,10 @@
             const solidMat = isLogoLetter ? champagneGoldMat.clone() : anodizedTealMat.clone();
 
             const meshes = [];
-            const wireframes = [];
-
             node.traverse((child) => {
               if (child.isMesh) {
                 child.material = solidMat;
                 meshes.push(child);
-
-                const edges = new THREE.EdgesGeometry(child.geometry, 45);
-                const wire = new THREE.LineSegments(edges, cleanWhiteWireMat);
-                wire.position.copy(child.position);
-                wire.rotation.copy(child.rotation);
-                wire.scale.copy(child.scale);
-                child.parent.add(wire);
-                wireframes.push(wire);
               }
             });
 
@@ -374,19 +384,18 @@
             const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(40, 30, 35);
             const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
 
-            node.position.copy(targetPos);
-            node.scale.setScalar(1.0); 
-            node.visible = true;
-            meshes.forEach(m => m.visible = true);
-            wireframes.forEach(w => w.visible = true);
+            // 初始藏在深空，等待按鈕觸發
+            node.position.copy(hiddenDeepSpacePos);
+            node.scale.setScalar(0.85);
+            node.visible = false;
+            meshes.forEach(m => m.visible = false);
 
             partRegistry.set(node.name, {
               node: node,
               meshes: meshes,
-              wireframes: wireframes,
               targetPos: targetPos,
               deepSpacePos: hiddenDeepSpacePos,
-              isAssembled: true
+              isAssembled: false
             });
           }
         });
@@ -397,7 +406,8 @@
         originalBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        const targetScale = (isMobile ? 2.0 : 2.3) / (maxDim || 1);
+        // ★ 尺寸精簡化：再縮小 18%，更顯優雅精緻
+        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.82;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
@@ -452,18 +462,27 @@
 
     let flyInSequenceCounter = 0;
 
+    function hideSvgOverlay() {
+      const overlay = document.getElementById('svg-overlay');
+      if (overlay && overlay.style.opacity !== '0') {
+        overlay.style.opacity = '0';
+        setTimeout(() => { overlay.style.display = 'none'; }, 500);
+      }
+    }
+
     function flyInSinglePart(name, isBatch = false, delayMs = 0) {
       const item = partRegistry.get(name);
       if (!item || item.isAssembled) return;
 
+      hideSvgOverlay();
       flyInSequenceCounter++;
+      // ★ 每四次（第 4、8、12 次）高空掉落惡作劇
       const isPrankDrop = isBatch && (flyInSequenceCounter % 4 === 0);
 
       setTimeout(() => {
         item.isAssembled = true;
         item.node.visible = true;
         item.meshes.forEach(m => m.visible = true);
-        item.wireframes.forEach(w => w.visible = true);
 
         if (!isBatch && faceRotationMap[name]) {
           smoothRotateCubeTo(faceRotationMap[name], 280);
@@ -474,11 +493,11 @@
         const startPos = item.deepSpacePos.clone();
         let actualStartPos = startPos;
         if (isPrankDrop) {
-          actualStartPos = targetPos.clone().add(new THREE.Vector3(0, 18, 0));
+          actualStartPos = targetPos.clone().add(new THREE.Vector3(0, 20, 0));
         }
 
         const startTime = performance.now();
-        const duration = isPrankDrop ? 300 : (isBatch ? 350 : 380);
+        const duration = isPrankDrop ? 320 : (isBatch ? 350 : 380);
 
         activeTweens.push({
           update(now) {
@@ -542,14 +561,21 @@
     function clearAllToDeepSpace() {
       playHitIdx = 0;
       assembledCount = 0;
+      flyInSequenceCounter = 0;
+      
+      const overlay = document.getElementById('svg-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
+      }
+
       partRegistry.forEach((item) => {
         item.isAssembled = false;
         item.node.visible = false;
         item.node.position.copy(item.deepSpacePos);
         item.node.scale.setScalar(0.85);
         item.node.rotation.set(0, 0, 0);
-        item.meshes.forEach(m => m.visible = true);
-        item.wireframes.forEach(w => w.visible = true);
+        item.meshes.forEach(m => m.visible = false);
       });
       cubeRoot.position.set(0, 0, 0);
     }
