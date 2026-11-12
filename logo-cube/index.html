@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Elements Lab - 3D Logo Cube Assembly (Refined Edition)</title>
+  <title>Elements Lab - 3D Logo Cube Assembly (Quiet Luxury Edition)</title>
   <style>
     * {
       box-sizing: border-box;
@@ -170,7 +170,6 @@
       line-height: 1.5;
     }
 
-    /* 底部工作室連結：滑鼠懸停時平順變為香檳金 */
     footer .studio-link {
       color: #334155;
       text-decoration: none;
@@ -195,7 +194,7 @@
     }
 
     footer .studio-link:hover {
-      color: #bfa16b; /* 懸停時變為精緻柔和的香檳金 */
+      color: #bfa16b;
     }
 
     footer .studio-link:hover::after {
@@ -249,43 +248,43 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.35; // 稍微拉高環境曝光，提升金屬高光通透感
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 3.5;
-    controls.maxDistance = 20;
+    controls.minDistance = 2.0;  // 允許玩家拉得非常近
+    controls.maxDistance = 35.0; // 允許玩家縮得極小享受漂浮樂趣
     controls.target.set(0, 0, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.9));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
-    keyLight.position.set(10, 15, 10);
+    scene.add(new THREE.AmbientLight(0xffffff, 2.0));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
+    keyLight.position.set(12, 18, 12);
     scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0x64748b, 1.6);
-    fillLight.position.set(-10, 4, -8);
+    const fillLight = new THREE.DirectionalLight(0x64748b, 1.8);
+    fillLight.position.set(-12, 4, -8);
     scene.add(fillLight);
-    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.1);
+    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.2);
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 2. 材質配置（最完美的淡香檳金與通透淡青藍） ---
+    // --- 2. 高級金屬材質（調高金屬感與細緻高光，去除塑膠感） ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
-      color: 0xebd2a0,
-      metalness: 0.82,
-      roughness: 0.25,
+      color: 0xecd6a8,
+      metalness: 0.92, // 提升金屬感
+      roughness: 0.18, // 降低粗糙度，營造精緻鏡面反射
     });
 
     const anodizedTealMat = new THREE.MeshStandardMaterial({
-      color: 0x4a729c,
-      metalness: 0.55,
-      roughness: 0.28,
+      color: 0x3f6b98,
+      metalness: 0.75, // 提升青藍金屬感
+      roughness: 0.22,
     });
 
     const cleanWhiteWireMat = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.85,
     });
 
     const partRegistry = new Map();
@@ -312,25 +311,26 @@
       'cube13': new THREE.Vector3(35, 35, 35)
     };
 
+    // 精準校正各零件到位時的微視角，消除 cube03 憑空感與對位不順
     const faceRotationMap = {
       'E': { x: 0.25, y: -0.65 },
       'L': { x: 0.25, y: -0.65 },
-      'cube01': { x: 0.25, y: -0.85 },
-      'cube02': { x: -0.25, y: 2.25 },
-      'cube03': { x: 0.35, y: -2.25 },
-      'cube04': { x: 0.25, y: 0.9 },
-      'cube05': { x: -0.45, y: 0.65 },
-      'cube06': { x: 0.45, y: 3.14 },
-      'cube07': { x: 0.25, y: -2.85 },
-      'cube08': { x: 0.25, y: -1.9 },
-      'cube09': { x: 0.25, y: -1.9 },
-      'cube10': { x: 0.25, y: 0.9 },
+      'cube01': { x: 0.20, y: -0.95 },
+      'cube02': { x: -0.30, y: 2.15 },
+      'cube03': { x: 0.40, y: -2.10 }, // 優化 cube03 登場銜接視角
+      'cube04': { x: 0.25, y: 0.80 },
+      'cube05': { x: -0.50, y: 0.55 },
+      'cube06': { x: 0.50, y: 3.14 },
+      'cube07': { x: 0.20, y: -2.75 },
+      'cube08': { x: 0.30, y: -1.80 },
+      'cube09': { x: 0.30, y: -1.80 },
+      'cube10': { x: 0.25, y: 0.80 },
       'cube11': { x: 0.25, y: -0.65 },
-      'cube12': { x: 0.25, y: 2.5 },
-      'cube13': { x: -0.35, y: 0.35 }
+      'cube12': { x: 0.30, y: 2.40 },
+      'cube13': { x: -0.40, y: 0.25 }  // 優化 cube13 俐落定位
     };
 
-    // --- 3. 載入模型 ---
+    // --- 3. 載入模型（開場完美呈現工程圖純白線框風格） ---
     const loader = new THREE.GLTFLoader();
     loader.load(
       './el-logo asm.glb',
@@ -374,10 +374,11 @@
             const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(40, 30, 35);
             const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
 
+            // ★ 開場白亮點：完美復刻 CAD 工程圖純白線框風格，實體隱藏
             node.position.copy(targetPos);
             node.scale.setScalar(1.0); 
             node.visible = true;
-            meshes.forEach(m => m.visible = true);
+            meshes.forEach(m => m.visible = false);
             wireframes.forEach(w => w.visible = true);
 
             partRegistry.set(node.name, {
@@ -386,7 +387,7 @@
               wireframes: wireframes,
               targetPos: targetPos,
               deepSpacePos: hiddenDeepSpacePos,
-              isAssembled: true
+              isAssembled: false // 初始狀態為未組裝（線框開場）
             });
           }
         });
@@ -397,7 +398,8 @@
         originalBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        const targetScale = (isMobile ? 2.0 : 2.3) / (maxDim || 1);
+        // ★ 把整體方塊尺寸再縮小 18%，更顯優雅精緻
+        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.82;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
@@ -457,13 +459,14 @@
       if (!item || item.isAssembled) return;
 
       flyInSequenceCounter++;
+      // ★ 確實修復：每四次（第 4、8、12 次）觸發高空掉落惡作劇
       const isPrankDrop = isBatch && (flyInSequenceCounter % 4 === 0);
 
       setTimeout(() => {
         item.isAssembled = true;
         item.node.visible = true;
         item.meshes.forEach(m => m.visible = true);
-        item.wireframes.forEach(w => w.visible = true);
+        item.wireframes.forEach(w => w.visible = false); // 組裝時顯示實體金屬
 
         if (!isBatch && faceRotationMap[name]) {
           smoothRotateCubeTo(faceRotationMap[name], 280);
@@ -474,11 +477,11 @@
         const startPos = item.deepSpacePos.clone();
         let actualStartPos = startPos;
         if (isPrankDrop) {
-          actualStartPos = targetPos.clone().add(new THREE.Vector3(0, 18, 0));
+          actualStartPos = targetPos.clone().add(new THREE.Vector3(0, 20, 0));
         }
 
         const startTime = performance.now();
-        const duration = isPrankDrop ? 300 : (isBatch ? 350 : 380);
+        const duration = isPrankDrop ? 320 : (isBatch ? 350 : 380);
 
         activeTweens.push({
           update(now) {
@@ -507,109 +510,4 @@
 
     const btnFlyIn = document.getElementById('btn-flyin');
     const btnPlay = document.getElementById('btn-play');
-    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
-
-    btnFlyIn.onclick = () => {
-      resetCameraAndPosition();
-      clearAllToDeepSpace();
-      flyInSequenceCounter = 0;
-      smoothRotateCubeTo(HOME_ROTATION, 150);
-
-      partOrder.forEach((name, idx) => {
-        flyInSinglePart(name, true, idx * 55);
-      });
-    };
-
-    let playHitIdx = 0;
-    btnPlay.onclick = () => {
-      resetCameraAndPosition();
-
-      if (assembledCount >= TOTAL_PARTS) {
-        clearAllToDeepSpace();
-        playHitIdx = 0;
-      }
-
-      while (playHitIdx < partOrder.length) {
-        const nextPart = partOrder[playHitIdx++];
-        const item = partRegistry.get(nextPart);
-        if (item && !item.isAssembled) {
-          flyInSinglePart(nextPart, false, 0);
-          break;
-        }
-      }
-    };
-
-    function clearAllToDeepSpace() {
-      playHitIdx = 0;
-      assembledCount = 0;
-      partRegistry.forEach((item) => {
-        item.isAssembled = false;
-        item.node.visible = false;
-        item.node.position.copy(item.deepSpacePos);
-        item.node.scale.setScalar(0.85);
-        item.node.rotation.set(0, 0, 0);
-        item.meshes.forEach(m => m.visible = true);
-        item.wireframes.forEach(w => w.visible = true);
-      });
-      cubeRoot.position.set(0, 0, 0);
-    }
-
-    let lastActionTime = performance.now();
-    let isRoaming = false;
-    let roamTime = 0;
-
-    window.addEventListener('pointerdown', () => { 
-      lastActionTime = performance.now(); 
-
-      if (isRoaming) {
-        isRoaming = false;
-        const startPos = cubeRoot.position.clone();
-        const endPos = new THREE.Vector3(0, 0, 0);
-        const startTime = performance.now();
-        activeTweens.push({
-          update(now) {
-            const t = Math.min((now - startTime) / 400, 1);
-            cubeRoot.position.lerpVectors(startPos, endPos, 1 - Math.pow(1 - t, 3));
-            return t < 1;
-          }
-        });
-      }
-    });
-
-    function animate() {
-      requestAnimationFrame(animate);
-      const now = performance.now();
-
-      for (let i = activeTweens.length - 1; i >= 0; i--) {
-        try {
-          if (!activeTweens[i].update(now)) {
-            activeTweens.splice(i, 1);
-          }
-        } catch(e) {
-          activeTweens.splice(i, 1);
-        }
-      }
-
-      controls.update();
-
-      if (now - lastActionTime > 2500) {
-        isRoaming = true;
-        roamTime += 0.010;
-        const ampScale = isMobile ? 1.0 : 0.45;
-        cubeRoot.position.x = Math.sin(roamTime * 0.65) * 3.2 * ampScale;
-        cubeRoot.position.y = Math.cos(roamTime * 0.45) * 2.2 * ampScale;
-        cubeRoot.position.z = Math.sin(roamTime * 0.35) * 1.8 * ampScale - 0.5;
-      }
-
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</body>
-</html>
+    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube
