@@ -337,14 +337,14 @@
       'cube13': { x: -0.45, y: 0.45 }
     };
 
-    // --- 5. 載入模型 (對應最新 el-logo asm_2.glb) ---
+    // --- 5. 載入模型 (直接讀取 el-logo asm.glb) ---
     const loader = new THREE.GLTFLoader();
     loader.load(
-      './el-logo%20asm_2.glb',
+      './el-logo%20asm.glb',
       (gltf) => { initAssemblyScene(gltf); },
       undefined,
       () => {
-        loader.load('./el-logo asm_2.glb', (gltf) => initAssemblyScene(gltf));
+        loader.load('./el-logo asm.glb', (gltf) => initAssemblyScene(gltf));
       }
     );
 
