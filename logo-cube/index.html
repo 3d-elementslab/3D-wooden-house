@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Elements Lab - 3D Logo Cube Assembly (Final Quiet Luxury Edition)</title>
+  <title>Elements Lab - 3D Logo Cube Assembly (Perfect Ratio Edition)</title>
   <style>
     * {
       box-sizing: border-box;
@@ -156,7 +156,7 @@
         inset 0 1px 2px rgba(0, 0, 0, 0.35);
     }
 
-    /* SVG 預覽開場層：完美對應你的等角工程圖 */
+    /* SVG 預覽開場層：大小與開場完美對應 */
     #svg-overlay {
       position: absolute;
       top: 0;
@@ -274,42 +274,42 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.40; // 完美拉高金屬高光通透感，徹底擺脫塑膠感
+    renderer.toneMappingExposure = 1.25; // 恢復我們之前完美的高級光影曝光
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 1.8;  // 允許拉近觀察極致工藝
-    controls.maxDistance = 45.0; // 允許縮得極小，當作精緻漂浮飾品
+    controls.minDistance = 1.8;  
+    controls.maxDistance = 45.0; // 依然允許玩家縮得極小享受漂浮樂趣
     controls.target.set(0, 0, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 2.1));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
-    keyLight.position.set(12, 18, 12);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.9));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+    keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0x64748b, 1.8);
-    fillLight.position.set(-12, 4, -8);
+    const fillLight = new THREE.DirectionalLight(0x64748b, 1.6);
+    fillLight.position.set(-10, 4, -8);
     scene.add(fillLight);
-    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.3);
+    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.1);
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 2. 頂級安靜奢華金屬材質 ---
+    // --- 2. 恢復原本精緻漂亮的香檳金與青藍色金屬材質 ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
-      color: 0xecd6a8,
-      metalness: 0.95,
-      roughness: 0.15,
+      color: 0xebd2a0,
+      metalness: 0.85,
+      roughness: 0.22,
     });
 
     const anodizedTealMat = new THREE.MeshStandardMaterial({
-      color: 0x3f6b98,
-      metalness: 0.82,
-      roughness: 0.19,
+      color: 0x4a729c,
+      metalness: 0.65,
+      roughness: 0.25,
     });
 
     const partRegistry = new Map();
     const activeTweens = [];
-    let assembledCount = 0; // 初始未組裝，由 SVG 呈現代替
+    let assembledCount = 0;
     const TOTAL_PARTS = 15;
     const HOME_ROTATION = { x: 0.25, y: -0.65 };
 
@@ -331,7 +331,6 @@
       'cube13': new THREE.Vector3(35, 35, 35)
     };
 
-    // 精準卡榫視角對位
     const faceRotationMap = {
       'E': { x: 0.25, y: -0.65 },
       'L': { x: 0.25, y: -0.65 },
@@ -384,7 +383,6 @@
             const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(40, 30, 35);
             const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
 
-            // 初始藏在深空，等待按鈕觸發
             node.position.copy(hiddenDeepSpacePos);
             node.scale.setScalar(0.85);
             node.visible = false;
@@ -406,8 +404,8 @@
         originalBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        // ★ 尺寸精簡化：再縮小 18%，更顯優雅精緻
-        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.82;
+        // ★ 恢復完美的黃金比例尺寸（與開場 SVG 完全對齊，不再縮小）
+        const targetScale = (isMobile ? 2.0 : 2.3) / (maxDim || 1);
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
@@ -476,7 +474,6 @@
 
       hideSvgOverlay();
       flyInSequenceCounter++;
-      // ★ 每四次（第 4、8、12 次）高空掉落惡作劇
       const isPrankDrop = isBatch && (flyInSequenceCounter % 4 === 0);
 
       setTimeout(() => {
@@ -575,7 +572,7 @@
         item.node.position.copy(item.deepSpacePos);
         item.node.scale.setScalar(0.85);
         item.node.rotation.set(0, 0, 0);
-        item.meshes.forEach(m => m.visible = false);
+        item.meshes.forEach(m => m.visible = true);
       });
       cubeRoot.position.set(0, 0, 0);
     }
