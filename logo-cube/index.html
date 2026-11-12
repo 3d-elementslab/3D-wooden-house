@@ -54,16 +54,51 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      pointer-events: none;
       z-index: 20;
     }
+    
+    .brand-link {
+      text-decoration: none;
+      pointer-events: auto;
+      display: inline-block;
+    }
+
     .brand-title {
       font-size: 1.05rem;
       font-weight: 700;
       letter-spacing: 0.2em;
       color: #0f172a;
       text-transform: uppercase;
+      position: relative;
+      display: inline-block;
+      transition: color 0.2s ease;
     }
+
+    /* 細緻的動態底線暗示超連結，拒絕呆板箭頭 */
+    .brand-title::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -3px;
+      width: 100%;
+      height: 1px;
+      background-color: #0f172a;
+      transform: scaleX(0.3);
+      transform-origin: left;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+      opacity: 0.6;
+    }
+
+    .brand-link:hover .brand-title {
+      color: #244f78;
+    }
+
+    .brand-link:hover .brand-title::after {
+      transform: scaleX(1);
+      background-color: #244f78;
+      opacity: 1;
+    }
+
     .brand-sub {
       font-size: 0.7rem;
       letter-spacing: 0.12em;
@@ -146,7 +181,9 @@
 
   <header>
     <div>
-      <div class="brand-title">ELEMENTS LAB</div>
+      <a href="https://3d.elementslab.net" class="brand-link">
+        <div class="brand-title">ELEMENTS LAB</div>
+      </a>
       <div class="brand-sub">Modular Assembly Simulator</div>
     </div>
   </header>
@@ -236,7 +273,7 @@
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 3. 材質配置（香檳金維持，陽極青藍加深 5% 突顯層次） ---
+    // --- 3. 材質配置（香檳金維持，陽極青藍再加深濃郁 5% 突顯質感） ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
       color: 0xd9b372,
       metalness: 0.90,
@@ -244,9 +281,9 @@
     });
 
     const anodizedTealMat = new THREE.MeshStandardMaterial({
-      color: 0x244f78, // 更深邃、在冷藍背景中更突出的陽極青藍
-      metalness: 0.60,
-      roughness: 0.24,
+      color: 0x1d4367, // 再加深 5% 的濃郁陽極青藍，冷藍背景中質感更沈穩高級
+      metalness: 0.62,
+      roughness: 0.22,
     });
 
     const cleanWhiteWireMat = new THREE.LineBasicMaterial({
@@ -256,14 +293,14 @@
       linewidth: 1
     });
 
-    // --- 4. 零件定向路徑與旋轉基準 ---
+    // --- 4. 零件定向路徑與旋轉基準 (IMG_1277 黃金微俯角視角) ---
     const partRegistry = new Map();
     const activeTweens = [];
     let flyInCount = 0;
     let assembledCount = 15;
     const TOTAL_PARTS = 15;
 
-    const HOME_ROTATION = { x: 0, y: 0 };
+    const HOME_ROTATION = { x: 0.35, y: -0.55 }; // IMG_1277 黃金透視
 
     const trajectoryMap = {
       'E': new THREE.Vector3(0, 45, 15),
@@ -284,20 +321,20 @@
     };
 
     const faceRotationMap = {
-      'E': { x: 0, y: 0 },
-      'L': { x: 0, y: 0 },
+      'E': { x: 0.35, y: -0.55 },
+      'L': { x: 0.35, y: -0.55 },
       'cube01': { x: 0.35, y: -0.75 },
       'cube02': { x: -0.35, y: 2.35 },
       'cube03': { x: 0.45, y: -2.35 },
-      'cube04': { x: 0, y: 1.57 },
+      'cube04': { x: 0.35, y: 1.0 },
       'cube05': { x: -0.55, y: 0.75 },
       'cube06': { x: 0.55, y: 3.14 },
       'cube07': { x: 0.35, y: -2.95 },
-      'cube08': { x: 0, y: -1.57 },
-      'cube09': { x: 0, y: -1.57 },
-      'cube10': { x: 0, y: 1.57 },
-      'cube11': { x: 0, y: 0 },
-      'cube12': { x: 0, y: 3.14 },
+      'cube08': { x: 0.35, y: -2.0 },
+      'cube09': { x: 0.35, y: -2.0 },
+      'cube10': { x: 0.35, y: 1.0 },
+      'cube11': { x: 0.35, y: -0.55 },
+      'cube12': { x: 0.35, y: 2.6 },
       'cube13': { x: -0.45, y: 0.45 }
     };
 
@@ -367,7 +404,7 @@
             const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(40, 30, 35);
             const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
 
-            // 開場狀態：原位展示純白外輪廓骨架（縮小 15% 顯得精緻輕巧）[cite: 2]
+            // 開場狀態：原位展示純白外輪廓骨架（微縮 15% 顯得精緻）
             node.position.copy(targetPos);
             node.scale.setScalar(0.85); 
             node.visible = true;
@@ -391,7 +428,7 @@
       }
     }
 
-    // --- 6. 強制歸位與相機對齊 ---
+    // --- 6. 視角歸位 ---
     function resetCameraAndPosition(duration = 320) {
       const startCamPos = camera.position.clone();
       const startTarget = controls.target.clone();
@@ -430,7 +467,7 @@
       });
     }
 
-    // --- 7. 進場動畫（復原開場 0.85 縮放至 1.0 完美咬合） ---
+    // --- 7. 進場動畫 ---
     function flyInSinglePart(name, isBatch = false, delayMs = 0) {
       const item = partRegistry.get(name);
       if (!item || item.isAssembled) return;
@@ -480,7 +517,7 @@
       }, delayMs);
     }
 
-    // --- 8. 懸浮漫遊（依桌機與手機動態調整振幅） ---
+    // --- 8. 懸浮漫遊（桌機微幅、手機優雅） ---
     let lastActionTime = performance.now();
     let isRoaming = false;
     let roamTime = 0;
@@ -496,104 +533,4 @@
         activeTweens.push({
           update(now) {
             const t = Math.min((now - startTime) / 350, 1);
-            cubeRoot.position.lerpVectors(startPos, endPos, 1 - Math.pow(1 - t, 3));
-            return t < 1;
-          }
-        });
-      }
-    }
-
-    // --- 9. 按鈕控制 ---
-    const btnFlyIn = document.getElementById('btn-flyin');
-    const btnPlay = document.getElementById('btn-play');
-    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
-
-    btnFlyIn.onclick = () => {
-      resetIdleTimer();
-      resetCameraAndPosition();
-      flyInCount++;
-      clearAllToDeepSpace();
-
-      smoothRotateCubeTo(HOME_ROTATION, 150);
-
-      partOrder.forEach((name, idx) => {
-        flyInSinglePart(name, true, idx * 55);
-      });
-    };
-
-    let playHitIdx = 0;
-    btnPlay.onclick = () => {
-      resetIdleTimer();
-      resetCameraAndPosition();
-
-      if (assembledCount >= TOTAL_PARTS) {
-        clearAllToDeepSpace();
-        playHitIdx = 0;
-      }
-
-      while (playHitIdx < partOrder.length) {
-        const nextPart = partOrder[playHitIdx++];
-        const item = partRegistry.get(nextPart);
-        if (item && !item.isAssembled) {
-          flyInSinglePart(nextPart, false, 0);
-          break;
-        }
-      }
-    };
-
-    function clearAllToDeepSpace() {
-      playHitIdx = 0;
-      assembledCount = 0;
-      partRegistry.forEach((item) => {
-        item.isAssembled = false;
-        item.node.visible = false;
-        item.node.position.copy(item.deepSpacePos);
-        item.node.scale.setScalar(0.85);
-        item.node.rotation.set(0, 0, 0);
-        item.meshes.forEach(m => m.visible = false);
-        item.wireframes.forEach(w => w.visible = true); // 清空重置時恢復純白線框狀態
-      });
-      cubeRoot.position.set(0, 0, 0);
-    }
-
-    window.addEventListener('pointerdown', () => resetIdleTimer());
-
-    // --- 10. 主渲染迴圈 ---
-    function animate() {
-      requestAnimationFrame(animate);
-      const now = performance.now();
-
-      for (let i = activeTweens.length - 1; i >= 0; i--) {
-        try {
-          if (!activeTweens[i].update(now)) {
-            activeTweens.splice(i, 1);
-          }
-        } catch(e) {
-          activeTweens.splice(i, 1);
-        }
-      }
-
-      controls.update();
-
-      if (now - lastActionTime > 2500) {
-        isRoaming = true;
-        roamTime += 0.013;
-        // 核心優化：桌機大幅縮減擺動幅度（僅剩 22%），手機保持優雅流暢
-        const ampScale = isMobile ? 1.0 : 0.22;
-        cubeRoot.position.x = Math.sin(roamTime * 0.75) * 1.65 * ampScale;
-        cubeRoot.position.y = Math.cos(roamTime * 0.55) * 1.1 * ampScale;
-        cubeRoot.position.z = Math.sin(roamTime * 0.45) * 0.95 * ampScale - 0.2;
-      }
-
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</body>
-</html>
+            cubeRoot.position.lerpVectors(startPos, endPos,
