@@ -74,7 +74,7 @@
       transition: color 0.2s ease;
     }
 
-    /* 細緻的動態底線暗示超連結，拒絕呆板箭頭 */
+    /* 細緻的動態底線暗示超連結，安靜奢華的微互動 */
     .brand-title::after {
       content: '';
       position: absolute;
@@ -90,12 +90,12 @@
     }
 
     .brand-link:hover .brand-title {
-      color: #244f78;
+      color: #173654;
     }
 
     .brand-link:hover .brand-title::after {
       transform: scaleX(1);
-      background-color: #244f78;
+      background-color: #173654;
       opacity: 1;
     }
 
@@ -273,7 +273,7 @@
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 3. 材質配置（香檳金維持，陽極青藍再加深濃郁 5% 突顯質感） ---
+    // --- 3. 材質配置（香檳金維持，陽極青藍再加深濃郁 8% 提升高階冷調感） ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
       color: 0xd9b372,
       metalness: 0.90,
@@ -281,9 +281,9 @@
     });
 
     const anodizedTealMat = new THREE.MeshStandardMaterial({
-      color: 0x1d4367, // 再加深 5% 的濃郁陽極青藍，冷藍背景中質感更沈穩高級
-      metalness: 0.62,
-      roughness: 0.22,
+      color: 0x173654, // 完美加深 8% 的濃郁陽極青藍，與冷灰背景完美融合又具備極佳辨識度
+      metalness: 0.65,
+      roughness: 0.20,
     });
 
     const cleanWhiteWireMat = new THREE.LineBasicMaterial({
@@ -296,7 +296,6 @@
     // --- 4. 零件定向路徑與旋轉基準 (IMG_1277 黃金微俯角視角) ---
     const partRegistry = new Map();
     const activeTweens = [];
-    let flyInCount = 0;
     let assembledCount = 15;
     const TOTAL_PARTS = 15;
 
@@ -338,14 +337,14 @@
       'cube13': { x: -0.45, y: 0.45 }
     };
 
-    // --- 5. 載入模型 ---
+    // --- 5. 載入模型 (對應最新 el-logo asm_2.glb) ---
     const loader = new THREE.GLTFLoader();
     loader.load(
-      './el-logo%20asm.glb',
+      './el-logo%20asm_2.glb',
       (gltf) => { initAssemblyScene(gltf); },
       undefined,
       () => {
-        loader.load('./el-logo asm.glb', (gltf) => initAssemblyScene(gltf));
+        loader.load('./el-logo asm_2.glb', (gltf) => initAssemblyScene(gltf));
       }
     );
 
@@ -404,7 +403,7 @@
             const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(40, 30, 35);
             const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
 
-            // 開場狀態：原位展示純白外輪廓骨架（微縮 15% 顯得精緻）
+            // 開場狀態：原位展示純白外輪廓骨架
             node.position.copy(targetPos);
             node.scale.setScalar(0.85); 
             node.visible = true;
@@ -517,20 +516,97 @@
       }, delayMs);
     }
 
-    // --- 8. 懸浮漫遊（桌機微幅、手機優雅） ---
+    // --- 8. 按鈕控制 ---
+    const btnFlyIn = document.getElementById('btn-flyin');
+    const btnPlay = document.getElementById('btn-play');
+    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
+
+    btnFlyIn.onclick = () => {
+      resetCameraAndPosition();
+      clearAllToDeepSpace();
+      smoothRotateCubeTo(HOME_ROTATION, 150);
+
+      partOrder.forEach((name, idx) => {
+        flyInSinglePart(name, true, idx * 55);
+      });
+    };
+
+    let playHitIdx = 0;
+    btnPlay.onclick = () => {
+      resetCameraAndPosition();
+
+      if (assembledCount >= TOTAL_PARTS) {
+        clearAllToDeepSpace();
+        playHitIdx = 0;
+      }
+
+      while (playHitIdx < partOrder.length) {
+        const nextPart = partOrder[playHitIdx++];
+        const item = partRegistry.get(nextPart);
+        if (item && !item.isAssembled) {
+          flyInSinglePart(nextPart, false, 0);
+          break;
+        }
+      }
+    };
+
+    function clearAllToDeepSpace() {
+      playHitIdx = 0;
+      assembledCount = 0;
+      partRegistry.forEach((item) => {
+        item.isAssembled = false;
+        item.node.visible = false;
+        item.node.position.copy(item.deepSpacePos);
+        item.node.scale.setScalar(0.85);
+        item.node.rotation.set(0, 0, 0);
+        item.meshes.forEach(m => m.visible = false);
+        item.wireframes.forEach(w => w.visible = true);
+      });
+      cubeRoot.position.set(0, 0, 0);
+    }
+
+    // --- 9. 懸浮漫遊 ---
     let lastActionTime = performance.now();
     let isRoaming = false;
     let roamTime = 0;
 
-    function resetIdleTimer() {
-      lastActionTime = performance.now();
-      AudioEngine.init();
-      if (isRoaming) {
-        isRoaming = false;
-        const startPos = cubeRoot.position.clone();
-        const endPos = new THREE.Vector3(0, 0, 0);
-        const startTime = performance.now();
-        activeTweens.push({
-          update(now) {
-            const t = Math.min((now - startTime) / 350, 1);
-            cubeRoot.position.lerpVectors(startPos, endPos,
+    window.addEventListener('pointerdown', () => { lastActionTime = performance.now(); AudioEngine.init(); });
+
+    // --- 10. 主渲染迴圈 ---
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+
+      for (let i = activeTweens.length - 1; i >= 0; i--) {
+        try {
+          if (!activeTweens[i].update(now)) {
+            activeTweens.splice(i, 1);
+          }
+        } catch(e) {
+          activeTweens.splice(i, 1);
+        }
+      }
+
+      controls.update();
+
+      if (now - lastActionTime > 2500) {
+        isRoaming = true;
+        roamTime += 0.013;
+        const ampScale = isMobile ? 1.0 : 0.22;
+        cubeRoot.position.x = Math.sin(roamTime * 0.75) * 1.65 * ampScale;
+        cubeRoot.position.y = Math.cos(roamTime * 0.55) * 1.1 * ampScale;
+        cubeRoot.position.z = Math.sin(roamTime * 0.45) * 0.95 * ampScale - 0.2;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
