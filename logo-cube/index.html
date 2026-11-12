@@ -156,7 +156,7 @@
         inset 0 1px 2px rgba(0, 0, 0, 0.35);
     }
 
-    /* SVG 預覽開場層：加大向左微調幅度（translateX），讓 E 字精準對齊正中 */
+    /* SVG 預覽開場層：維持精緻小巧比例，光學置中對齊 */
     #svg-overlay {
       position: absolute;
       top: 0;
@@ -174,7 +174,7 @@
       width: 36vw;
       max-width: 360px;
       height: auto;
-      transform: translateX(-32px); /* 往左多推一點，完美對準下方的「實驗元素工作室」中線 */
+      transform: translateX(-32px);
       filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.15));
     }
 
@@ -259,39 +259,19 @@
     <div><a href="https://elementslab.net" class="studio-link">實驗元素工作室</a></div>
   </footer>
 
+  <!-- 讀取你的 rocket-woosh.wav 音效檔 -->
+  <audio id="swoosh-audio" src="./rocket-woosh.wav" preload="auto"></audio>
+
   <script>
-    // --- 0. 音效系統 ---
-    let audioCtx = null;
-    function playSnapSound(isDrop = false) {
+    // --- 0. 播放音效函數 ---
+    function playRocketSwoosh() {
       try {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const audio = document.getElementById('swoosh-audio');
+        if (audio) {
+          audio.currentTime = 0;
+          audio.volume = 0.65;
+          audio.play().catch(e => {});
         }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        if (isDrop) {
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(35, audioCtx.currentTime + 0.15);
-          gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-        } else {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(580, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.08);
-          gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-        }
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + (isDrop ? 0.15 : 0.08));
       } catch (e) {}
     }
 
@@ -348,23 +328,25 @@
     let assembledCount = 0;
     const TOTAL_PARTS = 15;
     const HOME_ROTATION = { x: 0.25, y: -0.65 };
+    let isAssemblyActive = false; // 用來鎖住漫遊，防止組裝完跳一下
 
+    // 更遠的深空軌跡，讓飛入路徑拉長
     const trajectoryMap = {
-      'E': new THREE.Vector3(0, 120, 45),
-      'L': new THREE.Vector3(0, -120, 45),
-      'cube01': new THREE.Vector3(0, 140, 0),
-      'cube02': new THREE.Vector3(120, 90, -90),
-      'cube03': new THREE.Vector3(-130, -70, -70),
-      'cube04': new THREE.Vector3(110, -80, 110),
-      'cube05': new THREE.Vector3(-100, 130, -90),
-      'cube06': new THREE.Vector3(130, 70, 90),
-      'cube07': new THREE.Vector3(-120, -100, 90),
-      'cube08': new THREE.Vector3(100, -120, -100),
-      'cube09': new THREE.Vector3(-150, 0, 30),
-      'cube10': new THREE.Vector3(150, 0, -30),
-      'cube11': new THREE.Vector3(0, 30, 150),
-      'cube12': new THREE.Vector3(0, -30, -150),
-      'cube13': new THREE.Vector3(100, 100, 100)
+      'E': new THREE.Vector3(0, 160, 60),
+      'L': new THREE.Vector3(0, -160, 60),
+      'cube01': new THREE.Vector3(0, 200, 0), // ★ cube01 嚴格從正上方垂直直降
+      'cube02': new THREE.Vector3(160, 120, -120),
+      'cube03': new THREE.Vector3(-170, -90, -90),
+      'cube04': new THREE.Vector3(150, -100, 150),
+      'cube05': new THREE.Vector3(-140, 170, -120),
+      'cube06': new THREE.Vector3(170, 90, 120),
+      'cube07': new THREE.Vector3(-160, -130, 120),
+      'cube08': new THREE.Vector3(140, -160, -140),
+      'cube09': new THREE.Vector3(-200, 0, 40),
+      'cube10': new THREE.Vector3(200, 0, -40),
+      'cube11': new THREE.Vector3(0, 40, 200),
+      'cube12': new THREE.Vector3(0, -40, -200),
+      'cube13': new THREE.Vector3(140, 140, 140)
     };
 
     const faceRotationMap = {
@@ -440,8 +422,8 @@
         originalBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        // ★ 3D 實體組合保持放大 3.5 倍（大器感）
-        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 3.5;
+        // ★ 3D 實體放大 4.5 倍（近視感與強烈臨場感）
+        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 4.5;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
@@ -509,6 +491,9 @@
       if (!item || item.isAssembled) return;
 
       hideSvgOverlay();
+      isAssemblyActive = true; // 鎖住漫遊，防止組裝完成跳一下
+      lastActionTime = performance.now(); // 重置閒置計時器
+
       flyInSequenceCounter++;
       const isPrankDrop = (flyInSequenceCounter % 4 === 0);
 
@@ -517,8 +502,11 @@
         item.node.visible = true;
         item.meshes.forEach(m => m.visible = true);
 
+        // 播放火箭 swoosh 音效
+        playRocketSwoosh();
+
         if (!isBatch && faceRotationMap[name]) {
-          smoothRotateCubeTo(faceRotationMap[name], 320);
+          smoothRotateCubeTo(faceRotationMap[name], 380);
         }
 
         const node = item.node;
@@ -526,11 +514,11 @@
         const startPos = item.deepSpacePos.clone();
         let actualStartPos = startPos;
         if (isPrankDrop) {
-          actualStartPos = targetPos.clone().add(new THREE.Vector3(0, 45, 0));
+          actualStartPos = targetPos.clone().add(new THREE.Vector3(0, 60, 0));
         }
 
         const startTime = performance.now();
-        const duration = isPrankDrop ? 550 : 850;
+        const duration = isPrankDrop ? 700 : 1200; // ★ 拉長飛行時間，速度更慢、更優雅沈穩
 
         activeTweens.push({
           update(now) {
@@ -546,10 +534,14 @@
               node.scale.setScalar(1.0);
               assembledCount++;
 
-              playSnapSound(isPrankDrop);
-
               if (assembledCount === TOTAL_PARTS) {
-                smoothRotateCubeTo(HOME_ROTATION, 400);
+                smoothRotateCubeTo(HOME_ROTATION, 450, () => {
+                  isAssemblyActive = false; // 解除鎖定，安全進入漫遊
+                  lastActionTime = performance.now();
+                });
+              } else {
+                // 如果批量組裝還沒完全結束，稍後若無動作才解鎖
+                setTimeout(() => { isAssemblyActive = false; }, 600);
               }
               return false;
             }
@@ -570,7 +562,7 @@
       smoothRotateCubeTo(HOME_ROTATION, 180);
 
       partOrder.forEach((name, idx) => {
-        flyInSinglePart(name, true, idx * 120);
+        flyInSinglePart(name, true, idx * 160); // 增加序列間隔
       });
     };
 
@@ -597,6 +589,7 @@
       playHitIdx = 0;
       assembledCount = 0;
       flyInSequenceCounter = 0;
+      isAssemblyActive = false;
       
       const overlay = document.getElementById('svg-overlay');
       if (overlay) {
@@ -653,7 +646,8 @@
 
       controls.update();
 
-      if (now - lastActionTime > 2500) {
+      // 只有在非組裝狀態、且閒置超過 4 秒時才開始漫遊（徹底解決跳動問題）
+      if (!isAssemblyActive && now - lastActionTime > 4200) {
         isRoaming = true;
         roamTime += 0.010;
         const ampScale = isMobile ? 1.0 : 0.45;
