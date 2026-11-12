@@ -422,8 +422,8 @@
         originalBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        // ★ 3D 實體放大 4.5 倍（近視感與強烈臨場感）
-        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 4.5;
+        // ★ 3D 實體放大 6 倍（近視感與強烈臨場感）
+        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 6;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
