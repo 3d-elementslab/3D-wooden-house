@@ -156,7 +156,7 @@
         inset 0 1px 2px rgba(0, 0, 0, 0.35);
     }
 
-    /* SVG 預覽開場層：完美置中並放大 3.5 倍 */
+    /* SVG 預覽開場層：加大向左微調幅度（translateX），讓 E 字精準對齊正中 */
     #svg-overlay {
       position: absolute;
       top: 0;
@@ -171,10 +171,11 @@
       transition: opacity 0.5s ease;
     }
     #svg-overlay img {
-      width: 75vw; /* 放大約 3.5 倍，對齊大器比例 */
-      max-width: 750px;
+      width: 36vw;
+      max-width: 360px;
       height: auto;
-      filter: drop-shadow(0 16px 32px rgba(15, 23, 42, 0.18));
+      transform: translateX(-32px); /* 往左多推一點，完美對準下方的「實驗元素工作室」中線 */
+      filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.15));
     }
 
     footer {
@@ -259,7 +260,7 @@
   </footer>
 
   <script>
-    // --- 0. 音效系統 (Web Audio API 合成精緻金屬敲擊聲) ---
+    // --- 0. 音效系統 ---
     let audioCtx = null;
     function playSnapSound(isDrop = false) {
       try {
@@ -274,14 +275,12 @@
         const gain = audioCtx.createGain();
 
         if (isDrop) {
-          // 掉落時低沈扎實的撞擊音
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(120, audioCtx.currentTime);
           osc.frequency.exponentialRampToValueAtTime(35, audioCtx.currentTime + 0.15);
           gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
         } else {
-          // 卡榫到位清脆的高級金屬敲擊聲
           osc.type = 'sine';
           osc.frequency.setValueAtTime(580, audioCtx.currentTime);
           osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.08);
@@ -293,9 +292,7 @@
         gain.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + (isDrop ? 0.15 : 0.08));
-      } catch (e) {
-        // 忽略瀏覽器自動播放限制
-      }
+      } catch (e) {}
     }
 
     // --- 1. Three.js 場景建構 ---
@@ -352,11 +349,10 @@
     const TOTAL_PARTS = 15;
     const HOME_ROTATION = { x: 0.25, y: -0.65 };
 
-    // 遠距離深空軌跡（距離放大 3 倍，讓零件從更遠處飛入）
     const trajectoryMap = {
       'E': new THREE.Vector3(0, 120, 45),
       'L': new THREE.Vector3(0, -120, 45),
-      'cube01': new THREE.Vector3(0, 140, 0), // ★ cube01 改由正上方俯視直降
+      'cube01': new THREE.Vector3(0, 140, 0),
       'cube02': new THREE.Vector3(120, 90, -90),
       'cube03': new THREE.Vector3(-130, -70, -70),
       'cube04': new THREE.Vector3(110, -80, 110),
@@ -444,7 +440,7 @@
         originalBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        // ★ Cube 放大 3.5 倍，完美對齊開場 SVG 大器比例與絕對置中
+        // ★ 3D 實體組合保持放大 3.5 倍（大器感）
         const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 3.5;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
@@ -514,7 +510,6 @@
 
       hideSvgOverlay();
       flyInSequenceCounter++;
-      // ★ 每 4 次必定觸發高空掉落惡作劇
       const isPrankDrop = (flyInSequenceCounter % 4 === 0);
 
       setTimeout(() => {
@@ -531,11 +526,11 @@
         const startPos = item.deepSpacePos.clone();
         let actualStartPos = startPos;
         if (isPrankDrop) {
-          actualStartPos = targetPos.clone().add(new THREE.Vector3(0, 45, 0)); // 從更高處落下
+          actualStartPos = targetPos.clone().add(new THREE.Vector3(0, 45, 0));
         }
 
         const startTime = performance.now();
-        const duration = isPrankDrop ? 550 : 850; // ★ 放慢飛入速度，更有沈穩質感
+        const duration = isPrankDrop ? 550 : 850;
 
         activeTweens.push({
           update(now) {
@@ -551,7 +546,6 @@
               node.scale.setScalar(1.0);
               assembledCount++;
 
-              // 播放音效
               playSnapSound(isPrankDrop);
 
               if (assembledCount === TOTAL_PARTS) {
@@ -571,4 +565,112 @@
 
     btnFlyIn.onclick = () => {
       resetCameraAndPosition();
-      clear
+      clearAllToDeepSpace();
+      flyInSequenceCounter = 0;
+      smoothRotateCubeTo(HOME_ROTATION, 180);
+
+      partOrder.forEach((name, idx) => {
+        flyInSinglePart(name, true, idx * 120);
+      });
+    };
+
+    let playHitIdx = 0;
+    btnPlay.onclick = () => {
+      resetCameraAndPosition();
+
+      if (assembledCount >= TOTAL_PARTS) {
+        clearAllToDeepSpace();
+        playHitIdx = 0;
+      }
+
+      while (playHitIdx < partOrder.length) {
+        const nextPart = partOrder[playHitIdx++];
+        const item = partRegistry.get(nextPart);
+        if (item && !item.isAssembled) {
+          flyInSinglePart(nextPart, false, 0);
+          break;
+        }
+      }
+    };
+
+    function clearAllToDeepSpace() {
+      playHitIdx = 0;
+      assembledCount = 0;
+      flyInSequenceCounter = 0;
+      
+      const overlay = document.getElementById('svg-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
+      }
+
+      partRegistry.forEach((item) => {
+        item.isAssembled = false;
+        item.node.visible = false;
+        item.node.position.copy(item.deepSpacePos);
+        item.node.scale.setScalar(0.85);
+        item.node.rotation.set(0, 0, 0);
+        item.meshes.forEach(m => m.visible = true);
+      });
+      cubeRoot.position.set(0, 0, 0);
+    }
+
+    let lastActionTime = performance.now();
+    let isRoaming = false;
+    let roamTime = 0;
+
+    window.addEventListener('pointerdown', () => { 
+      lastActionTime = performance.now(); 
+
+      if (isRoaming) {
+        isRoaming = false;
+        const startPos = cubeRoot.position.clone();
+        const endPos = new THREE.Vector3(0, 0, 0);
+        const startTime = performance.now();
+        activeTweens.push({
+          update(now) {
+            const t = Math.min((now - startTime) / 400, 1);
+            cubeRoot.position.lerpVectors(startPos, endPos, 1 - Math.pow(1 - t, 3));
+            return t < 1;
+          }
+        });
+      }
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+
+      for (let i = activeTweens.length - 1; i >= 0; i--) {
+        try {
+          if (!activeTweens[i].update(now)) {
+            activeTweens.splice(i, 1);
+          }
+        } catch(e) {
+          activeTweens.splice(i, 1);
+        }
+      }
+
+      controls.update();
+
+      if (now - lastActionTime > 2500) {
+        isRoaming = true;
+        roamTime += 0.010;
+        const ampScale = isMobile ? 1.0 : 0.45;
+        cubeRoot.position.x = Math.sin(roamTime * 0.65) * 3.2 * ampScale;
+        cubeRoot.position.y = Math.cos(roamTime * 0.45) * 2.2 * ampScale;
+        cubeRoot.position.z = Math.sin(roamTime * 0.35) * 1.8 * ampScale - 0.5;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
