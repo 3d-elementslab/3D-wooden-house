@@ -420,7 +420,7 @@
         const maxDim = Math.max(size.x, size.y, size.z);
 
         // ★ 縮放參數（保持原比例不變，現在中心絕對精準在 0,0,0）
-        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.8;
+        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.7;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
@@ -574,7 +574,7 @@
             const t = Math.min(elapsed / partDuration, 1);
 
             // 前段快速推進、最後 0.6 秒優雅減速吸附，精準踩在 4.0 秒音效最後那口氣
-            const ease = 1 - Math.pow(1 - t, 4.5);
+            const ease = 1 - Math.pow(1 - t, 5.2);
 
             if (isDropCube && t > 0.78) {
               // ★ 第 4 次彩蛋：快靠近定位時突然「沒接穩」受重力往下掉落翻滾！
