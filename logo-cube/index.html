@@ -704,8 +704,7 @@
 
     function checkAllFlyInFinished() {
       if (assembledCount >= TOTAL_PARTS) {
-        triggerGoldTextHighlight(true);
-        setTimeout(() => triggerGoldTextHighlight(false), 2600);
+       
         smoothRotateCubeTo(HOME_ROTATION, 350, () => {
           isAssemblyActive = false;
           lastActionTime = performance.now();
