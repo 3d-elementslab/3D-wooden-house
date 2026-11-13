@@ -1,665 +1,912 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Elements Lab - 3D Logo Cube Assembly (Master Edition)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>3D. ELEMENTS. LAB | 實驗元素工作室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      touch-action: manipulation;
-    }
-    body {
-      background: radial-gradient(circle at 50% 30%, #e2e8f0 0%, #cbd5e1 50%, #8fa0b5 100%);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-      color: #1e293b;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    #metal-frame {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      bottom: 12px;
-      border-radius: 12px;
-      pointer-events: none;
-      z-index: 100;
-      box-shadow: 
-        inset 0 0 0 1px rgba(255, 255, 255, 0.85),
-        inset 0 0 0 2px rgba(148, 163, 184, 0.6),
-        inset 0 0 0 3px rgba(255, 255, 255, 0.3),
-        0 0 0 1px rgba(71, 85, 105, 0.3);
-    }
-
-    #webgl-canvas {
+    html, body {
       width: 100%;
       height: 100%;
-      display: block;
-      cursor: grab;
+      overflow: hidden;
+      /* 定案冷調金屬銀藍微漸層背景 */
+      background: linear-gradient(135deg, #e2e8f0 0%, #c4cfdd 55%, #a9b8ca 100%);
+      font-family: 'JetBrains Mono', 'Noto Sans TC', monospace, sans-serif;
     }
-    #webgl-canvas:active {
-      cursor: grabbing;
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
     }
-    
-    header {
-      position: absolute;
-      top: 1.8rem;
-      left: 2rem;
-      right: 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 20;
-    }
-    
-    .brand-link {
-      text-decoration: none;
+
+    /* 左上角品牌標題：支援互動與 Hover 變色為青黃金 #c8c074 */
+    .brand-header {
+      position: fixed;
+      top: 28px;
+      left: 32px;
+      z-index: 10;
       pointer-events: auto;
-      display: inline-block;
+      cursor: pointer;
     }
 
     .brand-title {
-      font-size: 1.05rem;
+      font-size: 16px;
       font-weight: 700;
-      letter-spacing: 0.2em;
-      color: #0f172a;
-      text-transform: uppercase;
-      position: relative;
-      display: inline-block;
-      transition: color 0.2s ease;
-    }
-
-    .brand-title::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 100%;
-      height: 1px;
-      background-color: #0f172a;
-      transform: scaleX(0.3);
-      transform-origin: left;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
-      opacity: 0.6;
-    }
-
-    .brand-link:hover .brand-title {
-      color: #ebd2a0;
-    }
-
-    .brand-link:hover .brand-title::after {
-      transform: scaleX(1);
-      background-color: #ebd2a0;
-      opacity: 1;
+      letter-spacing: 0.16em;
+      color: #334155;
+      transition: color 0.35s ease, text-shadow 0.35s ease;
     }
 
     .brand-sub {
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-      color: #475569;
-      margin-top: 0.2rem;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      color: #64748b;
+      transition: color 0.35s ease;
     }
 
-    #ui-control-bar {
-      position: absolute;
-      bottom: 3.8rem;
+    .brand-header:hover .brand-title,
+    .brand-header.active-gold .brand-title {
+      color: #c8c074;
+      text-shadow: 0 1px 10px rgba(200, 192, 116, 0.35);
+    }
+
+    .brand-header:hover .brand-sub,
+    .brand-header.active-gold .brand-sub {
+      color: #c8c074;
+    }
+
+    /* 右上角進度計數器（Play & Hit 時顯示） */
+    .hud-counter {
+      position: fixed;
+      top: 28px;
+      right: 32px;
+      z-index: 10;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: #334155;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(231, 245, 252, 0.85);
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+      pointer-events: none;
+    }
+
+    .hud-counter.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hud-counter.completed {
+      color: #c8c074;
+      background: rgba(15, 23, 42, 0.85);
+      border-color: #c8c074;
+    }
+
+    /* 底部操作面板與版權資訊 */
+    .bottom-ui {
+      position: fixed;
+      bottom: 26px;
       left: 50%;
       transform: translateX(-50%);
-      display: flex;
-      gap: 1.2rem;
-      align-items: center;
-      padding: 0.5rem 0.8rem;
-      background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(226,232,240,0.7) 100%);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      border-radius: 999px;
-      box-shadow: 
-        0 8px 24px rgba(15, 23, 42, 0.12),
-        inset 0 1px 1px rgba(255, 255, 255, 0.9);
-      z-index: 20;
-    }
-
-    .action-btn {
-      width: 135px;
-      height: 42px;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 0.76rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #f8fafc;
-      background: linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
-      border: 1px solid #475569;
-      border-bottom: 2px solid #020617;
-      border-radius: 999px;
-      cursor: pointer;
-      box-shadow: 
-        0 3px 8px rgba(15, 23, 42, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      transition: all 0.12s ease;
-    }
-    .action-btn:hover {
-      background: linear-gradient(180deg, #475569 0%, #334155 50%, #1e293b 100%);
-    }
-    .action-btn:active {
-      transform: translateY(2px);
-      border-bottom: 1px solid #020617;
-      box-shadow: 
-        0 1px 3px rgba(15, 23, 42, 0.3),
-        inset 0 1px 2px rgba(0, 0, 0, 0.35);
-    }
-
-    /* SVG 預覽開場層：維持精緻小巧比例，光學置中對齊 */
-    #svg-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       z-index: 10;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-    }
-    #svg-overlay img {
-      width: 36vw;
-      max-width: 360px;
-      height: auto;
-      transform: translateX(-32px);
-      filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.15));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: max-content;
+      max-width: 92vw;
     }
 
-    footer {
-      position: absolute;
-      bottom: 0.9rem;
-      left: 0;
-      width: 100%;
-      text-align: center;
-      font-size: 0.65rem;
-      letter-spacing: 0.12em;
-      color: #475569;
-      pointer-events: auto;
-      z-index: 20;
-      line-height: 1.5;
-    }
-
-    footer .studio-link {
+    /* 動態提示文字（掉落彩蛋或通關慶祝時顯示） */
+    .status-toast {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
       color: #334155;
-      text-decoration: none;
-      position: relative;
-      display: inline-block;
-      font-weight: 500;
-      transition: color 0.25s ease;
+      min-height: 18px;
+      text-align: center;
+      transition: color 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
     }
 
-    footer .studio-link::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -1px;
-      width: 100%;
-      height: 1px;
-      background-color: #334155;
-      transform: scaleX(0.3);
-      transform-origin: left;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
-      opacity: 0.6;
-    }
-
-    footer .studio-link:hover {
-      color: #ebd2a0;
-    }
-
-    footer .studio-link:hover::after {
-      transform: scaleX(1);
-      background-color: #ebd2a0;
+    .status-toast.show {
       opacity: 1;
     }
-  </style>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-</head>
-<body>
-  <div id="metal-frame"></div>
-
-  <!-- SVG 線稿開場圖層 -->
-  <div id="svg-overlay">
-    <img src="./logo-wire.svg" alt="Logo Wireframe">
-  </div>
-
-  <header>
-    <div>
-      <a href="https://3d.elementslab.net" class="brand-link">
-        <div class="brand-title">3D ELEMENTS LAB</div>
-      </a>
-      <div class="brand-sub">Modular Assembly Simulator</div>
-    </div>
-  </header>
-
-  <canvas id="webgl-canvas"></canvas>
-
-  <div id="ui-control-bar">
-    <button class="action-btn" id="btn-flyin">FLY IN</button>
-    <button class="action-btn" id="btn-play">PLAY & HIT</button>
-  </div>
-
-  <footer>
-    <div>© 2026 Elements Lab. All rights reserved.</div>
-    <div><a href="https://elementslab.net" class="studio-link">實驗元素工作室</a></div>
-  </footer>
-
-  <!-- 讀取你的 rocket-woosh.wav 音效檔 -->
-  <audio id="swoosh-audio" src="./rocket-woosh.wav" preload="auto"></audio>
-
-  <script>
-    // --- 0. 播放音效函數 ---
-    function playRocketSwoosh() {
-      try {
-        const audio = document.getElementById('swoosh-audio');
-        if (audio) {
-          audio.currentTime = 0;
-          audio.volume = 0.65;
-          audio.play().catch(e => {});
-        }
-      } catch (e) {}
+    .status-toast.gold {
+      color: #c8c074;
+      text-shadow: 0 1px 6px rgba(15, 23, 42, 0.35);
     }
 
-    // --- 1. Three.js 場景建構 ---
-    const canvas = document.getElementById('webgl-canvas');
+    /* 雙按鈕膠囊外框（對齊截圖風格） */
+    .control-pill {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 12px;
+      background: rgba(248, 250, 252, 0.78);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(231, 245, 252, 0.9);
+    }
+
+    .btn-action {
+      min-width: 132px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, color 0.25s ease, opacity 0.25s ease;
+    }
+
+    .btn-action:hover:not(:disabled) {
+      transform: translateY(-1px);
+      color: #c8c074;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+    }
+
+    .btn-action:active:not(:disabled) {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .btn-action:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* 底部版權與「實驗元素工作室」：變色時使用 #c8c074 */
+    .copyright-block {
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.6;
+      letter-spacing: 0.08em;
+      color: #475569;
+      cursor: pointer;
+      transition: color 0.35s ease;
+    }
+
+    .copyright-block .studio-name {
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      transition: color 0.35s ease, text-shadow 0.35s ease;
+    }
+
+    .copyright-block:hover .studio-name,
+    .copyright-block.active-gold .studio-name {
+      color: #c8c074;
+      text-shadow: 0 1px 8px rgba(200, 192, 116, 0.45);
+    }
+
+    /* 載入提示 */
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(226, 232, 240, 0.65);
+      backdrop-filter: blur(6px);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: #334155;
+      transition: opacity 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loader">LOADING 3D ELEMENTS...</div>
+
+  <!-- 左上角品牌識別 -->
+  <header class="brand-header" id="brandHeader">
+    <div class="brand-title">3D. ELEMENTS. LAB</div>
+    <div class="brand-sub">數位空間 | INTERACTIVE WEB 3D</div>
+  </header>
+
+  <!-- 右上角 Play & Hit 進度 -->
+  <div class="hud-counter" id="hudCounter">ASSEMBLED: 0 / 15</div>
+
+  <!-- 3D 畫布 -->
+  <div id="canvas-container"></div>
+
+  <!-- 底部控制與版權 -->
+  <div class="bottom-ui">
+    <div class="status-toast" id="statusToast"></div>
+    <div class="control-pill">
+      <button class="btn-action" id="btnFlyIn">FLY IN</button>
+      <button class="btn-action" id="btnPlayHit">PLAY & HIT</button>
+    </div>
+    <div class="copyright-block" id="copyrightBlock">
+      <div>© 2026 Elements Lab. All rights reserved.</div>
+      <div class="studio-name">實驗元素工作室</div>
+    </div>
+  </div>
+
+  <!-- Three.js 與 GLTFLoader / OrbitControls -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    // ==========================================
+    // 1. 場景、相機與渲染器初始化
+    // ==========================================
+    const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    const cubeRoot = new THREE.Group();
-    scene.add(cubeRoot);
 
-    const isMobile = window.innerWidth <= 768;
-    const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 150);
-    const DEFAULT_CAM_POS = new THREE.Vector3(0, 1.2, 8.2);
-    camera.position.copy(DEFAULT_CAM_POS);
+    const camera = new THREE.PerspectiveCamera(
+      40,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 1.2, 11.5);
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.08;
+    container.appendChild(renderer.domElement);
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // 金屬質感環境貼圖
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+
+    // 燈光配置
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.4);
+    dirLight1.position.set(8, 12, 10);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0xe7f5fc, 0.85);
+    dirLight2.position.set(-10, -6, -8);
+    scene.add(dirLight2);
+
+    // 控制器（中心點鎖定於校正後的 0,0,0）
+    const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.minDistance = 1.8;  
-    controls.maxDistance = 45.0; 
+    controls.dampingFactor = 0.06;
     controls.target.set(0, 0, 0);
+    controls.minDistance = 5;
+    controls.maxDistance = 28;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.9));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
-    keyLight.position.set(10, 15, 10);
-    scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0x64748b, 1.6);
-    fillLight.position.set(-10, 4, -8);
-    scene.add(fillLight);
-    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.1);
-    bottomBounce.position.set(0, -8, 0);
-    scene.add(bottomBounce);
+    // ==========================================
+    // 2. 音效系統（支援 cheering.wav + 精準 4 秒 Fly-In）
+    // ==========================================
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
 
-    // --- 2. 高級金屬材質 ---
-    const champagneGoldMat = new THREE.MeshStandardMaterial({
-      color: 0xebd2a0,
-      metalness: 0.85,
-      roughness: 0.22,
-    });
+    // 載入通關歡呼音檔 cheering.wav
+    const cheeringAudio = new Audio('cheering.wav');
+    cheeringAudio.preload = 'auto';
 
-    const anodizedTealMat = new THREE.MeshStandardMaterial({
-      color: 0x4a729c,
-      metalness: 0.65,
-      roughness: 0.25,
-    });
+    // 嘗試載入外部 flyin.wav（若資料夾內有放則優先使用，否則使用內建精準 4 秒氣動合成音）
+    let hasExternalFlyIn = false;
+    const flyInAudio = new Audio('flyin.wav');
+    flyInAudio.preload = 'auto';
+    flyInAudio.addEventListener('canplaythrough', () => {
+      hasExternalFlyIn = true;
+    }, { once: true });
 
-    const partRegistry = new Map();
-    const activeTweens = [];
-    let assembledCount = 0;
-    const TOTAL_PARTS = 15;
-    const HOME_ROTATION = { x: 0.25, y: -0.65 };
-    let isAssemblyActive = false; // 用來鎖住漫遊，防止組裝完跳一下
+    // 精準 4.0 秒 Fly-In 科技組裝音效（前 3.5s 聚集氣流 -> 第 4.0s 吐氣咬合收尾）
+    function playFlyInSound(isDropEasterEgg = false) {
+      if (hasExternalFlyIn) {
+        flyInAudio.currentTime = 0;
+        flyInAudio.play().catch(() => {});
+        return;
+      }
 
-    // 更遠的深空軌跡，讓飛入路徑拉長
-    const trajectoryMap = {
-      'E': new THREE.Vector3(0, 160, 60),
-      'L': new THREE.Vector3(0, -160, 60),
-      'cube01': new THREE.Vector3(0, 200, 0), // ★ cube01 嚴格從正上方垂直直降
-      'cube02': new THREE.Vector3(160, 120, -120),
-      'cube03': new THREE.Vector3(-170, -90, -90),
-      'cube04': new THREE.Vector3(150, -100, 150),
-      'cube05': new THREE.Vector3(-140, 170, -120),
-      'cube06': new THREE.Vector3(170, 90, 120),
-      'cube07': new THREE.Vector3(-160, -130, 120),
-      'cube08': new THREE.Vector3(140, -160, -140),
-      'cube09': new THREE.Vector3(-200, 0, 40),
-      'cube10': new THREE.Vector3(200, 0, -40),
-      'cube11': new THREE.Vector3(0, 40, 200),
-      'cube12': new THREE.Vector3(0, -40, -200),
-      'cube13': new THREE.Vector3(140, 140, 140)
-    };
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      const duration = 4.0;
 
-    const faceRotationMap = {
-      'E': { x: 0.25, y: -0.65 },
-      'L': { x: 0.25, y: -0.65 },
-      'cube01': { x: 0.20, y: -0.95 },
-      'cube02': { x: -0.30, y: 2.15 },
-      'cube03': { x: 0.40, y: -2.10 },
-      'cube04': { x: 0.25, y: 0.80 },
-      'cube05': { x: -0.50, y: 0.55 },
-      'cube06': { x: 0.50, y: 3.14 },
-      'cube07': { x: 0.20, y: -2.75 },
-      'cube08': { x: 0.30, y: -1.80 },
-      'cube09': { x: 0.30, y: -1.80 },
-      'cube10': { x: 0.25, y: 0.80 },
-      'cube11': { x: 0.25, y: -0.65 },
-      'cube12': { x: 0.30, y: 2.40 },
-      'cube13': { x: -0.40, y: 0.25 }
-    };
+      // 1) 4秒聚氣掃頻低鳴
+      const osc = ctx.createOscillator();
+      const oscGain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(65, now);
+      osc.frequency.exponentialRampToValueAtTime(195, now + 3.45);
+      osc.frequency.exponentialRampToValueAtTime(isDropEasterEgg ? 72 : 110, now + duration);
 
-    // --- 3. 載入模型 ---
-    const loader = new THREE.GLTFLoader();
+      oscGain.gain.setValueAtTime(0.001, now);
+      oscGain.gain.linearRampToValueAtTime(0.11, now + 2.6);
+      oscGain.gain.linearRampToValueAtTime(0.16, now + 3.55);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      osc.connect(oscGain);
+      oscGain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + duration);
+
+      // 2) 第 3.6s ~ 4.0s 精準吐氣鎖定聲（配合最後一口氣）
+      const bufferSize = ctx.sampleRate * 0.7;
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      const whiteNoise = ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(850, now + 3.3);
+      filter.frequency.exponentialRampToValueAtTime(320, now + duration);
+      filter.Q.value = 1.8;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.001, now + 3.3);
+      noiseGain.gain.linearRampToValueAtTime(0.14, now + 3.65);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      whiteNoise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      whiteNoise.start(now + 3.3);
+      whiteNoise.stop(now + duration);
+
+      // 若是第 4 次彩蛋，在 3.85s 補一聲清脆掉落喀嗒聲
+      if (isDropEasterEgg) {
+        const dropOsc = ctx.createOscillator();
+        const dropGain = ctx.createGain();
+        dropOsc.type = 'triangle';
+        dropOsc.frequency.setValueAtTime(280, now + 3.8);
+        dropOsc.frequency.exponentialRampToValueAtTime(85, now + 4.35);
+        dropGain.gain.setValueAtTime(0.18, now + 3.8);
+        dropGain.gain.exponentialRampToValueAtTime(0.001, now + 4.4);
+        dropOsc.connect(dropGain);
+        dropGain.connect(ctx.destination);
+        dropOsc.start(now + 3.8);
+        dropOsc.stop(now + 4.4);
+      }
+    }
+
+    // Play & Hit 單次敲擊組裝清脆金屬音效
+    function playHitSound(stepIndex) {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      // 隨組裝進度音高微微上揚，增加完成期待感
+      const baseFreq = 320 + stepIndex * 24;
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.45, now + 0.09);
+
+      gain.gain.setValueAtTime(0.16, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.17);
+    }
+
+    // 第 15 次通關播放 cheering.wav
+    function playCheeringSound() {
+      cheeringAudio.currentTime = 0;
+      cheeringAudio.play().catch((err) => {
+        console.warn('Audio playback prevented:', err);
+      });
+    }
+
+    // ==========================================
+    // 3. 狀態與動畫參數控制
+    // ==========================================
+    const logoPivot = new THREE.Group(); // 最外層旋轉中心（保證 0,0,0）
+    scene.add(logoPivot);
+
+    let parts = []; // 存放每個獨立 Mesh 的目標與動畫狀態
+    let mode = 'IDLE'; // 'FLY_IN' | 'WAIT_ROAM' | 'ROAMING' | 'PLAY_HIT' | 'CELEBRATING'
+
+    // 計時器與計數器
+    let flyInCount = 0;            // Fly-In 點擊次數（第4次觸發掉落彩蛋）
+    let flyInStartTime = 0;
+    const FLY_IN_DURATION = 4.0;   // 精準 4.0 秒配合音效
+    const WAIT_BEFORE_ROAM = 3.8;  // 靜止等待 3.8 秒
+    let waitStartTime = 0;
+
+    // 漫遊平滑啟動參數（解決嚇一跳問題）
+    let roamStartTime = 0;
+    let roamBaseAngleY = 0;
+    let roamBaseAngleX = 0;
+    const ROAM_RAMP_DURATION = 1.6; // 花 1.6 秒從速度 0 平滑加速到巡航速度
+
+    // Play & Hit 參數（共 15 次組裝）
+    const TOTAL_HITS = 15;
+    let hitCount = 0;
+    let hitBatches = []; // 將所有零件分成 15 批依序飛入
+
+    // UI 元素參照
+    const btnFlyIn = document.getElementById('btnFlyIn');
+    const btnPlayHit = document.getElementById('btnPlayHit');
+    const hudCounter = document.getElementById('hudCounter');
+    const statusToast = document.getElementById('statusToast');
+    const brandHeader = document.getElementById('brandHeader');
+    const copyrightBlock = document.getElementById('copyrightBlock');
+
+    function setGoldThemeActive(isActive) {
+      if (isActive) {
+        brandHeader.classList.add('active-gold');
+        copyrightBlock.classList.add('active-gold');
+      } else {
+        brandHeader.classList.remove('active-gold');
+        copyrightBlock.classList.remove('active-gold');
+      }
+    }
+
+    function showToast(text, isGold = false, duration = 3200) {
+      statusToast.textContent = text;
+      statusToast.classList.toggle('gold', isGold);
+      statusToast.classList.add('show');
+      clearTimeout(statusToast._timer);
+      if (duration > 0) {
+        statusToast._timer = setTimeout(() => {
+          statusToast.classList.remove('show');
+        }, duration);
+      }
+    }
+
+    // ==========================================
+    // 4. 載入 GLB 模型 + 16 倍縮放中心校正
+    // ==========================================
+    const loader = new GLTFLoader();
     loader.load(
-      './el-logo asm.glb',
-      (gltf) => { initAssemblyScene(gltf); },
+      'el-logo asm.glb',
+      (gltf) => {
+        const rawModel = gltf.scene;
+
+        // 步驟 A：先在原始尺寸下計算幾何包圍盒中心點，將原點歸零
+        rawModel.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(rawModel);
+        const center = box.getCenter(new THREE.Vector3());
+
+        // 建立居中的容器並套用 16 倍縮放
+        const centeredWrapper = new THREE.Group();
+        rawModel.position.sub(center); // 反向平移抵消 CAD 偏移
+        centeredWrapper.add(rawModel);
+        centeredWrapper.scale.setScalar(16); // 放大 16 倍
+        centeredWrapper.updateMatrixWorld(true);
+
+        // 步驟 B：提取所有獨立網格零件，轉換為相對於 logoPivot 的局部目標座標
+        const extractedMeshes = [];
+        centeredWrapper.traverse((child) => {
+          if (child.isMesh) {
+            extractedMeshes.push(child);
+          }
+        });
+
+        extractedMeshes.forEach((mesh, idx) => {
+          // 取得該零件在 16 倍縮放且完全居中後的精確目標位置與旋轉
+          const worldPos = new THREE.Vector3();
+          const worldQuat = new THREE.Quaternion();
+          const worldScale = new THREE.Vector3();
+          mesh.getWorldPosition(worldPos);
+          mesh.getWorldQuaternion(worldQuat);
+          mesh.getWorldScale(worldScale);
+
+          // 重新掛載到 logoPivot 之下，確保每個零件能獨立飛入與掉落
+          logoPivot.add(mesh);
+          mesh.position.copy(worldPos);
+          mesh.quaternion.copy(worldQuat);
+          mesh.scale.copy(worldScale);
+
+          // 微調材質金屬反射度，保留原始定案顏色（青黃金 / 湖水綠）
+          if (mesh.material) {
+            mesh.material = mesh.material.clone();
+            mesh.material.roughness = Math.min(mesh.material.roughness ?? 0.35, 0.42);
+            mesh.material.metalness = Math.max(mesh.material.metalness ?? 0.55, 0.45);
+          }
+
+          parts.push({
+            mesh,
+            index: idx,
+            targetPos: worldPos.clone(),
+            targetQuat: worldQuat.clone(),
+            startPos: new THREE.Vector3(),
+            startQuat: new THREE.Quaternion(),
+            // Play & Hit 單顆零件動態狀態
+            hitProgress: 1,      // 1 = 已到位, < 1 = 正在飛入中
+            hitDelay: 0,
+            hitArcOffset: new THREE.Vector3(),
+            // 第 4 次 Fly-In 掉落彩蛋屬性
+            isDropVictim: false,
+            dropVelocityY: 0,
+            dropRotSpeed: new THREE.Vector3(),
+            hasBounced: false
+          });
+        });
+
+        // 隱藏 Loading 並自動啟動第一次 4 秒 Fly-In
+        const loaderEl = document.getElementById('loader');
+        loaderEl.style.opacity = '0';
+        setTimeout(() => loaderEl.remove(), 400);
+
+        startFlyIn();
+      },
       undefined,
-      (error) => { console.error("GLB Load Error:", error); }
+      (error) => {
+        console.error('GLB Load Error:', error);
+        document.getElementById('loader').textContent = 'FAILED TO LOAD el-logo asm.glb';
+      }
     );
 
-    function initAssemblyScene(gltf) {
-      try {
-        const root = gltf.scene;
-        const targetPartNames = new Set([
-          'E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05',
-          'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'
-        ]);
+    // ==========================================
+    // 5. Fly-In 邏輯（含第 4 次掉落彩蛋）
+    // ==========================================
+    function startFlyIn() {
+      if (parts.length === 0) return;
 
-        root.traverse((node) => {
-          if (targetPartNames.has(node.name)) {
-            const isLogoLetter = (node.name === 'E' || node.name === 'L');
-            const solidMat = isLogoLetter ? champagneGoldMat.clone() : anodizedTealMat.clone();
+      flyInCount++;
+      const isEasterEgg = (flyInCount % 4 === 0); // 第 4, 8, 12... 次觸發掉落
 
-            const meshes = [];
-            node.traverse((child) => {
-              if (child.isMesh) {
-                child.material = solidMat;
-                meshes.push(child);
-              }
-            });
+      mode = 'FLY_IN';
+      flyInStartTime = performance.now() / 1000;
+      setGoldThemeActive(false);
+      hudCounter.classList.remove('visible', 'completed');
 
-            const targetPos = node.position.clone();
-            const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(40, 30, 35);
-            const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
+      // 飛行期間鎖定按鈕避免連續誤觸
+      btnFlyIn.disabled = true;
+      btnPlayHit.disabled = true;
 
-            node.position.copy(hiddenDeepSpacePos);
-            node.scale.setScalar(0.85);
-            node.visible = false;
-            meshes.forEach(m => m.visible = false);
+      // 重置整體角度至正面微傾，方便觀賞組裝
+      logoPivot.rotation.set(0.08, -0.18, 0);
 
-            partRegistry.set(node.name, {
-              node: node,
-              meshes: meshes,
-              targetPos: targetPos,
-              deepSpacePos: hiddenDeepSpacePos,
-              isAssembled: false
-            });
-          }
-        });
+      // 挑出 3 塊邊緣零件作為第 4 次掉落彩蛋的「沒接穩方塊」
+      const sortedByRadius = [...parts].sort(
+        (a, b) => b.targetPos.length() - a.targetPos.length()
+      );
+      const dropSet = new Set(
+        isEasterEgg ? sortedByRadius.slice(0, 3).map((p) => p.index) : []
+      );
 
-        root.updateMatrixWorld(true);
-        const originalBox = new THREE.Box3().setFromObject(root);
-        const size = new THREE.Vector3();
-        originalBox.getSize(size);
-        const maxDim = Math.max(size.x, size.y, size.z);
+      parts.forEach((p) => {
+        // 散開半徑拉大（10 ~ 18 單位），讓 4 秒飛行路徑充滿空間張力
+        const dir = p.targetPos.clone().normalize();
+        if (dir.lengthSq() < 0.001) {
+          dir.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+        }
+        const spreadDist = 11 + Math.random() * 8;
+        const randomJitter = new THREE.Vector3(
+          (Math.random() - 0.5) * 7,
+          (Math.random() - 0.5) * 7,
+          (Math.random() - 0.5) * 7
+        );
 
-        // ★ 3D 實體放大 16 倍（近視感與強烈臨場感）
-        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 16;
-        root.scale.setScalar(targetScale);
-        root.updateMatrixWorld(true);
+        p.startPos.copy(p.targetPos).addScaledVector(dir, spreadDist).add(randomJitter);
+        p.mesh.position.copy(p.startPos);
 
-        const scaledBox = new THREE.Box3().setFromObject(root);
-        const center = new THREE.Vector3();
-        scaledBox.getCenter(center);
-        root.position.sub(center);
-        root.updateMatrixWorld(true);
+        // 起始大角度隨機旋轉
+        const euler = new THREE.Euler(
+          (Math.random() - 0.5) * Math.PI * 3,
+          (Math.random() - 0.5) * Math.PI * 3,
+          (Math.random() - 0.5) * Math.PI * 3
+        );
+        p.startQuat.setFromEuler(euler);
+        p.mesh.quaternion.copy(p.startQuat);
 
-        cubeRoot.add(root);
-        cubeRoot.rotation.set(HOME_ROTATION.x, HOME_ROTATION.y, 0);
-      } catch(err) {
-        console.error("Assembly Init Error:", err);
-      }
+        // 設定彩蛋物理參數
+        p.isDropVictim = dropSet.has(p.index);
+        p.dropVelocityY = 0;
+        p.hasBounced = false;
+        p.dropRotSpeed.set(
+          (Math.random() - 0.5) * 5,
+          (Math.random() - 0.5) * 5,
+          (Math.random() - 0.5) * 6
+        );
+      });
+
+      playFlyInSound(isEasterEgg);
     }
 
-    function resetCameraAndPosition(duration = 320) {
-      const startCamPos = camera.position.clone();
-      const startTarget = controls.target.clone();
-      const startCubePos = cubeRoot.position.clone();
-      const startTime = performance.now();
+    // ==========================================
+    // 6. Play & Hit 邏輯（15 次大角度長路徑組裝 + cheering.wav）
+    // ==========================================
+    function initPlayAndHit() {
+      if (parts.length === 0) return;
 
-      activeTweens.push({
-        update(now) {
-          const t = Math.min((now - startTime) / duration, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          camera.position.lerpVectors(startCamPos, DEFAULT_CAM_POS, ease);
-          controls.target.lerpVectors(startTarget, new THREE.Vector3(0, 0, 0), ease);
-          cubeRoot.position.lerpVectors(startCubePos, new THREE.Vector3(0, 0, 0), ease);
-          controls.update();
-          return t < 1;
-        }
+      mode = 'PLAY_HIT';
+      hitCount = 0;
+      setGoldThemeActive(false);
+      btnFlyIn.disabled = false;
+      btnPlayHit.disabled = false;
+
+      hudCounter.textContent = `ASSEMBLED: 0 / ${TOTAL_HITS}`;
+      hudCounter.classList.remove('completed');
+      hudCounter.classList.add('visible');
+      showToast('CLICK "PLAY & HIT" TO ASSEMBLE (15 STEPS)', false, 2600);
+
+      // 將所有零件隨機打亂後，平均分配進 15 個批次（確保一定剛好敲 15 次組完）
+      const shuffled = [...parts].sort(() => Math.random() - 0.5);
+      hitBatches = Array.from({ length: TOTAL_HITS }, () => []);
+      shuffled.forEach((p, i) => {
+        hitBatches[i % TOTAL_HITS].push(p);
+      });
+
+      // 將所有零件送到「加長路徑 + 大角度旋轉」的遠處待命區
+      parts.forEach((p) => {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        // 加長飛入半徑（16 ~ 24 單位），讓飛入時間與旋轉變化更豐富
+        const farRadius = 16 + Math.random() * 8;
+
+        p.startPos.set(
+          farRadius * Math.sin(phi) * Math.cos(theta),
+          farRadius * Math.sin(phi) * Math.sin(theta),
+          farRadius * Math.cos(phi)
+        );
+        p.mesh.position.copy(p.startPos);
+
+        // 大幅度起始翻轉角度
+        const bigEuler = new THREE.Euler(
+          (Math.random() - 0.5) * Math.PI * 4,
+          (Math.random() - 0.5) * Math.PI * 4,
+          (Math.random() - 0.5) * Math.PI * 4
+        );
+        p.startQuat.setFromEuler(bigEuler);
+        p.mesh.quaternion.copy(p.startQuat);
+
+        // 設定弧線偏移向量，飛進來時會有優雅的空間大迴旋弧度
+        p.hitArcOffset.set(
+          (Math.random() - 0.5) * 9,
+          (Math.random() - 0.5) * 9,
+          (Math.random() - 0.5) * 9
+        );
+        p.hitProgress = 0; // 0 = 尚未飛出
+        p.isDropVictim = false;
       });
     }
 
-    function smoothRotateCubeTo(targetRot, duration = 280, onComplete = null) {
-      const startRotX = cubeRoot.rotation.x;
-      const startRotY = cubeRoot.rotation.y;
-      const startTime = performance.now();
+    function triggerNextHit() {
+      if (mode !== 'PLAY_HIT') {
+        initPlayAndHit();
+        return;
+      }
 
-      activeTweens.push({
-        update(now) {
-          const t = Math.min((now - startTime) / duration, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          cubeRoot.rotation.x = THREE.MathUtils.lerp(startRotX, targetRot.x, ease);
-          cubeRoot.rotation.y = THREE.MathUtils.lerp(startRotY, targetRot.y, ease);
-          if (t >= 1 && onComplete) onComplete();
-          return t < 1;
-        }
+      if (hitCount >= TOTAL_HITS) {
+        // 已完成 15 次後再按一次，重新開始新一輪
+        initPlayAndHit();
+        return;
+      }
+
+      const currentBatch = hitBatches[hitCount];
+      hitCount++;
+
+      playHitSound(hitCount);
+      hudCounter.textContent = `ASSEMBLED: ${hitCount} / ${TOTAL_HITS}`;
+
+      // 啟動這一批零件的長路徑飛入動畫
+      currentBatch.forEach((p, idx) => {
+        p.hitProgress = 0.001; // 標記為開始飛行
+        p.hitDelay = idx * 0.04;
       });
-    }
 
-    let flyInSequenceCounter = 0;
+      // 每次敲擊時也順勢給整體一個微微的互動旋轉角度，增加把玩樂趣
+      logoPivot.rotation.y += 0.22;
+      logoPivot.rotation.x = Math.sin(hitCount * 0.5) * 0.14;
 
-    function hideSvgOverlay() {
-      const overlay = document.getElementById('svg-overlay');
-      if (overlay && overlay.style.opacity !== '0') {
-        overlay.style.opacity = '0';
-        setTimeout(() => { overlay.style.display = 'none'; }, 500);
+      // 第 15 次最後一擊！
+      if (hitCount === TOTAL_HITS) {
+        hudCounter.classList.add('completed');
+        setGoldThemeActive(true); // 左上角與底部文字切換為青黃金 #c8c074
+        showToast('ASSEMBLY COMPLETE! 15 / 15', true, 4200);
+
+        // 等最後一塊飛到快定位（約 0.45 秒）瞬間準時響起 cheering.wav
+        setTimeout(() => {
+          playCheeringSound();
+          mode = 'CELEBRATING';
+          waitStartTime = performance.now() / 1000;
+        }, 450);
       }
     }
 
-    function flyInSinglePart(name, isBatch = false, delayMs = 0) {
-      const item = partRegistry.get(name);
-      if (!item || item.isAssembled) return;
-
-      hideSvgOverlay();
-      isAssemblyActive = true; // 鎖住漫遊，防止組裝完成跳一下
-      lastActionTime = performance.now(); // 重置閒置計時器
-
-      flyInSequenceCounter++;
-      const isPrankDrop = (flyInSequenceCounter % 4 === 0);
-
-      setTimeout(() => {
-        item.isAssembled = true;
-        item.node.visible = true;
-        item.meshes.forEach(m => m.visible = true);
-
-        // 播放火箭 swoosh 音效
-        playRocketSwoosh();
-
-        if (!isBatch && faceRotationMap[name]) {
-          smoothRotateCubeTo(faceRotationMap[name], 380);
-        }
-
-        const node = item.node;
-        const targetPos = item.targetPos.clone();
-        const startPos = item.deepSpacePos.clone();
-        let actualStartPos = startPos;
-        if (isPrankDrop) {
-          actualStartPos = targetPos.clone().add(new THREE.Vector3(0, 60, 0));
-        }
-
-        const startTime = performance.now();
-        const duration = isPrankDrop ? 700 : 1200; // ★ 拉長飛行時間，速度更慢、更優雅沈穩
-
-        activeTweens.push({
-          update(now) {
-            const elapsed = now - startTime;
-            const t = Math.min(elapsed / duration, 1);
-            let ease = isPrankDrop ? (t * t) : (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
-            
-            node.position.lerpVectors(actualStartPos, targetPos, ease);
-            node.scale.setScalar(THREE.MathUtils.lerp(0.8, 1.0, ease));
-
-            if (t >= 1) {
-              node.position.copy(targetPos);
-              node.scale.setScalar(1.0);
-              assembledCount++;
-
-              if (assembledCount === TOTAL_PARTS) {
-                smoothRotateCubeTo(HOME_ROTATION, 450, () => {
-                  isAssemblyActive = false; // 解除鎖定，安全進入漫遊
-                  lastActionTime = performance.now();
-                });
-              } else {
-                // 如果批量組裝還沒完全結束，稍後若無動作才解鎖
-                setTimeout(() => { isAssemblyActive = false; }, 600);
-              }
-              return false;
-            }
-            return true;
-          }
-        });
-      }, delayMs);
-    }
-
-    const btnFlyIn = document.getElementById('btn-flyin');
-    const btnPlay = document.getElementById('btn-play');
-    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
-
-    btnFlyIn.onclick = () => {
-      resetCameraAndPosition();
-      clearAllToDeepSpace();
-      flyInSequenceCounter = 0;
-      smoothRotateCubeTo(HOME_ROTATION, 180);
-
-      partOrder.forEach((name, idx) => {
-        flyInSinglePart(name, true, idx * 160); // 增加序列間隔
-      });
-    };
-
-    let playHitIdx = 0;
-    btnPlay.onclick = () => {
-      resetCameraAndPosition();
-
-      if (assembledCount >= TOTAL_PARTS) {
-        clearAllToDeepSpace();
-        playHitIdx = 0;
-      }
-
-      while (playHitIdx < partOrder.length) {
-        const nextPart = partOrder[playHitIdx++];
-        const item = partRegistry.get(nextPart);
-        if (item && !item.isAssembled) {
-          flyInSinglePart(nextPart, false, 0);
-          break;
-        }
-      }
-    };
-
-    function clearAllToDeepSpace() {
-      playHitIdx = 0;
-      assembledCount = 0;
-      flyInSequenceCounter = 0;
-      isAssemblyActive = false;
-      
-      const overlay = document.getElementById('svg-overlay');
-      if (overlay) {
-        overlay.style.display = 'flex';
-        overlay.style.opacity = '1';
-      }
-
-      partRegistry.forEach((item) => {
-        item.isAssembled = false;
-        item.node.visible = false;
-        item.node.position.copy(item.deepSpacePos);
-        item.node.scale.setScalar(0.85);
-        item.node.rotation.set(0, 0, 0);
-        item.meshes.forEach(m => m.visible = true);
-      });
-      cubeRoot.position.set(0, 0, 0);
-    }
-
-    let lastActionTime = performance.now();
-    let isRoaming = false;
-    let roamTime = 0;
-
-    window.addEventListener('pointerdown', () => { 
-      lastActionTime = performance.now(); 
-
-      if (isRoaming) {
-        isRoaming = false;
-        const startPos = cubeRoot.position.clone();
-        const endPos = new THREE.Vector3(0, 0, 0);
-        const startTime = performance.now();
-        activeTweens.push({
-          update(now) {
-            const t = Math.min((now - startTime) / 400, 1);
-            cubeRoot.position.lerpVectors(startPos, endPos, 1 - Math.pow(1 - t, 3));
-            return t < 1;
-          }
-        });
-      }
+    // 綁定按鈕事件
+    btnFlyIn.addEventListener('click', () => {
+      getAudioContext();
+      startFlyIn();
     });
+
+    btnPlayHit.addEventListener('click', () => {
+      getAudioContext();
+      triggerNextHit();
+    });
+
+    // 緩衝曲線：前快後慢、精準在 t=1 咬合定位
+    function easeOutQuart(t) {
+      return 1 - Math.pow(1 - t, 4);
+    }
+
+    function easeInCubic(t) {
+      return t * t * t;
+    }
+
+    // ==========================================
+    // 7. 主渲染迴圈
+    // ==========================================
+    let prevTime = performance.now() / 1000;
 
     function animate() {
       requestAnimationFrame(animate);
-      const now = performance.now();
 
-      for (let i = activeTweens.length - 1; i >= 0; i--) {
-        try {
-          if (!activeTweens[i].update(now)) {
-            activeTweens.splice(i, 1);
+      const now = performance.now() / 1000;
+      const dt = Math.min(now - prevTime, 0.05);
+      prevTime = now;
+
+      // --- 狀態 A：4.0 秒 Fly-In 動畫 ---
+      if (mode === 'FLY_IN') {
+        const elapsed = now - flyInStartTime;
+        const progress = Math.min(elapsed / FLY_IN_DURATION, 1);
+        const eased = easeOutQuart(progress);
+
+        parts.forEach((p) => {
+          if (p.isDropVictim && progress > 0.78) {
+            // 第 4 次彩蛋：快靠近目標時突然沒接穩，受重力往下墜落翻滾
+            p.dropVelocityY -= 18.5 * dt;
+            p.mesh.position.y += p.dropVelocityY * dt;
+            p.mesh.position.x += Math.sign(p.targetPos.x || 1) * 0.9 * dt;
+            p.mesh.rotation.x += p.dropRotSpeed.x * dt;
+            p.mesh.rotation.y += p.dropRotSpeed.y * dt;
+            p.mesh.rotation.z += p.dropRotSpeed.z * dt;
+
+            // 掉到隱形地板 (-3.8) 時彈跳一下
+            if (p.mesh.position.y < -3.8 && !p.hasBounced) {
+              p.mesh.position.y = -3.8;
+              p.dropVelocityY = Math.abs(p.dropVelocityY) * 0.42;
+              p.hasBounced = true;
+            } else if (p.mesh.position.y < -3.8 && p.hasBounced) {
+              p.mesh.position.y = -3.8;
+              p.dropVelocityY = 0;
+              p.dropRotSpeed.multiplyScalar(0.88);
+            }
+          } else {
+            // 正常零件：精準在 4.0 秒抵達 targetPos 與 targetQuat
+            p.mesh.position.lerpVectors(p.startPos, p.targetPos, eased);
+            p.mesh.quaternion.slerpQuaternions(p.startQuat, p.targetQuat, eased);
           }
-        } catch(e) {
-          activeTweens.splice(i, 1);
+        });
+
+        // 4.0 秒整完成 Fly-In -> 進入 3.8 秒靜止展示期
+        if (progress >= 1) {
+          btnFlyIn.disabled = false;
+          btnPlayHit.disabled = false;
+
+          if (flyInCount % 4 === 0) {
+            showToast('OOPS! GRAVITY CALIBRATION NEEDED — CLICK FLY IN AGAIN', true, 3600);
+          } else {
+            setGoldThemeActive(true);
+            setTimeout(() => setGoldThemeActive(false), 2800);
+          }
+
+          mode = 'WAIT_ROAM';
+          waitStartTime = now;
         }
       }
 
-      controls.update();
+      // --- 狀態 B：組裝完成後靜止等待 3.8 秒 ---
+      else if (mode === 'WAIT_ROAM' || mode === 'CELEBRATING') {
+        const waitElapsed = now - waitStartTime;
 
-      // 只有在非組裝狀態、且閒置超過 4 秒時才開始漫遊（徹底解決跳動問題）
-      if (!isAssemblyActive && now - lastActionTime > 4200) {
-        isRoaming = true;
-        roamTime += 0.010;
-        const ampScale = isMobile ? 1.0 : 0.45;
-        cubeRoot.position.x = Math.sin(roamTime * 0.65) * 3.2 * ampScale;
-        cubeRoot.position.y = Math.cos(roamTime * 0.45) * 2.2 * ampScale;
-        cubeRoot.position.z = Math.sin(roamTime * 0.35) * 1.8 * ampScale - 0.5;
+        // 若是通關慶祝中，前 1.2 秒給一個輕微的呼吸縮放律動
+        if (mode === 'CELEBRATING' && waitElapsed < 1.2) {
+          const pulse = 1 + Math.sin((waitElapsed / 1.2) * Math.PI) * 0.045;
+          logoPivot.scale.setScalar(pulse);
+        } else {
+          logoPivot.scale.setScalar(1);
+        }
+
+        // 滿 3.8 秒後，記錄當前角度與起始時間，平滑進入漫遊
+        if (waitElapsed >= WAIT_BEFORE_ROAM) {
+          mode = 'ROAMING';
+          roamStartTime = now;
+          roamBaseAngleY = logoPivot.rotation.y;
+          roamBaseAngleX = logoPivot.rotation.x;
+        }
       }
 
+      // --- 狀態 C：平滑加速漫遊（絕對不嚇一跳） ---
+      else if (mode === 'ROAMING') {
+        const roamElapsed = now - roamStartTime;
+        // 速度權重從 0 花 1.6 秒平滑漸增至 1
+        const ramp = Math.min(roamElapsed / ROAM_RAMP_DURATION, 1);
+        const smoothFactor = easeInCubic(ramp);
+
+        // 漸進式累加角速度，確保第一幀位移極微、零跳格
+        const targetSpeedY = 0.42;
+        logoPivot.rotation.y += targetSpeedY * smoothFactor * dt;
+
+        // 俯仰角也以平滑漸進方式微幅呼吸擺動
+        const targetTiltX = roamBaseAngleX + Math.sin(roamElapsed * 0.65) * 0.12 * smoothFactor;
+        logoPivot.rotation.x += (targetTiltX - logoPivot.rotation.x) * Math.min(dt * 3, 1);
+      }
+
+      // --- 狀態 D：Play & Hit 加長弧線大角度飛入計算 ---
+      if (mode === 'PLAY_HIT' || mode === 'CELEBRATING') {
+        parts.forEach((p) => {
+          if (p.hitProgress > 0 && p.hitProgress < 1) {
+            if (p.hitDelay > 0) {
+              p.hitDelay -= dt;
+              return;
+            }
+            // 加長飛行時間（約 1.15 秒飛完長弧線），讓旋轉變化清晰可見
+            p.hitProgress = Math.min(p.hitProgress + dt / 1.15, 1);
+            const t = easeOutQuart(p.hitProgress);
+
+            // 線性插值 + 拋物線弧度偏移（sin(pi * t) 在飛行中段向外畫出大弧線）
+            p.mesh.position.lerpVectors(p.startPos, p.targetPos, t);
+            const arcStrength = Math.sin(Math.PI * p.hitProgress) * (1 - t);
+            p.mesh.position.addScaledVector(p.hitArcOffset, arcStrength);
+
+            // 大角度四元數插值精準扣合
+            p.mesh.quaternion.slerpQuaternions(p.startQuat, p.targetQuat, t);
+          }
+        });
+      }
+
+      controls.update();
       renderer.render(scene, camera);
     }
+
     animate();
 
+    // ==========================================
+    // 8. 視窗縮放自適應
+    // ==========================================
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
