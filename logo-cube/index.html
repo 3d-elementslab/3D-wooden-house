@@ -88,7 +88,7 @@
       opacity: 0.6;
     }
 
-    /* ★ 改為你指定的青黃金色號 #c8c074 */
+    /* 青黃金色號 #c8c074 */
     .brand-link:hover .brand-title,
     .brand-link.celebrate-gold .brand-title {
       color: #c8c074;
@@ -219,7 +219,7 @@
       opacity: 0.6;
     }
 
-    /* ★ 改為你指定的青黃金色號 #c8c074 */
+    /* 青黃金色號 #c8c074 */
     footer .studio-link:hover,
     footer .studio-link.celebrate-gold {
       color: #c8c074;
@@ -266,12 +266,25 @@
     <div><a href="https://elementslab.net" class="studio-link" id="studio-link">實驗元素工作室</a></div>
   </footer>
 
-  <!-- 讀取你的 4 秒 rocket-woosh.wav 與通關 cheering.wav -->
+  <!-- 讀取你的 rocket-woosh.wav、metal-hit.wav 與 cheering.wav 音效檔 -->
   <audio id="swoosh-audio" src="./rocket-woosh.wav" preload="auto"></audio>
+  <audio id="metal-hit-audio" src="./metal-hit.wav" preload="auto"></audio>
   <audio id="cheering-audio" src="./cheering.wav" preload="auto"></audio>
 
   <script>
-    // --- 0. 播放音效函數 ---
+    // --- 0. 音效系統（外掛 WAV + Fly-In 結尾金屬合體音合成） ---
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
     function playRocketSwoosh() {
       try {
         const audio = document.getElementById('swoosh-audio');
@@ -283,14 +296,70 @@
       } catch (e) {}
     }
 
+    // ★ Play & Hit 專屬金屬撞擊音：metal-hit.wav
+    function playMetalHit() {
+      try {
+        const audio = document.getElementById('metal-hit-audio');
+        if (audio) {
+          audio.currentTime = 0;
+          audio.volume = 0.78;
+          audio.play().catch(e => {});
+        }
+      } catch (e) {}
+    }
+
+    // ★ 第 15 次通關歡呼音：cheering.wav
     function playCheeringAudio() {
       try {
         const audio = document.getElementById('cheering-audio');
         if (audio) {
           audio.currentTime = 0;
-          audio.volume = 0.8;
+          audio.volume = 0.85;
           audio.play().catch(e => {});
         }
+      } catch (e) {}
+    }
+
+    // ★ Fly-In 結束瞬間的清脆精密金屬鎖定合體音（雙頻金屬泛音 + 機械卡榫喀噠聲）
+    function playFlyInMetallicLock() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+
+        // 1) 機械卡榫瞬態撞擊（短促高頻脈衝）
+        const clickOsc = ctx.createOscillator();
+        const clickGain = ctx.createGain();
+        clickOsc.type = 'triangle';
+        clickOsc.frequency.setValueAtTime(1450, now);
+        clickOsc.frequency.exponentialRampToValueAtTime(280, now + 0.045);
+
+        clickGain.gain.setValueAtTime(0.28, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        clickOsc.connect(clickGain);
+        clickGain.connect(ctx.destination);
+        clickOsc.start(now);
+        clickOsc.stop(now + 0.055);
+
+        // 2) 雙頻金屬塊合體共振餘韻（880Hz + 1320Hz 精密合金共鳴）
+        [880, 1320, 2210].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + 0.01);
+
+          const peakGain = i === 0 ? 0.14 : (i === 1 ? 0.09 : 0.05);
+          const decay = i === 0 ? 0.65 : 0.42;
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(peakGain, now + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0008, now + decay);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + decay + 0.02);
+        });
       } catch (e) {}
     }
 
@@ -318,7 +387,7 @@
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.25;
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 1.8;  
@@ -336,7 +405,7 @@
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 2. 高級金屬材質（維持你原本定案的顏色與質感） ---
+    // --- 2. 高級金屬材質 ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
       color: 0xebd2a0,
       metalness: 0.85,
@@ -354,9 +423,9 @@
     let assembledCount = 0;
     const TOTAL_PARTS = 15;
     const HOME_ROTATION = { x: 0.25, y: -0.65 };
-    let isAssemblyActive = false; // 用來鎖住漫遊，防止組裝完跳一下
+    let isAssemblyActive = false;
 
-    // ★ 加長深空軌跡（讓飛入路徑拉長，旋轉與空間感更豐富）
+    // Fly-In 用的深空軌跡
     const trajectoryMap = {
       'E': new THREE.Vector3(0, 260, 110),
       'L': new THREE.Vector3(0, -260, 110),
@@ -375,7 +444,7 @@
       'cube13': new THREE.Vector3(230, 230, 230)
     };
 
-    // ★ 加大 Play & Hit 的視角旋轉變化，讓每一下都有豐富的立體翻轉樂趣
+    // ★ 保留刺激大角度視角跳轉（玩家手動節奏控制，每次按下都有強烈立體翻轉驚喜）
     const faceRotationMap = {
       'E': { x: 0.25, y: -0.65 },
       'L': { x: 0.35, y: -0.45 },
@@ -394,7 +463,7 @@
       'cube13': { x: -0.60, y: 0.65 }
     };
 
-    // --- 3. 載入模型（修正 16 倍縮放中心跑掉問題） ---
+    // --- 3. 載入模型 + * 0.7 比例精準置中校正 ---
     const loader = new THREE.GLTFLoader();
     loader.load(
       './el-logo asm.glb',
@@ -402,6 +471,8 @@
       undefined,
       (error) => { console.error("GLB Load Error:", error); }
     );
+
+    let modelCenterLocal = new THREE.Vector3(); // 記錄實體中心偏移量，確保重置時永遠精準居中
 
     function initAssemblyScene(gltf) {
       try {
@@ -411,26 +482,37 @@
           'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'
         ]);
 
-        // ★ 步驟 1：先在所有零件都還在「組裝完成原位」時計算幾何中心並套用 16 倍縮放！
-        // 這樣才不會把飛去深空的零件算進包圍盒裡導致位置跑掉
+        // 步驟 1：僅針對這 15 個實體零件計算精準包圍盒（排除任何可能存在的隱藏輔助節點）
         root.updateMatrixWorld(true);
-        const originalBox = new THREE.Box3().setFromObject(root);
+        const assemblyBox = new THREE.Box3();
+        root.traverse((node) => {
+          if (targetPartNames.has(node.name)) {
+            assemblyBox.expandByObject(node);
+          }
+        });
+
         const size = new THREE.Vector3();
-        originalBox.getSize(size);
+        assemblyBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        // ★ 縮放參數（保持原比例不變，現在中心絕對精準在 0,0,0）
+        // ★ 套用你定案的 * 0.7 倍率
         const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.7;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
-        const scaledBox = new THREE.Box3().setFromObject(root);
+        // 重新計算縮放後的精準幾何中心，並將 root 反向平移歸零至世界正中央 (0, 0, 0)
+        const scaledBox = new THREE.Box3();
+        root.traverse((node) => {
+          if (targetPartNames.has(node.name)) {
+            scaledBox.expandByObject(node);
+          }
+        });
         const center = new THREE.Vector3();
         scaledBox.getCenter(center);
         root.position.sub(center);
         root.updateMatrixWorld(true);
 
-        // ★ 步驟 2：記錄每個零件組裝後的精準局部座標，再送到深空待命
+        // 步驟 2：記錄每個零件組裝後的局部目標座標，再移至深空隱藏
         root.traverse((node) => {
           if (targetPartNames.has(node.name)) {
             const isLogoLetter = (node.name === 'E' || node.name === 'L');
@@ -464,6 +546,7 @@
         });
 
         cubeRoot.add(root);
+        cubeRoot.position.set(0, 0, 0);
         cubeRoot.rotation.set(HOME_ROTATION.x, HOME_ROTATION.y, 0);
       } catch(err) {
         console.error("Assembly Init Error:", err);
@@ -489,7 +572,7 @@
       });
     }
 
-    function smoothRotateCubeTo(targetRot, duration = 480, onComplete = null) {
+    function smoothRotateCubeTo(targetRot, duration = 450, onComplete = null) {
       const startRotX = cubeRoot.rotation.x;
       const startRotY = cubeRoot.rotation.y;
       const startTime = performance.now();
@@ -515,28 +598,29 @@
     }
 
     // =========================================================
-    // ★ 模式 A：FLY IN（精準 4.0 秒飛完配合音效 + 第 4 次掉東西彩蛋）
+    // ★ 模式 A：FLY IN（3800ms / 次方 5.2 + 結尾金屬音 + 第 4 次掉出螢幕彩蛋）
     // =========================================================
-    let flyInButtonClicks = 0; // 記錄按 FLY IN 的總次數
-    const dropVictimNames = new Set(['cube02', 'cube06', 'cube08']); // 第 4 次會沒接穩掉下去的方塊
+    let flyInButtonClicks = 0;
+    const dropVictimNames = new Set(['cube02', 'cube06', 'cube08']);
 
     function triggerFullFlyIn() {
+      getAudioContext();
       resetCameraAndPosition();
       clearAllToDeepSpace();
       hideSvgOverlay();
       triggerGoldTextHighlight(false);
 
       flyInButtonClicks++;
-      const isEasterEggRound = (flyInButtonClicks % 4 === 0); // 第 4, 8, 12... 次觸發掉東西！
+      const isEasterEggRound = (flyInButtonClicks % 4 === 0);
 
       isAssemblyActive = true;
       lastActionTime = performance.now();
       smoothRotateCubeTo(HOME_ROTATION, 400);
 
-      // 播放你的 4 秒 rocket-woosh.wav（整段 Fly-In 剛好 4.0 秒咬合收尾）
       playRocketSwoosh();
 
-      const totalFlyDuration = 3800; // ★ 精準 3.8 秒！
+      // ★ 保留你調出的黃金參數：3800ms 與 Math.pow(1 - t, 5.2)
+      const totalFlyDuration = 3800;
 
       partOrder.forEach((name, idx) => {
         const item = partRegistry.get(name);
@@ -550,12 +634,10 @@
         const targetPos = item.targetPos.clone();
         const startPos = item.deepSpacePos.clone();
 
-        // 每個零件有微小出發錯開（0 ~ 420ms），但全部精準在 4000ms 整一起咬合定位！
         const staggerDelay = idx * 28;
         const partDuration = totalFlyDuration - staggerDelay;
         const startTime = performance.now() + staggerDelay;
 
-        // 飛入過程中加入自我大角度旋轉，更有機械飛入感
         const spinStart = new THREE.Euler(
           (Math.random() - 0.5) * Math.PI * 2.5,
           (Math.random() - 0.5) * Math.PI * 2.5,
@@ -573,23 +655,24 @@
             const elapsed = now - startTime;
             const t = Math.min(elapsed / partDuration, 1);
 
-            // 前段快速推進、最後 0.6 秒優雅減速吸附，精準踩在 4.0 秒音效最後那口氣
+            // ★ 你調出的 5.2 次方高速衝刺＋精準剎車曲線
             const ease = 1 - Math.pow(1 - t, 5.2);
 
-            if (isDropCube && t > 0.78) {
-              // ★ 第 4 次彩蛋：快靠近定位時突然「沒接穩」受重力往下掉落翻滾！
+            if (isDropCube && t > 0.72) {
+              // ★ 第 4 次彩蛋：快到位時沒接穩，受重力加速一路翻滾掉出螢幕底部！
               if (!dropStarted) {
                 dropStarted = true;
-                dropVelY = 0;
+                dropVelY = -0.05;
               }
-              dropVelY -= 0.14; // 重力加速度
+              dropVelY -= 0.22; // 強化重力加速度，確保迅速掉出畫面
               node.position.y += dropVelY;
-              node.position.x += (targetPos.x >= 0 ? 0.03 : -0.03);
-              node.rotation.x += 0.08;
-              node.rotation.z += 0.11;
+              node.position.x += (targetPos.x >= 0 ? 0.05 : -0.05);
+              node.rotation.x += 0.11;
+              node.rotation.z += 0.14;
 
-              // 掉出畫面下方後結束該零件動畫
-              if (node.position.y < -12) {
+              // 在 * 0.7 比例下，y < -6.0 即完全離開螢幕底部邊界
+              if (node.position.y < -6.0) {
+                node.visible = false;
                 assembledCount++;
                 checkAllFlyInFinished();
                 return false;
@@ -621,17 +704,20 @@
 
     function checkAllFlyInFinished() {
       if (assembledCount >= TOTAL_PARTS) {
+        // ★ Fly-In 結束瞬間補上清脆的金屬合體鎖定音效
+        playFlyInMetallicLock();
+
         triggerGoldTextHighlight(true);
         setTimeout(() => triggerGoldTextHighlight(false), 2600);
         smoothRotateCubeTo(HOME_ROTATION, 350, () => {
           isAssemblyActive = false;
-          lastActionTime = performance.now(); // 從這一刻起精準靜止 3.8 秒後平滑進入漫遊
+          lastActionTime = performance.now(); // 靜止 3.8 秒後平滑進入漫遊
         });
       }
     }
 
     // =========================================================
-    // ★ 模式 B：PLAY & HIT（加長路徑與角度樂趣 + 15 次完播 cheering.wav）
+    // ★ 模式 B：PLAY & HIT（零穿透外側飛入 + 刺激角度跳轉 + metal-hit.wav + cheering.wav）
     // =========================================================
     function playHitSinglePart(name) {
       const item = partRegistry.get(name);
@@ -645,31 +731,50 @@
       item.node.visible = true;
       item.meshes.forEach(m => m.visible = true);
 
-      playRocketSwoosh();
+      // ★ 播放你的 metal-hit.wav 敲擊音效
+      playMetalHit();
 
-      // 大角度旋轉切換視角，讓飛入的空間感更豐富好玩
-      if (faceRotationMap[name]) {
-        smoothRotateCubeTo(faceRotationMap[name], 650);
-      }
+      // 取得該顆零件指定的目標旋轉角（保留刺激的大角度跳轉！）
+      const targetRot = faceRotationMap[name] || HOME_ROTATION;
+      smoothRotateCubeTo(targetRot, 480);
 
       const node = item.node;
       const targetPos = item.targetPos.clone();
-      const startPos = item.deepSpacePos.clone();
 
-      // 加入中段空間弧線偏移，讓飛入軌跡更長、更有戲劇張力
-      const arcOffset = new THREE.Vector3(
-        (Math.random() - 0.5) * 4.5,
-        (Math.random() - 0.5) * 4.5,
-        (Math.random() - 0.5) * 4.5
-      );
+      // ★ 計算「零穿透外側飛入起點」：
+      // 根據目標角度轉動後的朝向，計算該零件相對於中心的外法線 + 朝向鏡頭側的空間方向，
+      // 確保每一顆都從該方塊所在那一側的外部空間直接扣入，絕對不會穿過已組好的模型！
+      const targetEuler = new THREE.Euler(targetRot.x, targetRot.y, 0, 'XYZ');
+      const targetQuat = new THREE.Quaternion().setFromEuler(targetEuler);
+      const invQuat = targetQuat.clone().invert();
+
+      // 零件本身向外輻射的方向
+      const outwardDir = targetPos.clone();
+      if (outwardDir.lengthSq() < 0.001) {
+        outwardDir.set(0, 0.2, 1);
+      }
+      outwardDir.normalize();
+
+      // 鏡頭正前方在該旋轉角度下的局部方向（確保從朝向玩家的外側飛來）
+      const cameraFrontLocal = new THREE.Vector3(0, 0.25, 1).applyQuaternion(invQuat).normalize();
+
+      // 混合「零件外法線 (65%)」與「鏡頭外側方向 (35%)」，拉長距離到 38 單位（符合 *0.7 比例）
+      const nonPenetratingDir = outwardDir.multiplyScalar(0.65).addScaledVector(cameraFrontLocal, 0.35).normalize();
+      const startPos = targetPos.clone().addScaledVector(nonPenetratingDir, 38);
+
+      // 外側微弧線偏移（同樣只往外側擴張，不往內部穿模）
+      const arcOffset = nonPenetratingDir.clone().multiplyScalar(3.2);
+
+      // 單軸／雙軸 180° 機械卡榫對位旋轉
       const startRot = new THREE.Euler(
-        (Math.random() - 0.5) * Math.PI * 3,
-        (Math.random() - 0.5) * Math.PI * 3,
-        (Math.random() - 0.5) * Math.PI * 3
+        (Math.random() > 0.5 ? 1 : -1) * Math.PI * 0.5,
+        (Math.random() > 0.5 ? 1 : -1) * Math.PI,
+        0
       );
 
+      node.position.copy(startPos);
       const startTime = performance.now();
-      const duration = 1550; // ★ 拉長單顆飛入時間（1.55秒），讓轉角度與長路徑飛行看得更過癮
+      const duration = 950; // 配合手動點擊節奏，乾淨俐落飛入扣合
 
       activeTweens.push({
         update(now) {
@@ -678,11 +783,10 @@
           const ease = t === 1 ? 1 : 1 - Math.pow(2, -9 * t);
 
           node.position.lerpVectors(startPos, targetPos, ease);
-          // 加上平滑拋物線弧度
           const arcFactor = Math.sin(Math.PI * t) * (1 - ease);
           node.position.addScaledVector(arcOffset, arcFactor);
 
-          node.scale.setScalar(THREE.MathUtils.lerp(0.75, 1.0, ease));
+          node.scale.setScalar(THREE.MathUtils.lerp(0.8, 1.0, ease));
           node.rotation.set(
             THREE.MathUtils.lerp(startRot.x, 0, ease),
             THREE.MathUtils.lerp(startRot.y, 0, ease),
@@ -695,17 +799,16 @@
             node.rotation.set(0, 0, 0);
             assembledCount++;
 
-            // ★ 敲滿 15 次組裝完成！轉回正面並播放 cheering.wav 歡呼聲！
+            // ★ 敲滿 15 次組裝完成！亮起青黃金 #c8c074 並播放 cheering.wav
             if (assembledCount === TOTAL_PARTS) {
-              triggerGoldTextHighlight(true); // 文字亮起青黃金 #c8c074
-              playCheeringAudio(); // ★ 播放 4 秒 cheering.wav
+              triggerGoldTextHighlight(true);
+              playCheeringAudio();
 
-              smoothRotateCubeTo(HOME_ROTATION, 550, () => {
+              smoothRotateCubeTo(HOME_ROTATION, 520, () => {
                 isAssemblyActive = false;
                 lastActionTime = performance.now();
               });
             } else {
-              // 單顆飛完若暫時沒繼續按，1.2 秒後允許進入漫遊
               setTimeout(() => {
                 if (assembledCount < TOTAL_PARTS) {
                   isAssemblyActive = false;
@@ -773,12 +876,12 @@
     }
 
     // =========================================================
-    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動，絕不嚇一跳！）
+    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動，絕不嚇一跳）
     // =========================================================
     let lastActionTime = performance.now();
     let isRoaming = false;
     let roamTime = 0;
-    let roamSpeedFactor = 0; // 從 0 緩慢加速到 1，徹底消除瞬移跳動
+    let roamSpeedFactor = 0;
 
     window.addEventListener('pointerdown', () => { 
       lastActionTime = performance.now(); 
@@ -815,21 +918,18 @@
 
       controls.update();
 
-      // 只有在非組裝狀態、且閒置超過 3.8 秒時才平滑啟動漫遊
       if (!isAssemblyActive && now - lastActionTime > 3800) {
         if (!isRoaming) {
           isRoaming = true;
           roamTime = 0;
           roamSpeedFactor = 0;
         }
-        // 花約 1.5 秒（約 90 幀）從 0 平滑爬升到 1，確保起始瞬間位移極小、完全不嚇一跳
         roamSpeedFactor = Math.min(roamSpeedFactor + 0.011, 1);
         const smoothEase = roamSpeedFactor * roamSpeedFactor * (3 - 2 * roamSpeedFactor);
 
         roamTime += 0.010 * smoothEase;
         const ampScale = (isMobile ? 1.0 : 0.45) * smoothEase;
 
-        // 全部改用 sin(0) = 0 作為起點，保證第一幀從 (0, 0, 0) 絲滑飄出！
         cubeRoot.position.x = Math.sin(roamTime * 0.65) * 3.2 * ampScale;
         cubeRoot.position.y = Math.sin(roamTime * 0.45) * 2.0 * ampScale;
         cubeRoot.position.z = Math.sin(roamTime * 0.35) * 1.6 * ampScale;
