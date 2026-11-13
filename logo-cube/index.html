@@ -482,15 +482,9 @@
           'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'
         ]);
 
-        // 步驟 1：僅針對這 15 個實體零件計算精準包圍盒（排除任何可能存在的隱藏輔助節點）
+        // 步驟 1：先算原始實體包圍盒，套用 * 0.7 倍率
         root.updateMatrixWorld(true);
-        const assemblyBox = new THREE.Box3();
-        root.traverse((node) => {
-          if (targetPartNames.has(node.name)) {
-            assemblyBox.expandByObject(node);
-          }
-        });
-
+        const assemblyBox = new THREE.Box3().setFromObject(root);
         const size = new THREE.Vector3();
         assemblyBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
@@ -501,12 +495,7 @@
         root.updateMatrixWorld(true);
 
         // 重新計算縮放後的精準幾何中心，並將 root 反向平移歸零至世界正中央 (0, 0, 0)
-        const scaledBox = new THREE.Box3();
-        root.traverse((node) => {
-          if (targetPartNames.has(node.name)) {
-            scaledBox.expandByObject(node);
-          }
-        });
+        const scaledBox = new THREE.Box3().setFromObject(root);
         const center = new THREE.Vector3();
         scaledBox.getCenter(center);
         root.position.sub(center);
@@ -744,9 +733,9 @@
       // ★ 計算「零穿透外側飛入起點」：
       // 根據目標角度轉動後的朝向，計算該零件相對於中心的外法線 + 朝向鏡頭側的空間方向，
       // 確保每一顆都從該方塊所在那一側的外部空間直接扣入，絕對不會穿過已組好的模型！
-      const targetEuler = new THREE.Euler(targetRot.x, targetRot.y, 0, 'XYZ');
+      const targetEuler = new THREE.Euler(targetRot.x, targetRot.y, 0);
       const targetQuat = new THREE.Quaternion().setFromEuler(targetEuler);
-      const invQuat = targetQuat.clone().invert();
+      const invQuat = targetQuat.clone().inverse();
 
       // 零件本身向外輻射的方向
       const outwardDir = targetPos.clone();
