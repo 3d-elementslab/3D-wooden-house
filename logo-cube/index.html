@@ -536,7 +536,7 @@
       // 播放你的 4 秒 rocket-woosh.wav（整段 Fly-In 剛好 4.0 秒咬合收尾）
       playRocketSwoosh();
 
-      const totalFlyDuration = 4000; // ★ 精準 4.0 秒！
+      const totalFlyDuration = 3800; // ★ 精準 3.8 秒！
 
       partOrder.forEach((name, idx) => {
         const item = partRegistry.get(name);
@@ -574,7 +574,7 @@
             const t = Math.min(elapsed / partDuration, 1);
 
             // 前段快速推進、最後 0.6 秒優雅減速吸附，精準踩在 4.0 秒音效最後那口氣
-            const ease = 1 - Math.pow(1 - t, 3.2);
+            const ease = 1 - Math.pow(1 - t, 4.5);
 
             if (isDropCube && t > 0.78) {
               // ★ 第 4 次彩蛋：快靠近定位時突然「沒接穩」受重力往下掉落翻滾！
