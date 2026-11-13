@@ -420,7 +420,7 @@
         const maxDim = Math.max(size.x, size.y, size.z);
 
         // ★ 你原本的 16 倍縮放參數（保持原比例不變，現在中心絕對精準在 0,0,0）
-        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 16;
+        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 1.15;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
