@@ -146,7 +146,7 @@
       box-shadow: 
         0 3px 8px rgba(15, 23, 42, 0.25),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      transition: all 0.12s ease;
+      transition: all 0.2s ease;
     }
     .action-btn:hover {
       background: linear-gradient(180deg, #475569 0%, #334155 50%, #1e293b 100%);
@@ -160,7 +160,16 @@
         inset 0 1px 2px rgba(0, 0, 0, 0.35);
     }
 
-    /* SVG 預覽開場層：維持精緻小巧比例，光學置中對齊 */
+    /* 通關 5 秒定格期間按鈕狀態：發光鎖定防止誤觸重置 */
+    .action-btn.victory-locked {
+      color: #c8c074;
+      border-color: #c8c074;
+      box-shadow: 0 0 16px rgba(200, 192, 116, 0.55);
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* SVG 預覽開場層 */
     #svg-overlay {
       position: absolute;
       top: 0;
@@ -219,7 +228,8 @@
       opacity: 0.6;
     }
 
-    /* 青黃金色號 #c8c074 */
+    .brand-link:hover .brand-title,
+    .brand-link.celebrate-gold .brand-title,
     footer .studio-link:hover,
     footer .studio-link.celebrate-gold {
       color: #c8c074;
@@ -240,7 +250,6 @@
 <body>
   <div id="metal-frame"></div>
 
-  <!-- SVG 線稿開場圖層 -->
   <div id="svg-overlay">
     <img src="./logo-wire.svg" alt="Logo Wireframe">
   </div>
@@ -266,25 +275,12 @@
     <div><a href="https://elementslab.net" class="studio-link" id="studio-link">實驗元素工作室</a></div>
   </footer>
 
-  <!-- 讀取你的 rocket-woosh.wav、metal-hit.wav 與 cheering.wav 音效檔 -->
   <audio id="swoosh-audio" src="./rocket-woosh.wav" preload="auto"></audio>
   <audio id="metal-hit-audio" src="./metal-hit.wav" preload="auto"></audio>
   <audio id="cheering-audio" src="./cheering.wav" preload="auto"></audio>
 
   <script>
-    // --- 0. 音效系統（外掛 WAV + Fly-In 結尾金屬合體音合成） ---
-    let audioCtx = null;
-    function getAudioContext() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContextClass();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    }
-
+    // --- 0. 音效控制 ---
     function playRocketSwoosh() {
       try {
         const audio = document.getElementById('swoosh-audio');
@@ -296,7 +292,6 @@
       } catch (e) {}
     }
 
-    // ★ Play & Hit 專屬金屬撞擊音：metal-hit.wav
     function playMetalHit() {
       try {
         const audio = document.getElementById('metal-hit-audio');
@@ -308,7 +303,6 @@
       } catch (e) {}
     }
 
-    // ★ 第 15 次通關歡呼音：cheering.wav
     function playCheeringAudio() {
       try {
         const audio = document.getElementById('cheering-audio');
@@ -317,49 +311,6 @@
           audio.volume = 0.85;
           audio.play().catch(e => {});
         }
-      } catch (e) {}
-    }
-
-    // ★ Fly-In 結束瞬間的清脆精密金屬鎖定合體音（雙頻金屬泛音 + 機械卡榫喀噠聲）
-    function playFlyInMetallicLock() {
-      try {
-        const ctx = getAudioContext();
-        const now = ctx.currentTime;
-
-        // 1) 機械卡榫瞬態撞擊（短促高頻脈衝）
-        const clickOsc = ctx.createOscillator();
-        const clickGain = ctx.createGain();
-        clickOsc.type = 'triangle';
-        clickOsc.frequency.setValueAtTime(1450, now);
-        clickOsc.frequency.exponentialRampToValueAtTime(280, now + 0.045);
-
-        clickGain.gain.setValueAtTime(0.28, now);
-        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-
-        clickOsc.connect(clickGain);
-        clickGain.connect(ctx.destination);
-        clickOsc.start(now);
-        clickOsc.stop(now + 0.055);
-
-        // 2) 雙頻金屬塊合體共振餘韻（880Hz + 1320Hz 精密合金共鳴）
-        [880, 1320, 2210].forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now + 0.01);
-
-          const peakGain = i === 0 ? 0.14 : (i === 1 ? 0.09 : 0.05);
-          const decay = i === 0 ? 0.65 : 0.42;
-
-          gain.gain.setValueAtTime(0.001, now);
-          gain.gain.linearRampToValueAtTime(peakGain, now + 0.015);
-          gain.gain.exponentialRampToValueAtTime(0.0008, now + decay);
-
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + decay + 0.02);
-        });
       } catch (e) {}
     }
 
@@ -405,17 +356,21 @@
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 2. 高級金屬材質 ---
+    // --- 2. 高級金屬材質（支援通關暖金自發光動畫） ---
     const champagneGoldMat = new THREE.MeshStandardMaterial({
       color: 0xebd2a0,
       metalness: 0.85,
       roughness: 0.22,
+      emissive: 0x000000,
+      emissiveIntensity: 0
     });
 
     const anodizedTealMat = new THREE.MeshStandardMaterial({
       color: 0x4a729c,
       metalness: 0.65,
       roughness: 0.25,
+      emissive: 0x000000,
+      emissiveIntensity: 0
     });
 
     const partRegistry = new Map();
@@ -424,6 +379,8 @@
     const TOTAL_PARTS = 15;
     const HOME_ROTATION = { x: 0.25, y: -0.65 };
     let isAssemblyActive = false;
+    let isVictoryLocked = false; // ★ 通關 5 秒防誤觸鎖定旗標
+    let victoryLockTimer = null;
 
     // Fly-In 用的深空軌跡
     const trajectoryMap = {
@@ -444,7 +401,7 @@
       'cube13': new THREE.Vector3(230, 230, 230)
     };
 
-    // ★ 保留刺激大角度視角跳轉（玩家手動節奏控制，每次按下都有強烈立體翻轉驚喜）
+    // 刺激大角度視角跳轉
     const faceRotationMap = {
       'E': { x: 0.25, y: -0.65 },
       'L': { x: 0.35, y: -0.45 },
@@ -472,8 +429,6 @@
       (error) => { console.error("GLB Load Error:", error); }
     );
 
-    let modelCenterLocal = new THREE.Vector3(); // 記錄實體中心偏移量，確保重置時永遠精準居中
-
     function initAssemblyScene(gltf) {
       try {
         const root = gltf.scene;
@@ -482,26 +437,23 @@
           'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'
         ]);
 
-        // 步驟 1：先算原始實體包圍盒，套用 * 0.7 倍率
         root.updateMatrixWorld(true);
         const assemblyBox = new THREE.Box3().setFromObject(root);
         const size = new THREE.Vector3();
         assemblyBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        // ★ 套用你定案的 * 0.7 倍率
+        // * 0.7 比例倍率
         const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.7;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
-        // 重新計算縮放後的精準幾何中心，並將 root 反向平移歸零至世界正中央 (0, 0, 0)
         const scaledBox = new THREE.Box3().setFromObject(root);
         const center = new THREE.Vector3();
         scaledBox.getCenter(center);
         root.position.sub(center);
         root.updateMatrixWorld(true);
 
-        // 步驟 2：記錄每個零件組裝後的局部目標座標，再移至深空隱藏
         root.traverse((node) => {
           if (targetPartNames.has(node.name)) {
             const isLogoLetter = (node.name === 'E' || node.name === 'L');
@@ -527,6 +479,7 @@
             partRegistry.set(node.name, {
               node: node,
               meshes: meshes,
+              isLogoLetter: isLogoLetter,
               targetPos: targetPos,
               deepSpacePos: hiddenDeepSpacePos,
               isAssembled: false
@@ -587,20 +540,107 @@
     }
 
     // =========================================================
-    // ★ 模式 A：FLY IN（3800ms / 次方 5.2 + 結尾金屬音 + 第 4 次掉出螢幕彩蛋）
+    // ★ 通關高潮演出：整體暖金發光 + 彈跳呼吸 + 鎖定 5 秒聽完 cheering.wav
     // =========================================================
-    let flyInButtonClicks = 0;
-    const dropVictimNames = new Set(['cube02', 'cube06', 'cube08']);
+    function triggerVictoryCelebration() {
+      isVictoryLocked = true;
+      isAssemblyActive = true;
+      lastActionTime = performance.now();
 
+      // 1) 按鈕鎖定 5 秒防止慣性誤觸重置，並顯示 COMPLETED!
+      const btnPlay = document.getElementById('btn-play');
+      if (btnPlay) {
+        btnPlay.classList.add('victory-locked');
+        btnPlay.textContent = 'COMPLETED!';
+      }
+
+      // 2) 文字亮起青黃金 #c8c074 並播放 cheering.wav
+      triggerGoldTextHighlight(true);
+      playCheeringAudio();
+
+      // 3) 整個立方體平順轉回正面展示角度
+      smoothRotateCubeTo(HOME_ROTATION, 520);
+
+      // 4) 整體彈跳脈衝 + 暖金色金屬微光呼吸動畫（持續 5 秒）
+      const startTime = performance.now();
+      const celebrationDuration = 5000;
+
+      activeTweens.push({
+        update(now) {
+          const elapsed = now - startTime;
+          const t = Math.min(elapsed / celebrationDuration, 1);
+
+          // 前 0.6 秒有一個立體彈跳放大回饋（1.0 -> 1.09 -> 1.0）
+          if (t < 0.14) {
+            const popT = t / 0.14;
+            const scaleBoost = 1 + Math.sin(popT * Math.PI) * 0.09;
+            cubeRoot.scale.setScalar(scaleBoost);
+          } else {
+            cubeRoot.scale.setScalar(1.0);
+          }
+
+          // 暖金金屬光暈呼吸曲線（前段快速點亮，接著溫和呼吸脈動，5秒結束時優雅淡出）
+          const envelope = t < 0.1 ? (t / 0.1) : (t > 0.8 ? (1 - t) / 0.2 : 1.0);
+          const pulse = 0.65 + 0.35 * Math.sin(elapsed * 0.006);
+          const glowPower = envelope * pulse;
+
+          partRegistry.forEach((item) => {
+            item.meshes.forEach((m) => {
+              if (item.isLogoLetter) {
+                m.material.emissive.setHex(0xd4af37); // 香檳暖金光暈
+                m.material.emissiveIntensity = glowPower * 0.55;
+              } else {
+                m.material.emissive.setHex(0x64b5f6); // 科技冰藍金邊光暈
+                m.material.emissiveIntensity = glowPower * 0.38;
+              }
+            });
+          });
+
+          if (t >= 1) {
+            // 恢復正常金屬光澤
+            partRegistry.forEach((item) => {
+              item.meshes.forEach((m) => {
+                m.material.emissive.setHex(0x000000);
+                m.material.emissiveIntensity = 0;
+              });
+            });
+            cubeRoot.scale.setScalar(1.0);
+            isAssemblyActive = false;
+            lastActionTime = performance.now();
+            return false;
+          }
+          return true;
+        }
+      });
+
+      // 5 秒後解除按鈕鎖定，可再次點擊進行新一輪
+      if (victoryLockTimer) clearTimeout(victoryLockTimer);
+      victoryLockTimer = setTimeout(() => {
+        isVictoryLocked = false;
+        if (btnPlay) {
+          btnPlay.classList.remove('victory-locked');
+          btnPlay.textContent = 'PLAY & HIT';
+        }
+      }, celebrationDuration);
+    }
+
+    // =========================================================
+    // ★ 模式 A：FLY IN（乾淨 15 顆精密組裝，移除掉落彩蛋與合成結尾音）
+    // =========================================================
     function triggerFullFlyIn() {
-      getAudioContext();
+      // 若正在 5 秒通關慶祝中按 FLY IN，直接解除鎖定切換過去
+      if (victoryLockTimer) clearTimeout(victoryLockTimer);
+      isVictoryLocked = false;
+      const btnPlay = document.getElementById('btn-play');
+      if (btnPlay) {
+        btnPlay.classList.remove('victory-locked');
+        btnPlay.textContent = 'PLAY & HIT';
+      }
+
       resetCameraAndPosition();
       clearAllToDeepSpace();
       hideSvgOverlay();
       triggerGoldTextHighlight(false);
-
-      flyInButtonClicks++;
-      const isEasterEggRound = (flyInButtonClicks % 4 === 0);
 
       isAssemblyActive = true;
       lastActionTime = performance.now();
@@ -608,7 +648,6 @@
 
       playRocketSwoosh();
 
-      // ★ 保留你調出的黃金參數：3800ms 與 Math.pow(1 - t, 5.2)
       const totalFlyDuration = 3800;
 
       partOrder.forEach((name, idx) => {
@@ -633,41 +672,13 @@
           (Math.random() - 0.5) * Math.PI * 2.5
         );
 
-        const isDropCube = isEasterEggRound && dropVictimNames.has(name);
-        let dropStarted = false;
-        let dropVelY = 0;
-
         activeTweens.push({
           update(now) {
             if (now < startTime) return true;
 
             const elapsed = now - startTime;
             const t = Math.min(elapsed / partDuration, 1);
-
-            // ★ 你調出的 5.2 次方高速衝刺＋精準剎車曲線
             const ease = 1 - Math.pow(1 - t, 5.2);
-
-            if (isDropCube && t > 0.72) {
-              // ★ 第 4 次彩蛋：快到位時沒接穩，受重力加速一路翻滾掉出螢幕底部！
-              if (!dropStarted) {
-                dropStarted = true;
-                dropVelY = -0.05;
-              }
-              dropVelY -= 0.22; // 強化重力加速度，確保迅速掉出畫面
-              node.position.y += dropVelY;
-              node.position.x += (targetPos.x >= 0 ? 0.05 : -0.05);
-              node.rotation.x += 0.11;
-              node.rotation.z += 0.14;
-
-              // 在 * 0.7 比例下，y < -6.0 即完全離開螢幕底部邊界
-              if (node.position.y < -6.0) {
-                node.visible = false;
-                assembledCount++;
-                checkAllFlyInFinished();
-                return false;
-              }
-              return true;
-            }
 
             node.position.lerpVectors(startPos, targetPos, ease);
             node.scale.setScalar(THREE.MathUtils.lerp(0.82, 1.0, ease));
@@ -693,20 +704,17 @@
 
     function checkAllFlyInFinished() {
       if (assembledCount >= TOTAL_PARTS) {
-        // ★ Fly-In 結束瞬間補上清脆的金屬合體鎖定音效
-        playFlyInMetallicLock();
-
         triggerGoldTextHighlight(true);
         setTimeout(() => triggerGoldTextHighlight(false), 2600);
         smoothRotateCubeTo(HOME_ROTATION, 350, () => {
           isAssemblyActive = false;
-          lastActionTime = performance.now(); // 靜止 3.8 秒後平滑進入漫遊
+          lastActionTime = performance.now();
         });
       }
     }
 
     // =========================================================
-    // ★ 模式 B：PLAY & HIT（零穿透外側飛入 + 刺激角度跳轉 + metal-hit.wav + cheering.wav）
+    // ★ 模式 B：PLAY & HIT（零穿透外側飛入 + 大角度跳轉 + metal-hit.wav + 5秒通關高潮）
     // =========================================================
     function playHitSinglePart(name) {
       const item = partRegistry.get(name);
@@ -720,41 +728,29 @@
       item.node.visible = true;
       item.meshes.forEach(m => m.visible = true);
 
-      // ★ 播放你的 metal-hit.wav 敲擊音效
       playMetalHit();
 
-      // 取得該顆零件指定的目標旋轉角（保留刺激的大角度跳轉！）
       const targetRot = faceRotationMap[name] || HOME_ROTATION;
       smoothRotateCubeTo(targetRot, 480);
 
       const node = item.node;
       const targetPos = item.targetPos.clone();
 
-      // ★ 計算「零穿透外側飛入起點」：
-      // 根據目標角度轉動後的朝向，計算該零件相對於中心的外法線 + 朝向鏡頭側的空間方向，
-      // 確保每一顆都從該方塊所在那一側的外部空間直接扣入，絕對不會穿過已組好的模型！
       const targetEuler = new THREE.Euler(targetRot.x, targetRot.y, 0);
       const targetQuat = new THREE.Quaternion().setFromEuler(targetEuler);
-      const invQuat = targetQuat.clone().inverse();
+      const invQuat = targetQuat.clone().invert();
 
-      // 零件本身向外輻射的方向
       const outwardDir = targetPos.clone();
       if (outwardDir.lengthSq() < 0.001) {
         outwardDir.set(0, 0.2, 1);
       }
       outwardDir.normalize();
 
-      // 鏡頭正前方在該旋轉角度下的局部方向（確保從朝向玩家的外側飛來）
       const cameraFrontLocal = new THREE.Vector3(0, 0.25, 1).applyQuaternion(invQuat).normalize();
-
-      // 混合「零件外法線 (65%)」與「鏡頭外側方向 (35%)」，拉長距離到 38 單位（符合 *0.7 比例）
       const nonPenetratingDir = outwardDir.multiplyScalar(0.65).addScaledVector(cameraFrontLocal, 0.35).normalize();
       const startPos = targetPos.clone().addScaledVector(nonPenetratingDir, 38);
-
-      // 外側微弧線偏移（同樣只往外側擴張，不往內部穿模）
       const arcOffset = nonPenetratingDir.clone().multiplyScalar(3.2);
 
-      // 單軸／雙軸 180° 機械卡榫對位旋轉
       const startRot = new THREE.Euler(
         (Math.random() > 0.5 ? 1 : -1) * Math.PI * 0.5,
         (Math.random() > 0.5 ? 1 : -1) * Math.PI,
@@ -763,7 +759,7 @@
 
       node.position.copy(startPos);
       const startTime = performance.now();
-      const duration = 950; // 配合手動點擊節奏，乾淨俐落飛入扣合
+      const duration = 950;
 
       activeTweens.push({
         update(now) {
@@ -788,15 +784,9 @@
             node.rotation.set(0, 0, 0);
             assembledCount++;
 
-            // ★ 敲滿 15 次組裝完成！亮起青黃金 #c8c074 並播放 cheering.wav
+            // ★ 敲滿 15 顆！啟動整體發光＋5秒定格保護聽完 cheering.wav
             if (assembledCount === TOTAL_PARTS) {
-              triggerGoldTextHighlight(true);
-              playCheeringAudio();
-
-              smoothRotateCubeTo(HOME_ROTATION, 520, () => {
-                isAssemblyActive = false;
-                lastActionTime = performance.now();
-              });
+              triggerVictoryCelebration();
             } else {
               setTimeout(() => {
                 if (assembledCount < TOTAL_PARTS) {
@@ -821,6 +811,9 @@
 
     let playHitIdx = 0;
     btnPlay.onclick = () => {
+      // ★ 若正在 5 秒通關慶祝中，忽略任何慣性連點，確保完整欣賞發光與 cheering.wav
+      if (isVictoryLocked) return;
+
       resetCameraAndPosition();
 
       if (assembledCount >= TOTAL_PARTS) {
@@ -846,6 +839,7 @@
       isRoaming = false;
       roamTime = 0;
       roamSpeedFactor = 0;
+      cubeRoot.scale.setScalar(1.0);
       
       const overlay = document.getElementById('svg-overlay');
       if (overlay) {
@@ -859,13 +853,17 @@
         item.node.position.copy(item.deepSpacePos);
         item.node.scale.setScalar(0.85);
         item.node.rotation.set(0, 0, 0);
-        item.meshes.forEach(m => m.visible = true);
+        item.meshes.forEach(m => {
+          m.visible = true;
+          m.material.emissive.setHex(0x000000);
+          m.material.emissiveIntensity = 0;
+        });
       });
       cubeRoot.position.set(0, 0, 0);
     }
 
     // =========================================================
-    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動，絕不嚇一跳）
+    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動）
     // =========================================================
     let lastActionTime = performance.now();
     let isRoaming = false;
