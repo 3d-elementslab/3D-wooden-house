@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="icon" href="data:,">
-  <title>Elements Lab - 3D Logo Cube Assembly</title>
+  <title>Elements Lab - 3D Logo Cube Showcase</title>
   <style>
     * {
       box-sizing: border-box;
@@ -20,27 +20,6 @@
       width: 100vw;
       height: 100vh;
       color: #1e293b;
-      transition: background 1.5s cubic-bezier(0.25, 1, 0.5, 1), color 1s ease;
-    }
-
-    body.night-mode {
-      background: radial-gradient(circle at 50% 30%, #0f1c33 0%, #070d1a 60%, #02050a 100%);
-      color: #f1f5f9;
-    }
-
-    #starfield {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 1.8s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-    #starfield.visible {
-      opacity: 1;
     }
 
     #metal-frame {
@@ -57,14 +36,6 @@
         inset 0 0 0 2px rgba(148, 163, 184, 0.6),
         inset 0 0 0 3px rgba(255, 255, 255, 0.3),
         0 0 0 1px rgba(71, 85, 105, 0.3);
-      transition: box-shadow 1s ease;
-    }
-    body.night-mode #metal-frame {
-      box-shadow: 
-        inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-        inset 0 0 0 2px rgba(51, 65, 85, 0.5),
-        inset 0 0 0 3px rgba(255, 255, 255, 0.04),
-        0 0 0 1px rgba(15, 23, 42, 0.85);
     }
 
     #webgl-canvas {
@@ -104,10 +75,6 @@
       text-transform: uppercase;
       position: relative;
       display: inline-block;
-      transition: color 0.25s ease;
-    }
-    body.night-mode .brand-title {
-      color: #f8fafc;
     }
 
     .brand-title::after {
@@ -120,11 +87,8 @@
       background-color: #0f172a;
       transform: scaleX(0.3);
       transform-origin: left;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       opacity: 0.6;
-    }
-    body.night-mode .brand-title::after {
-      background-color: #f8fafc;
     }
 
     .brand-link:hover .brand-title {
@@ -142,112 +106,6 @@
       letter-spacing: 0.12em;
       color: #475569;
       margin-top: 0.2rem;
-      transition: color 1s ease;
-    }
-    body.night-mode .brand-sub {
-      color: #94a3b8;
-    }
-
-    #ui-control-bar {
-      position: absolute;
-      bottom: 3.8rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 1.2rem;
-      align-items: center;
-      padding: 0.5rem 0.8rem;
-      background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(226,232,240,0.7) 100%);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      border-radius: 999px;
-      box-shadow: 
-        0 8px 24px rgba(15, 23, 42, 0.12),
-        inset 0 1px 1px rgba(255, 255, 255, 0.9);
-      z-index: 20;
-      transition: background 1s ease, border-color 1s ease, box-shadow 1s ease;
-    }
-    body.night-mode #ui-control-bar {
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, rgba(30, 41, 59, 0.65) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 
-        0 12px 32px rgba(0, 0, 0, 0.45),
-        inset 0 1px 1px rgba(255, 255, 255, 0.05);
-    }
-
-    .action-btn {
-      width: 135px;
-      height: 42px;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 0.76rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #f8fafc;
-      background: linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
-      border: 1px solid #475569;
-      border-bottom: 2px solid #020617;
-      border-radius: 999px;
-      cursor: pointer;
-      box-shadow: 
-        0 3px 8px rgba(15, 23, 42, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      transition: all 0.2s ease;
-    }
-    body.night-mode .action-btn {
-      background: linear-gradient(180deg, #1e293b 0%, #0f172a 50%, #020617 100%);
-      border-color: #334155;
-      border-bottom: 2px solid #000000;
-    }
-    .action-btn:hover {
-      background: linear-gradient(180deg, #475569 0%, #334155 50%, #1e293b 100%);
-      color: #d8b370;
-    }
-    .action-btn:active {
-      transform: translateY(2px);
-      border-bottom: 1px solid #020617;
-      box-shadow: 
-        0 1px 3px rgba(15, 23, 42, 0.3),
-        inset 0 1px 2px rgba(0, 0, 0, 0.35);
-    }
-
-    .action-btn.victory-locked {
-      color: #d8b370;
-      border-color: #d8b370;
-      box-shadow: 0 0 16px rgba(216, 179, 112, 0.55);
-      cursor: default;
-      pointer-events: none;
-    }
-
-    #svg-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-      pointer-events: none;
-      transition: opacity 0.45s ease;
-    }
-    #svg-overlay img {
-      width: 36vw;
-      max-width: 360px;
-      height: auto;
-      transform: translateX(-32px);
-      filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.15));
-    }
-
-    @media (max-width: 768px) {
-      #svg-overlay img {
-        width: 82vw;
-        max-width: 440px;
-        transform: translateX(-14px);
-      }
     }
 
     footer {
@@ -262,10 +120,6 @@
       pointer-events: auto;
       z-index: 20;
       line-height: 1.5;
-      transition: color 1s ease;
-    }
-    body.night-mode footer {
-      color: #64748b;
     }
 
     footer .studio-link {
@@ -274,37 +128,10 @@
       position: relative;
       display: inline-block;
       font-weight: 500;
-      transition: color 0.25s ease;
-    }
-    body.night-mode footer .studio-link {
-      color: #94a3b8;
-    }
-
-    footer .studio-link::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -1px;
-      width: 100%;
-      height: 1px;
-      background-color: #334155;
-      transform: scaleX(0.3);
-      transform-origin: left;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
-      opacity: 0.6;
-    }
-    body.night-mode footer .studio-link::after {
-      background-color: #94a3b8;
     }
 
     footer .studio-link:hover {
       color: #d8b370;
-    }
-
-    footer .studio-link:hover::after {
-      transform: scaleX(1);
-      background-color: #d8b370;
-      opacity: 1;
     }
   </style>
 
@@ -313,266 +140,26 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
-  <canvas id="starfield"></canvas>
   <div id="metal-frame"></div>
-
-  <div id="svg-overlay">
-    <img src="./logo-wire.svg" alt="Logo Wireframe">
-  </div>
 
   <header>
     <div>
-      <a href="https://3d.elementslab.net" class="brand-link" id="brand-link">
+      <a href="https://3d.elementslab.net" class="brand-link">
         <div class="brand-title">3D ELEMENTS LAB</div>
       </a>
-      <div class="brand-sub">Modular Assembly Simulator</div>
+      <div class="brand-sub">Integrated Metal Showcase</div>
     </div>
   </header>
 
   <canvas id="webgl-canvas"></canvas>
 
-  <div id="ui-control-bar">
-    <button class="action-btn" id="btn-flyin">FLY IN</button>
-    <button class="action-btn" id="btn-play">HIT PLAY</button>
-  </div>
-
   <footer>
     <div>© 2026 Elements Lab. All rights reserved.</div>
-    <div><a href="https://elementslab.net" class="studio-link" id="studio-link">實驗元素工作室</a></div>
+    <div><a href="https://elementslab.net" class="studio-link">實驗元素工作室</a></div>
   </footer>
 
-  <audio id="swoosh-audio" src="./rocket-woosh.wav" preload="auto"></audio>
-  <audio id="metal-hit-audio" src="./metal-hit.wav" preload="auto"></audio>
-  <audio id="cheering-audio" src="./cheering.wav" preload="auto"></audio>
-
   <script>
-    const partRegistry = new Map();
-    const activeTweens = [];
-    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
-    const TOTAL_PARTS = 15;
-    const HOME_ROTATION = { x: 0.25, y: -0.65 };
-
-    let assembledRoot = null; 
-    let heroCubeRoot = null;  
-    const heroGoldMeshes = [];
-    const heroBlueMeshes = [];
-
-    let assembledCount = 0;
-    let playHitIdx = 0;
-    let isAssemblyActive = false;
-    let isVictoryLocked = false;
-    let victoryLockTimer = null;
-    let lastActionTime = performance.now();
-    let isRoaming = false;
-    let roamTime = 0;
-    let roamSpeedFactor = 0;
-
-    const starCanvas = document.getElementById('starfield');
-    const starCtx = starCanvas.getContext('2d');
-    let stars = [];
-    let isStarfieldActive = false;
-
-    function resizeStarfield() {
-      starCanvas.width = window.innerWidth;
-      starCanvas.height = window.innerHeight;
-      stars = [];
-      const count = Math.floor((starCanvas.width * starCanvas.height) / 2300);
-
-      for (let i = 0; i < count; i++) {
-        const sizeRand = Math.random();
-        let size = 0.55 + Math.random() * 0.75;
-        let type = 'tiny';
-        let color = '#ffffff';
-
-        if (sizeRand > 0.96) {
-          size = 1.9 + Math.random() * 1.4;
-          type = 'giant';
-          color = Math.random() > 0.35 ? '#fffbeb' : '#e0f2fe';
-        } else if (sizeRand > 0.85) {
-          size = 1.05 + Math.random() * 0.65;
-          type = 'medium';
-        }
-
-        stars.push({
-          x: Math.random() * starCanvas.width,
-          y: Math.random() * starCanvas.height,
-          size: size,
-          type: type,
-          color: color,
-          alpha: Math.random(),
-          speed: 0.005 + Math.random() * 0.014
-        });
-      }
-    }
-
-    function drawStars() {
-      if (!isStarfieldActive) return;
-      starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
-
-      for (let i = 0; i < stars.length; i++) {
-        const s = stars[i];
-        s.alpha += s.speed;
-        if (s.alpha > 1 || s.alpha < 0.15) s.speed = -s.speed;
-
-        starCtx.save();
-        starCtx.globalAlpha = Math.max(0.15, Math.min(s.alpha, 1));
-        starCtx.fillStyle = s.color;
-
-        if (s.type === 'giant') {
-          const flare = s.size * 2.5;
-          const grad = starCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.size * 1.5);
-          grad.addColorStop(0, '#ffffff');
-          grad.addColorStop(1, 'rgba(255,255,255,0)');
-          starCtx.fillStyle = grad;
-          starCtx.beginPath();
-          starCtx.arc(s.x, s.y, s.size * 1.5, 0, Math.PI * 2);
-          starCtx.fill();
-
-          starCtx.strokeStyle = s.color;
-          starCtx.lineWidth = 0.6;
-          starCtx.beginPath();
-          starCtx.moveTo(s.x - flare, s.y);
-          starCtx.lineTo(s.x + flare, s.y);
-          starCtx.moveTo(s.x, s.y - flare);
-          starCtx.lineTo(s.x, s.y + flare);
-          starCtx.stroke();
-        } else if (s.type === 'medium') {
-          starCtx.shadowBlur = 4;
-          starCtx.shadowColor = s.color;
-          starCtx.beginPath();
-          starCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-          starCtx.fill();
-        } else {
-          starCtx.beginPath();
-          starCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-          starCtx.fill();
-        }
-        starCtx.restore();
-      }
-      requestAnimationFrame(drawStars);
-    }
-
-    function setStarfieldVisibility(show) {
-      isStarfieldActive = show;
-      if (show) {
-        resizeStarfield();
-        starCanvas.classList.add('visible');
-        drawStars();
-      } else {
-        starCanvas.classList.remove('visible');
-      }
-    }
-
-    let audioCtx = null;
-    function getAudioContext() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) audioCtx = new AudioContextClass();
-      }
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => {});
-      }
-      return audioCtx;
-    }
-
-    function playRocketSwoosh() {
-      try {
-        getAudioContext();
-        const audio = document.getElementById('swoosh-audio');
-        if (audio) {
-          audio.currentTime = 0;
-          audio.volume = 0.65;
-          audio.play().catch(() => {});
-        }
-      } catch (e) {}
-    }
-
-    function playMetalHit() {
-      try {
-        const audio = document.getElementById('metal-hit-audio');
-        if (audio) {
-          audio.currentTime = 0;
-          audio.volume = 0.78;
-          audio.play().catch(() => {});
-        }
-      } catch (e) {}
-    }
-
-    function playCheeringAudio() {
-      try {
-        const audio = document.getElementById('cheering-audio');
-        if (audio) {
-          audio.currentTime = 0;
-          audio.volume = 0.85;
-          audio.play().catch(() => {});
-        }
-      } catch (e) {}
-    }
-
-    function playFlyInLockChord() {
-      try {
-        const ctx = getAudioContext();
-        if (!ctx) return;
-        const now = ctx.currentTime;
-
-        const bufferSize = Math.floor(ctx.sampleRate * 0.045);
-        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.22));
-        }
-        const noiseSource = ctx.createBufferSource();
-        noiseSource.buffer = noiseBuffer;
-
-        const bandpass = ctx.createBiquadFilter();
-        bandpass.type = 'bandpass';
-        bandpass.frequency.setValueAtTime(2400, now);
-        bandpass.Q.setValueAtTime(3.2, now);
-
-        const clickGain = ctx.createGain();
-        clickGain.gain.setValueAtTime(0.35, now);
-        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
-
-        noiseSource.connect(bandpass);
-        bandpass.connect(clickGain);
-        clickGain.connect(ctx.destination);
-        noiseSource.start(now);
-
-        const subOsc = ctx.createOscillator();
-        const subGain = ctx.createGain();
-        subOsc.type = 'sine';
-        subOsc.frequency.setValueAtTime(76, now);
-        subOsc.frequency.exponentialRampToValueAtTime(52, now + 0.35);
-
-        subGain.gain.setValueAtTime(0.001, now);
-        subGain.gain.linearRampToValueAtTime(0.32, now + 0.015);
-        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
-
-        subOsc.connect(subGain);
-        subGain.connect(ctx.destination);
-        subOsc.start(now);
-        subOsc.stop(now + 0.45);
-
-        const chordFreqs = [587.33, 880.0, 1318.51];
-        chordFreqs.forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          const startT = now + 0.04 + idx * 0.035;
-          osc.frequency.setValueAtTime(freq, startT);
-
-          gain.gain.setValueAtTime(0.0001, startT);
-          gain.gain.linearRampToValueAtTime(0.055 - idx * 0.01, startT + 0.06);
-          gain.gain.exponentialRampToValueAtTime(0.0001, startT + 1.15);
-
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(startT);
-          osc.stop(startT + 1.2);
-        });
-      } catch (e) {}
-    }
-
+    // 產生珠寶級環境反射貼圖
     function buildJewelryStudioEnv(renderer) {
       const envCanvas = document.createElement('canvas');
       envCanvas.width = 512;
@@ -614,6 +201,7 @@
       return envRT.texture;
     }
 
+    // 產生金屬絲紋粗糙貼圖
     function createBrushedMetalTexture() {
       const texCanvas = document.createElement('canvas');
       texCanvas.width = 256;
@@ -641,8 +229,7 @@
 
     const isMobile = window.innerWidth <= 768;
     const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 200);
-    const DEFAULT_CAM_POS = new THREE.Vector3(0, 1.2, 8.2);
-    camera.position.copy(DEFAULT_CAM_POS);
+    camera.position.set(0, 1.2, 8.2);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -652,42 +239,32 @@
 
     const jewelryEnvMap = buildJewelryStudioEnv(renderer);
 
-    const cubeRoot = new THREE.Group();
-    scene.add(cubeRoot);
+    const modelRoot = new THREE.Group();
+    scene.add(modelRoot);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 1.8;  
-    controls.maxDistance = 45.0; 
+    controls.minDistance = 1.8;
+    controls.maxDistance = 45.0;
     controls.target.set(0, 0, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.42));
-    const keyLight = new THREE.DirectionalLight(0xfff8e7, 1.85);
+    // 燈光設置
+    scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+    const keyLight = new THREE.DirectionalLight(0xfff8e7, 1.9);
     keyLight.position.set(8, 14, 10);
     scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0xdbeafe, 1.15);
+    const rimLight = new THREE.DirectionalLight(0xdbeafe, 1.2);
     rimLight.position.set(-10, -4, -9);
     scene.add(rimLight);
-    const frontFill = new THREE.DirectionalLight(0xffffff, 0.55);
+    const frontFill = new THREE.DirectionalLight(0xffffff, 0.6);
     frontFill.position.set(-4, 5, 12);
     scene.add(frontFill);
 
     const brushedRoughnessMap = createBrushedMetalTexture();
 
-    const asmLetterMat = new THREE.MeshStandardMaterial({
-      color: 0xc9ab6e,
-      metalness: 0.12,
-      roughness: 0.58
-    });
-
-    const asmCubeMat = new THREE.MeshStandardMaterial({
-      color: 0x6f98b0,
-      metalness: 0.10,
-      roughness: 0.58
-    });
-
-    const heroGoldMat = new THREE.MeshPhysicalMaterial({
+    // 高級金屬材質 (EL 字母金)
+    const goldMat = new THREE.MeshPhysicalMaterial({
       color: 0xd6b06b,
       metalness: 0.92,
       roughness: 0.26,
@@ -695,162 +272,29 @@
       clearcoat: 0.35,
       clearcoatRoughness: 0.16,
       envMap: jewelryEnvMap,
-      envMapIntensity: 1.40,
-      emissive: 0x000000,
-      emissiveIntensity: 0
+      envMapIntensity: 1.40
     });
 
-    const heroGlacierBlueMat = new THREE.MeshPhysicalMaterial({
+    // 冰河藍金屬材質 (Cubes 方塊銀藍)
+    const glacierBlueMat = new THREE.MeshPhysicalMaterial({
       color: 0x6ea6be,
       metalness: 0.68,
       roughness: 0.16,
       clearcoat: 0.90,
       clearcoatRoughness: 0.10,
       envMap: jewelryEnvMap,
-      envMapIntensity: 1.35,
-      emissive: 0x000000,
-      emissiveIntensity: 0
+      envMapIntensity: 1.35
     });
 
-    function setHeroCubeMode(showHero) {
-      if (heroCubeRoot && heroCubeRoot.children.length > 0) {
-        if (assembledRoot) assembledRoot.visible = !showHero;
-        heroCubeRoot.visible = showHero;
-      } else if (assembledRoot) {
-        assembledRoot.visible = true;
-      }
-    }
-
-    const trajectoryMap = {
-      'E': new THREE.Vector3(0, 260, 110),
-      'L': new THREE.Vector3(0, -260, 110),
-      'cube01': new THREE.Vector3(0, 320, 0),
-      'cube02': new THREE.Vector3(260, 200, -200),
-      'cube03': new THREE.Vector3(-280, -160, -160),
-      'cube04': new THREE.Vector3(240, -180, 240),
-      'cube05': new THREE.Vector3(-230, 270, -200),
-      'cube06': new THREE.Vector3(270, 160, 200),
-      'cube07': new THREE.Vector3(-260, -210, 200),
-      'cube08': new THREE.Vector3(230, -260, -230),
-      'cube09': new THREE.Vector3(-320, 0, 80),
-      'cube10': new THREE.Vector3(320, 0, -80),
-      'cube11': new THREE.Vector3(0, 80, 320),
-      'cube12': new THREE.Vector3(0, -80, -320),
-      'cube13': new THREE.Vector3(230, 230, 230)
-    };
-
-    const faceRotationMap = {
-      'E': { x: 0.25, y: -0.65 },
-      'L': { x: 0.25, y: -2.22 },
-      'cube01': { x: 0.45, y: -1.35 },
-      'cube02': { x: -0.55, y: 2.55 },
-      'cube03': { x: 0.65, y: -2.60 },
-      'cube04': { x: 0.40, y: 1.35 },
-      'cube05': { x: -0.75, y: 0.95 },
-      'cube06': { x: 0.70, y: 3.60 },
-      'cube07': { x: 0.35, y: -3.25 },
-      'cube08': { x: 0.55, y: -2.20 },
-      'cube09': { x: -0.45, y: -1.40 },
-      'cube10': { x: 0.50, y: 1.45 },
-      'cube11': { x: -0.35, y: -0.95 },
-      'cube12': { x: 0.55, y: 2.85 },
-      'cube13': { x: -0.60, y: 0.65 }
-    };
-
+    // 載入整合好的 EL Cubes.glb
     const loader = new THREE.GLTFLoader();
-
-    // ★ 修正重點：檔名加入 %20 確保伺服器與無痕模式下 100% 讀取成功
     loader.load(
-      './el-logo%20asm.glb',
-      (gltf) => { initAssemblyScene(gltf); },
-      undefined,
-      (error) => { console.error("Assembly GLB Load Error:", error); }
-    );
-
-    function loadHeroCubeModel(url, fallbackUrl) {
-      loader.load(
-        url,
-        (gltf) => { initHeroCubeScene(gltf); },
-        undefined,
-        (err) => {
-          if (fallbackUrl) {
-            loadHeroCubeModel(fallbackUrl, null);
-          } else {
-            console.error("Hero GLB Load Error:", err);
-          }
-        }
-      );
-    }
-    loadHeroCubeModel('./EL%20Cubes.glb', './EL Cubes.glb');
-
-    function initAssemblyScene(gltf) {
-      try {
-        const root = gltf.scene;
-        const targetPartNames = new Set(partOrder);
-
-        root.updateMatrixWorld(true);
-        const assemblyBox = new THREE.Box3().setFromObject(root);
-        const size = new THREE.Vector3();
-        assemblyBox.getSize(size);
-        const maxDim = Math.max(size.x, size.y, size.z);
-
-        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.7;
-        root.scale.setScalar(targetScale);
-        root.updateMatrixWorld(true);
-
-        const scaledBox = new THREE.Box3().setFromObject(root);
-        const center = new THREE.Vector3();
-        scaledBox.getCenter(center);
-        root.position.sub(center);
-        root.updateMatrixWorld(true);
-
-        root.traverse((node) => {
-          if (targetPartNames.has(node.name)) {
-            const isLogoLetter = (node.name === 'E' || node.name === 'L');
-            const solidMat = isLogoLetter ? asmLetterMat : asmCubeMat;
-
-            const meshes = [];
-            node.traverse((child) => {
-              if (child.isMesh) {
-                child.material = solidMat;
-                meshes.push(child);
-              }
-            });
-
-            const targetPos = node.position.clone();
-            const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(60, 50, 55);
-            const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
-
-            node.position.copy(hiddenDeepSpacePos);
-            node.scale.setScalar(0.85);
-            node.visible = false;
-            meshes.forEach(m => m.visible = false);
-
-            partRegistry.set(node.name, {
-              node: node,
-              meshes: meshes,
-              isLogoLetter: isLogoLetter,
-              targetPos: targetPos,
-              deepSpacePos: hiddenDeepSpacePos,
-              isAssembled: false
-            });
-          }
-        });
-
-        assembledRoot = root;
-        cubeRoot.add(assembledRoot);
-        cubeRoot.position.set(0, 0, 0);
-        cubeRoot.rotation.set(HOME_ROTATION.x, HOME_ROTATION.y, 0);
-      } catch (err) {
-        console.error("Assembly Init Error:", err);
-      }
-    }
-
-    function initHeroCubeScene(gltf) {
-      try {
+      './EL%20Cubes.glb',
+      (gltf) => {
         const root = gltf.scene;
         root.updateMatrixWorld(true);
 
+        // 自動置中與縮放
         const box = new THREE.Box3().setFromObject(root);
         const size = new THREE.Vector3();
         box.getSize(size);
@@ -866,446 +310,43 @@
         root.position.sub(center);
         root.updateMatrixWorld(true);
 
+        // 遍歷所有 Mesh 並精準套用材質
         root.traverse((node) => {
           if (node.isMesh) {
             const origName = (node.material && node.material.name) ? node.material.name : '';
+            // 根據模型內部的原始名稱或群組判斷是否為金色 (EL)
             const isGold = origName.includes('0.700') || (node.parent && node.parent.name === 'EL' && !origName.includes('0.820'));
 
             if (isGold) {
-              node.material = heroGoldMat.clone();
-              heroGoldMeshes.push(node);
+              node.material = goldMat;
             } else {
-              node.material = heroGlacierBlueMat.clone();
-              heroBlueMeshes.push(node);
+              node.material = glacierBlueMat;
             }
           }
         });
 
-        root.visible = false;
-        heroCubeRoot = root;
-        cubeRoot.add(heroCubeRoot);
-      } catch (err) {
-        console.error("Hero Cube Init Error:", err);
-      }
-    }
+        modelRoot.add(root);
+      },
+      undefined,
+      (error) => { console.error("EL Cubes Load Error:", error); }
+    );
 
-    function resetCameraAndPosition(duration = 320) {
-      const startCamPos = camera.position.clone();
-      const startTarget = controls.target.clone();
-      const startCubePos = cubeRoot.position.clone();
-      const startTime = performance.now();
+    // 預設視角旋轉
+    modelRoot.rotation.set(0.25, -0.65, 0);
 
-      activeTweens.push({
-        update(now) {
-          const t = Math.min((now - startTime) / duration, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          camera.position.lerpVectors(startCamPos, DEFAULT_CAM_POS, ease);
-          controls.target.lerpVectors(startTarget, new THREE.Vector3(0, 0, 0), ease);
-          cubeRoot.position.lerpVectors(startCubePos, new THREE.Vector3(0, 0, 0), ease);
-          controls.update();
-          return t < 1;
-        }
-      });
-    }
-
-    function smoothRotateCubeTo(targetRot, duration = 450, onComplete = null) {
-      const startRotX = cubeRoot.rotation.x;
-      const startRotY = cubeRoot.rotation.y;
-      const startTime = performance.now();
-
-      activeTweens.push({
-        update(now) {
-          const t = Math.min((now - startTime) / duration, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          cubeRoot.rotation.x = THREE.MathUtils.lerp(startRotX, targetRot.x, ease);
-          cubeRoot.rotation.y = THREE.MathUtils.lerp(startRotY, targetRot.y, ease);
-          if (t >= 1 && onComplete) onComplete();
-          return t < 1;
-        }
-      });
-    }
-
-    function hideSvgOverlay() {
-      const overlay = document.getElementById('svg-overlay');
-      if (overlay) {
-        overlay.style.opacity = '0';
-        overlay.style.display = 'none';
-      }
-    }
-
-    function showSvgOverlay() {
-      const overlay = document.getElementById('svg-overlay');
-      if (overlay) {
-        overlay.style.display = 'flex';
-        overlay.style.opacity = '1';
-      }
-    }
-
-    function triggerVictoryCelebration(withCheering = true) {
-      isAssemblyActive = true;
-      lastActionTime = performance.now();
-
-      setHeroCubeMode(true);
-
-      document.body.classList.add('night-mode');
-      setStarfieldVisibility(true);
-
-      const btnPlay = document.getElementById('btn-play');
-      if (withCheering) {
-        isVictoryLocked = true;
-        if (btnPlay) {
-          btnPlay.classList.add('victory-locked');
-          btnPlay.textContent = 'COMPLETED!';
-        }
-        playCheeringAudio();
-      } else {
-        playFlyInLockChord();
-      }
-
-      smoothRotateCubeTo(HOME_ROTATION, 520);
-
-      const startTime = performance.now();
-      const celebrationDuration = withCheering ? 5000 : 2400;
-
-      activeTweens.push({
-        update(now) {
-          const elapsed = now - startTime;
-          const t = Math.min(elapsed / celebrationDuration, 1);
-
-          const popRatio = withCheering ? 0.28 : 0.48;
-          if (t < popRatio) {
-            const popT = t / popRatio;
-            const peakBoost = isMobile ? 1.35 : 0.75;
-            const scaleBoost = 1 + Math.pow(Math.sin(popT * Math.PI), 0.45) * peakBoost;
-            cubeRoot.scale.setScalar(scaleBoost);
-          } else {
-            cubeRoot.scale.setScalar(1.0);
-          }
-
-          const envelope = t < 0.12 ? (t / 0.12) : (t > 0.78 ? (1 - t) / 0.22 : 1.0);
-          const pulse = 0.65 + 0.35 * Math.sin(elapsed * 0.0065);
-          const glowPower = envelope * pulse;
-
-          heroGoldMeshes.forEach((m) => {
-            m.material.emissive.setHex(0xc89d54);
-            m.material.emissiveIntensity = glowPower * 0.18;
-          });
-          heroBlueMeshes.forEach((m) => {
-            m.material.emissive.setHex(0x5b95ad);
-            m.material.emissiveIntensity = glowPower * 0.12;
-          });
-
-          if (t >= 1) {
-            heroGoldMeshes.forEach((m) => {
-              m.material.emissive.setHex(0x000000);
-              m.material.emissiveIntensity = 0;
-            });
-            heroBlueMeshes.forEach((m) => {
-              m.material.emissive.setHex(0x000000);
-              m.material.emissiveIntensity = 0;
-            });
-            cubeRoot.scale.setScalar(1.0);
-            isAssemblyActive = false;
-            lastActionTime = performance.now();
-            return false;
-          }
-          return true;
-        }
-      });
-
-      if (withCheering) {
-        if (victoryLockTimer) clearTimeout(victoryLockTimer);
-        victoryLockTimer = setTimeout(() => {
-          isVictoryLocked = false;
-          if (btnPlay) {
-            btnPlay.classList.remove('victory-locked');
-            btnPlay.textContent = 'HIT PLAY';
-          }
-        }, celebrationDuration);
-      }
-    }
-
-    function clearAllToDeepSpace(restoreWireframe = true) {
-      playHitIdx = 0;
-      assembledCount = 0;
-      isAssemblyActive = false;
-      isRoaming = false;
-      roamTime = 0;
-      roamSpeedFactor = 0;
-      cubeRoot.scale.setScalar(1.0);
-
-      setHeroCubeMode(false);
-      
-      document.body.classList.remove('night-mode');
-      setStarfieldVisibility(false);
-      
-      if (restoreWireframe) {
-        showSvgOverlay();
-      } else {
-        hideSvgOverlay();
-      }
-
-      partRegistry.forEach((item) => {
-        item.isAssembled = false;
-        item.node.visible = false;
-        item.node.position.copy(item.deepSpacePos);
-        item.node.scale.setScalar(0.85);
-        item.node.rotation.set(0, 0, 0);
-        item.meshes.forEach(m => {
-          m.visible = true;
-        });
-      });
-      cubeRoot.position.set(0, 0, 0);
-    }
-
-    function triggerFullFlyIn() {
-      if (victoryLockTimer) clearTimeout(victoryLockTimer);
-      isVictoryLocked = false;
-      const btnPlay = document.getElementById('btn-play');
-      if (btnPlay) {
-        btnPlay.classList.remove('victory-locked');
-        btnPlay.textContent = 'HIT PLAY';
-      }
-
-      resetCameraAndPosition();
-      clearAllToDeepSpace(false);
-      hideSvgOverlay();
-
-      isAssemblyActive = true;
-      lastActionTime = performance.now();
-      smoothRotateCubeTo(HOME_ROTATION, 400);
-
-      playRocketSwoosh();
-
-      const totalFlyDuration = 3400;
-
-      partOrder.forEach((name, idx) => {
-        const item = partRegistry.get(name);
-        if (!item) return;
-
-        item.isAssembled = true;
-        item.node.visible = true;
-        item.meshes.forEach(m => m.visible = true);
-
-        const node = item.node;
-        const targetPos = item.targetPos.clone();
-        const startPos = item.deepSpacePos.clone();
-
-        const staggerDelay = idx * 24;
-        const partDuration = totalFlyDuration - staggerDelay;
-        const startTime = performance.now() + staggerDelay;
-
-        const spinStart = new THREE.Euler(
-          (Math.random() - 0.5) * Math.PI * 2.5,
-          (Math.random() - 0.5) * Math.PI * 2.5,
-          (Math.random() - 0.5) * Math.PI * 2.5
-        );
-
-        activeTweens.push({
-          update(now) {
-            if (now < startTime) return true;
-
-            const elapsed = now - startTime;
-            const t = Math.min(elapsed / partDuration, 1);
-            const ease = 1 - Math.pow(1 - t, 5.2);
-
-            node.position.lerpVectors(startPos, targetPos, ease);
-            node.scale.setScalar(THREE.MathUtils.lerp(0.82, 1.0, ease));
-            node.rotation.set(
-              THREE.MathUtils.lerp(spinStart.x, 0, ease),
-              THREE.MathUtils.lerp(spinStart.y, 0, ease),
-              THREE.MathUtils.lerp(spinStart.z, 0, ease)
-            );
-
-            if (t >= 1) {
-              node.position.copy(targetPos);
-              node.scale.setScalar(1.0);
-              node.rotation.set(0, 0, 0);
-              assembledCount++;
-              if (assembledCount >= TOTAL_PARTS) {
-                triggerVictoryCelebration(false);
-              }
-              return false;
-            }
-            return true;
-          }
-        });
-      });
-    }
-
-    function playHitSinglePart(name) {
-      const item = partRegistry.get(name);
-      if (!item || item.isAssembled) return;
-
-      hideSvgOverlay();
-      isAssemblyActive = true;
-      lastActionTime = performance.now();
-
-      item.isAssembled = true;
-      item.node.visible = true;
-      item.meshes.forEach(m => m.visible = true);
-
-      playMetalHit();
-
-      const targetRot = faceRotationMap[name] || HOME_ROTATION;
-      smoothRotateCubeTo(targetRot, 480);
-
-      const node = item.node;
-      const targetPos = item.targetPos.clone();
-
-      const targetEuler = new THREE.Euler(targetRot.x, targetRot.y, 0);
-      const targetQuat = new THREE.Quaternion().setFromEuler(targetEuler);
-      const invQuat = targetQuat.clone().invert();
-
-      const outwardDir = targetPos.clone();
-      if (outwardDir.lengthSq() < 0.001) {
-        outwardDir.set(0, 0.2, 1);
-      }
-      outwardDir.normalize();
-
-      const cameraFrontLocal = new THREE.Vector3(0, 0.25, 1).applyQuaternion(invQuat).normalize();
-      const nonPenetratingDir = outwardDir.multiplyScalar(0.65).addScaledVector(cameraFrontLocal, 0.35).normalize();
-      const startPos = targetPos.clone().addScaledVector(nonPenetratingDir, 38);
-      const arcOffset = nonPenetratingDir.clone().multiplyScalar(3.2);
-
-      const startRot = new THREE.Euler(
-        (Math.random() > 0.5 ? 1 : -1) * Math.PI * 0.5,
-        (Math.random() > 0.5 ? 1 : -1) * Math.PI,
-        0
-      );
-
-      node.position.copy(startPos);
-      const startTime = performance.now();
-      const duration = 950;
-
-      activeTweens.push({
-        update(now) {
-          const elapsed = now - startTime;
-          const t = Math.min(elapsed / duration, 1);
-          const ease = t === 1 ? 1 : 1 - Math.pow(2, -9 * t);
-
-          node.position.lerpVectors(startPos, targetPos, ease);
-          const arcFactor = Math.sin(Math.PI * t) * (1 - ease);
-          node.position.addScaledVector(arcOffset, arcFactor);
-
-          node.scale.setScalar(THREE.MathUtils.lerp(0.8, 1.0, ease));
-          node.rotation.set(
-            THREE.MathUtils.lerp(startRot.x, 0, ease),
-            THREE.MathUtils.lerp(startRot.y, 0, ease),
-            THREE.MathUtils.lerp(startRot.z, 0, ease)
-          );
-
-          if (t >= 1) {
-            node.position.copy(targetPos);
-            node.scale.setScalar(1.0);
-            node.rotation.set(0, 0, 0);
-            assembledCount++;
-
-            if (assembledCount === TOTAL_PARTS) {
-              triggerVictoryCelebration(true);
-            } else {
-              setTimeout(() => {
-                if (assembledCount < TOTAL_PARTS) {
-                  isAssemblyActive = false;
-                }
-              }, 1200);
-            }
-            return false;
-          }
-          return true;
-        }
-      });
-    }
-
-    const btnFlyIn = document.getElementById('btn-flyin');
-    const btnPlay = document.getElementById('btn-play');
-
-    btnFlyIn.onclick = () => {
-      triggerFullFlyIn();
-    };
-
-    btnPlay.onclick = () => {
-      if (isVictoryLocked) return;
-
-      resetCameraAndPosition();
-
-      if (assembledCount >= TOTAL_PARTS) {
-        clearAllToDeepSpace(false);
-        playHitIdx = 0;
-      }
-
-      while (playHitIdx < partOrder.length) {
-        const nextPart = partOrder[playHitIdx++];
-        const item = partRegistry.get(nextPart);
-        if (item && !item.isAssembled) {
-          playHitSinglePart(nextPart);
-          break;
-        }
-      }
-    };
-
-    window.addEventListener('pointerdown', () => { 
-      lastActionTime = performance.now(); 
-
-      if (isRoaming) {
-        isRoaming = false;
-        roamSpeedFactor = 0;
-        const startPos = cubeRoot.position.clone();
-        const endPos = new THREE.Vector3(0, 0, 0);
-        const startTime = performance.now();
-        activeTweens.push({
-          update(now) {
-            const t = Math.min((now - startTime) / 400, 1);
-            cubeRoot.position.lerpVectors(startPos, endPos, 1 - Math.pow(1 - t, 3));
-            return t < 1;
-          }
-        });
-      }
-    });
-
+    // 動畫循環
     function animate() {
       requestAnimationFrame(animate);
-      const now = performance.now();
-
-      for (let i = activeTweens.length - 1; i >= 0; i--) {
-        try {
-          if (!activeTweens[i].update(now)) {
-            activeTweens.splice(i, 1);
-          }
-        } catch(e) {
-          activeTweens.splice(i, 1);
-        }
-      }
-
       controls.update();
-
-      if (!isAssemblyActive && now - lastActionTime > 3800) {
-        if (!isRoaming) {
-          isRoaming = true;
-          roamTime = 0;
-          roamSpeedFactor = 0;
-        }
-        roamSpeedFactor = Math.min(roamSpeedFactor + 0.011, 1);
-        const smoothEase = roamSpeedFactor * roamSpeedFactor * (3 - 2 * roamSpeedFactor);
-
-        roamTime += 0.010 * smoothEase;
-        const ampScale = (isMobile ? 1.0 : 0.45) * smoothEase;
-
-        cubeRoot.position.x = Math.sin(roamTime * 0.65) * 3.2 * ampScale;
-        cubeRoot.position.y = Math.sin(roamTime * 0.45) * 2.0 * ampScale;
-        cubeRoot.position.z = Math.sin(roamTime * 0.35) * 1.6 * ampScale;
-        cubeRoot.rotation.y += 0.0035 * smoothEase;
-      }
-
       renderer.render(scene, camera);
     }
     animate();
 
+    // 視窗縮放適應
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      if (isStarfieldActive) resizeStarfield();
     });
   </script>
 </body>
