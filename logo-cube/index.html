@@ -14,12 +14,12 @@
     }
     
     body {
-      background: radial-gradient(circle at 50% 30%, #e2e8f0 0%, #cbd5e1 50%, #8fa0b5 100%);
+      background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 60%, #050811 100%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
-      color: #1e293b;
+      color: #f1f5f9;
     }
 
     #metal-frame {
@@ -32,10 +32,9 @@
       pointer-events: none;
       z-index: 100;
       box-shadow: 
-        inset 0 0 0 1px rgba(255, 255, 255, 0.85),
-        inset 0 0 0 2px rgba(148, 163, 184, 0.6),
-        inset 0 0 0 3px rgba(255, 255, 255, 0.3),
-        0 0 0 1px rgba(71, 85, 105, 0.3);
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+        inset 0 0 0 2px rgba(51, 65, 85, 0.4),
+        0 0 0 1px rgba(15, 23, 42, 0.85);
     }
 
     #webgl-canvas {
@@ -71,7 +70,7 @@
       font-size: 1.05rem;
       font-weight: 700;
       letter-spacing: 0.2em;
-      color: #0f172a;
+      color: #f8fafc;
       text-transform: uppercase;
       position: relative;
       display: inline-block;
@@ -84,11 +83,11 @@
       bottom: -3px;
       width: 100%;
       height: 1px;
-      background-color: #0f172a;
+      background-color: #d8b370;
       transform: scaleX(0.3);
       transform-origin: left;
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      opacity: 0.6;
+      opacity: 0.8;
     }
 
     .brand-link:hover .brand-title {
@@ -97,14 +96,12 @@
 
     .brand-link:hover .brand-title::after {
       transform: scaleX(1);
-      background-color: #d8b370;
-      opacity: 1;
     }
 
     .brand-sub {
       font-size: 0.7rem;
       letter-spacing: 0.12em;
-      color: #475569;
+      color: #94a3b8;
       margin-top: 0.2rem;
     }
 
@@ -116,14 +113,14 @@
       text-align: center;
       font-size: 0.65rem;
       letter-spacing: 0.12em;
-      color: #475569;
+      color: #64748b;
       pointer-events: auto;
       z-index: 20;
       line-height: 1.5;
     }
 
     footer .studio-link {
-      color: #334155;
+      color: #94a3b8;
       text-decoration: none;
       position: relative;
       display: inline-block;
@@ -147,7 +144,7 @@
       <a href="https://3d.elementslab.net" class="brand-link">
         <div class="brand-title">3D ELEMENTS LAB</div>
       </a>
-      <div class="brand-sub">Integrated Metal Showcase</div>
+      <div class="brand-sub">Quiet Luxury Metal Showcase</div>
     </div>
   </header>
 
@@ -159,35 +156,35 @@
   </footer>
 
   <script>
-    // 產生珠寶級環境反射貼圖
-    function buildJewelryStudioEnv(renderer) {
+    // 建立精準無綠色色偏的高級珠寶攝影棚環境反射貼圖（純中性白、香檳金與冷灰色階）
+    function buildCleanStudioEnv(renderer) {
       const envCanvas = document.createElement('canvas');
       envCanvas.width = 512;
       envCanvas.height = 256;
       const ctx = envCanvas.getContext('2d');
 
       const bgGrad = ctx.createLinearGradient(0, 0, 0, 256);
-      bgGrad.addColorStop(0.0, '#ffffff');
-      bgGrad.addColorStop(0.22, '#9a8462');
-      bgGrad.addColorStop(0.50, '#4a3d2b');
-      bgGrad.addColorStop(0.75, '#bfa378');
-      bgGrad.addColorStop(1.0, '#333b48');
+      bgGrad.addColorStop(0.0, '#f8fafc');
+      bgGrad.addColorStop(0.3, '#94a3b8');
+      bgGrad.addColorStop(0.5, '#334155');
+      bgGrad.addColorStop(0.7, '#64748b');
+      bgGrad.addColorStop(1.0, '#0f172a');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, 512, 256);
 
+      // 乾淨的頂部柔光條（模擬無色差攝影棚打燈）
       const strips = [
-        { x: 42, w: 28, alpha: 1.0 },
-        { x: 155, w: 22, alpha: 0.95 },
-        { x: 260, w: 46, alpha: 1.0 },
-        { x: 390, w: 26, alpha: 0.95 }
+        { x: 80, w: 40, alpha: 0.9 },
+        { x: 220, w: 60, alpha: 1.0 },
+        { x: 380, w: 40, alpha: 0.9 }
       ];
       strips.forEach((s) => {
         const g = ctx.createLinearGradient(s.x, 0, s.x + s.w, 0);
         g.addColorStop(0, 'rgba(255,255,255,0)');
-        g.addColorStop(0.5, `rgba(255, 252, 240, ${s.alpha})`);
+        g.addColorStop(0.5, `rgba(255, 255, 255, ${s.alpha})`);
         g.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = g;
-        ctx.fillRect(s.x, 8, s.w, 240);
+        ctx.fillRect(s.x, 0, s.w, 256);
       });
 
       const equirectTex = new THREE.CanvasTexture(envCanvas);
@@ -201,7 +198,7 @@
       return envRT.texture;
     }
 
-    // 產生金屬絲紋粗糙貼圖
+    // 製作極細緻的高級金屬拉絲紋理 (Brushed Metal Texture)
     function createBrushedMetalTexture() {
       const texCanvas = document.createElement('canvas');
       texCanvas.width = 256;
@@ -212,7 +209,7 @@
       ctx.fillRect(0, 0, 256, 256);
 
       for (let y = 0; y < 256; y++) {
-        const shade = Math.floor(90 + Math.random() * 95);
+        const shade = Math.floor(100 + Math.random() * 55);
         ctx.fillStyle = `rgb(${shade}, ${shade}, ${shade})`;
         ctx.fillRect(0, y, 256, 1);
       }
@@ -220,7 +217,7 @@
       const tex = new THREE.CanvasTexture(texCanvas);
       tex.wrapS = THREE.RepeatWrapping;
       tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(3, 10);
+      tex.repeat.set(2, 16); // 垂直拉絲細紋
       return tex;
     }
 
@@ -228,16 +225,17 @@
     const scene = new THREE.Scene();
 
     const isMobile = window.innerWidth <= 768;
-    const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 200);
-    camera.position.set(0, 1.2, 8.2);
+    const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 200);
+    // 固定相機位置，完美對齊參考圖的黃金鏡頭視角
+    camera.position.set(0, 1.4, 7.5);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 1.1;
 
-    const jewelryEnvMap = buildJewelryStudioEnv(renderer);
+    const studioEnvMap = buildCleanStudioEnv(renderer);
 
     const modelRoot = new THREE.Group();
     scene.add(modelRoot);
@@ -245,45 +243,48 @@
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 1.8;
-    controls.maxDistance = 45.0;
+    controls.minDistance = 2.0;
+    controls.maxDistance = 30.0;
     controls.target.set(0, 0, 0);
 
-    // 燈光設置
-    scene.add(new THREE.AmbientLight(0xffffff, 0.45));
-    const keyLight = new THREE.DirectionalLight(0xfff8e7, 1.9);
-    keyLight.position.set(8, 14, 10);
+    // 純淨無色差的三點專業珠寶打光（主光、補光、輪廓光，完全排除綠色反光）
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    
+    const keyLight = new THREE.DirectionalLight(0xfffbeb, 2.0); // 暖白主光
+    keyLight.position.set(6, 12, 8);
     scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0xdbeafe, 1.2);
-    rimLight.position.set(-10, -4, -9);
+
+    const rimLight = new THREE.DirectionalLight(0xe0f2fe, 1.2); // 冷白輪廓光
+    rimLight.position.set(-8, -4, -6);
     scene.add(rimLight);
-    const frontFill = new THREE.DirectionalLight(0xffffff, 0.6);
-    frontFill.position.set(-4, 5, 12);
-    scene.add(frontFill);
+
+    const frontLight = new THREE.DirectionalLight(0xffffff, 0.7); // 正面柔和補光
+    frontLight.position.set(0, 4, 10);
+    scene.add(frontLight);
 
     const brushedRoughnessMap = createBrushedMetalTexture();
 
-    // 高級金屬材質 (EL 字母金)
-    const goldMat = new THREE.MeshPhysicalMaterial({
-      color: 0xd6b06b,
-      metalness: 0.92,
-      roughness: 0.26,
+    // 1. 參考圖等級的香檳金金屬材質 (EL 字母專用)
+    const referenceGoldMat = new THREE.MeshPhysicalMaterial({
+      color: 0xdfbe7e,          // 精準香檳金色調
+      metalness: 0.88,
+      roughness: 0.32,
       roughnessMap: brushedRoughnessMap,
-      clearcoat: 0.35,
-      clearcoatRoughness: 0.16,
-      envMap: jewelryEnvMap,
-      envMapIntensity: 1.40
+      clearcoat: 0.4,
+      clearcoatRoughness: 0.15,
+      envMap: studioEnvMap,
+      envMapIntensity: 1.25
     });
 
-    // 冰河藍金屬材質 (Cubes 方塊銀藍)
-    const glacierBlueMat = new THREE.MeshPhysicalMaterial({
-      color: 0x6ea6be,
-      metalness: 0.68,
-      roughness: 0.16,
-      clearcoat: 0.90,
-      clearcoatRoughness: 0.10,
-      envMap: jewelryEnvMap,
-      envMapIntensity: 1.35
+    // 2. 高級霧面冰河藍材質 (Cubes 方塊專用)
+    const referenceGlacierMat = new THREE.MeshPhysicalMaterial({
+      color: 0x93b5c6,          // 柔和高級感冰河藍
+      metalness: 0.25,
+      roughness: 0.45,
+      clearcoat: 0.6,
+      clearcoatRoughness: 0.2,
+      envMap: studioEnvMap,
+      envMapIntensity: 1.0
     });
 
     // 載入整合好的 EL Cubes.glb
@@ -300,7 +301,7 @@
         box.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.7;
+        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.75;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
@@ -310,17 +311,16 @@
         root.position.sub(center);
         root.updateMatrixWorld(true);
 
-        // 遍歷所有 Mesh 並精準套用材質
+        // 精準對應材質
         root.traverse((node) => {
           if (node.isMesh) {
             const origName = (node.material && node.material.name) ? node.material.name : '';
-            // 根據模型內部的原始名稱或群組判斷是否為金色 (EL)
             const isGold = origName.includes('0.700') || (node.parent && node.parent.name === 'EL' && !origName.includes('0.820'));
 
             if (isGold) {
-              node.material = goldMat;
+              node.material = referenceGoldMat;
             } else {
-              node.material = glacierBlueMat;
+              node.material = referenceGlacierMat;
             }
           }
         });
@@ -331,8 +331,8 @@
       (error) => { console.error("EL Cubes Load Error:", error); }
     );
 
-    // 預設視角旋轉
-    modelRoot.rotation.set(0.25, -0.65, 0);
+    // ★ 關鍵：直接將模型初始角度旋轉對齊，讓它一進來就完美正對鏡頭（呈現參考圖的角度）
+    modelRoot.rotation.set(0.32, -0.78, 0.05);
 
     // 動畫循環
     function animate() {
