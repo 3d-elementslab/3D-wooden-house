@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="icon" href="data:,">
   <title>Elements Lab - 3D Logo Cube Assembly (Master Edition)</title>
   <style>
     * {
@@ -157,7 +158,6 @@
         inset 0 1px 2px rgba(0, 0, 0, 0.35);
     }
 
-    /* 通關 5 秒定格期間按鈕狀態：發光鎖定防止誤觸重置 */
     .action-btn.victory-locked {
       color: #c8c074;
       border-color: #c8c074;
@@ -166,7 +166,6 @@
       pointer-events: none;
     }
 
-    /* SVG 預覽開場層：桌機維持原尺寸，手機自動放大 2.2~2.5 倍 */
     #svg-overlay {
       position: absolute;
       top: 0;
@@ -328,7 +327,6 @@
       } catch (e) {}
     }
 
-    // ★ Fly-in 結尾專屬音效：精密機械磁吸卡榫 + 低頻共鳴 + 暖金微光泛音
     function playFlyInLockChord() {
       try {
         const ctx = getAudioContext();
@@ -393,47 +391,35 @@
       } catch (e) {}
     }
 
-    // --- 1. 隱形虛擬攝影棚反射圖（只負責照亮金屬高光，完全不改變網頁 CSS 背景色） ---
+    // --- 1. 克制型攝影棚反光板（只提供高光邊緣條紋，不把金屬底色沖白） ---
     function createStudioEnvMap() {
       const envCanvas = document.createElement('canvas');
       envCanvas.width = 512;
       envCanvas.height = 256;
       const ctx = envCanvas.getContext('2d');
 
-      // 柔和的攝影棚底色（暖白到中性灰藍，避免反射死黑）
+      // 中性暖灰底，確保金屬立面保留飽和色階
       const bgGrad = ctx.createLinearGradient(0, 0, 0, 256);
-      bgGrad.addColorStop(0.0, '#ffffff');
-      bgGrad.addColorStop(0.35, '#e2e8f0');
-      bgGrad.addColorStop(0.65, '#94a3b8');
-      bgGrad.addColorStop(1.0, '#cbd5e1');
+      bgGrad.addColorStop(0.0, '#cbd5e1');
+      bgGrad.addColorStop(0.5, '#64748b');
+      bgGrad.addColorStop(1.0, '#475569');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, 512, 256);
 
-      // 模擬專業珠寶/金屬攝影棚的垂直長條軟光箱（讓 EL 立面產生絲綢般的金屬明暗漸層）
+      // 窄版高光燈條（做出 Logo_metal.jpeg 的金屬絲綢高光線，而不整片洗白）
       const softboxes = [
-        { x: 40, w: 65, alpha: 0.95 },
-        { x: 165, w: 45, alpha: 0.85 },
-        { x: 280, w: 80, alpha: 0.98 },
-        { x: 420, w: 50, alpha: 0.85 }
+        { x: 55, w: 32, alpha: 0.92 },
+        { x: 185, w: 24, alpha: 0.85 },
+        { x: 310, w: 40, alpha: 0.95 },
+        { x: 440, w: 28, alpha: 0.85 }
       ];
       softboxes.forEach((box) => {
         const boxGrad = ctx.createLinearGradient(box.x, 0, box.x + box.w, 0);
-        boxGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-        boxGrad.addColorStop(0.5, `rgba(255, 253, 245, ${box.alpha})`);
-        boxGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        boxGrad.addColorStop(0, 'rgba(255, 250, 235, 0)');
+        boxGrad.addColorStop(0.5, `rgba(255, 250, 235, ${box.alpha})`);
+        boxGrad.addColorStop(1, 'rgba(255, 250, 235, 0)');
         ctx.fillStyle = boxGrad;
-        ctx.fillRect(box.x, 12, box.w, 232);
-      });
-
-      // 加入幾道深色對比反光板（讓香檳金高光邊緣更有銳利立體感）
-      const darkCards = [122, 230, 380];
-      darkCards.forEach((dx) => {
-        const darkGrad = ctx.createLinearGradient(dx, 0, dx + 26, 0);
-        darkGrad.addColorStop(0, 'rgba(30, 41, 59, 0)');
-        darkGrad.addColorStop(0.5, 'rgba(30, 41, 59, 0.42)');
-        darkGrad.addColorStop(1, 'rgba(30, 41, 59, 0)');
-        ctx.fillStyle = darkGrad;
-        ctx.fillRect(dx, 20, 26, 216);
+        ctx.fillRect(box.x, 10, box.w, 236);
       });
 
       const texture = new THREE.CanvasTexture(envCanvas);
@@ -441,7 +427,6 @@
       return texture;
     }
 
-    // 程式生成「水平髮絲紋（Brushed Metal）」貼圖，重現 Logo_metal.jpeg 的拉絲金屬肌理
     function createBrushedMetalTexture() {
       const texCanvas = document.createElement('canvas');
       texCanvas.width = 256;
@@ -452,7 +437,7 @@
       ctx.fillRect(0, 0, 256, 256);
 
       for (let y = 0; y < 256; y++) {
-        const shade = Math.floor(110 + Math.random() * 45);
+        const shade = Math.floor(95 + Math.random() * 65);
         ctx.fillStyle = `rgb(${shade}, ${shade}, ${shade})`;
         ctx.fillRect(0, y, 256, 1);
       }
@@ -460,14 +445,14 @@
       const tex = new THREE.CanvasTexture(texCanvas);
       tex.wrapS = THREE.RepeatWrapping;
       tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(2, 4);
+      tex.repeat.set(2, 6);
       return tex;
     }
 
     // --- 2. Three.js 場景建構 ---
     const canvas = document.getElementById('webgl-canvas');
-    const scene = new THREE.Scene(); // scene.background 維持 null，完全不影響 CSS 網頁背景
-    scene.environment = createStudioEnvMap(); // ★ 只餵給金屬反射的隱形攝影棚
+    const scene = new THREE.Scene();
+    scene.environment = createStudioEnvMap();
 
     const cubeRoot = new THREE.Group();
     scene.add(cubeRoot);
@@ -481,7 +466,7 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.18;
+    renderer.toneMappingExposure = 1.12;
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -490,51 +475,50 @@
     controls.maxDistance = 45.0; 
     controls.target.set(0, 0, 0);
 
-    // 精準攝影棚三點主副光，配合 scene.environment 打造 Logo_metal.jpeg 的明亮高光
-    scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-    const keyLight = new THREE.DirectionalLight(0xfffbeb, 1.85);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.25));
+    const keyLight = new THREE.DirectionalLight(0xfffbeb, 2.1);
     keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.15);
+    const fillLight = new THREE.DirectionalLight(0xcbd5e1, 1.25);
     fillLight.position.set(-10, 5, -8);
     scene.add(fillLight);
     const bottomBounce = new THREE.DirectionalLight(0xe2e8f0, 0.85);
     bottomBounce.position.set(0, -8, 4);
     scene.add(bottomBounce);
 
-    // --- 3. 精準對齊 Logo_metal.jpeg 的雙階段材質系統 ---
+    // --- 3. 高飽和校正雙階段材質（在 ACES 下還原 Logo_metal.jpeg 的飽滿香檳金 + 冰河粉藍） ---
     const brushedRoughnessMap = createBrushedMetalTexture();
 
-    // 階段一（組裝進行中）：清透霧面香檳金 + 冰河藍零件質感
+    // 階段一（組裝進行中）：清亮柔和零件色
     const LIGHT_LETTER_STYLE = {
-      color: 0xf0d9b5,
-      metalness: 0.35,
-      roughness: 0.38,
-      clearcoat: 0.15,
-      envMapIntensity: 0.75
+      color: 0xe6c88a,
+      metalness: 0.45,
+      roughness: 0.34,
+      clearcoat: 0.10,
+      envMapIntensity: 0.55
     };
     const LIGHT_CUBE_STYLE = {
-      color: 0xa2c6d4,
-      metalness: 0.25,
-      roughness: 0.38,
-      clearcoat: 0.25,
-      envMapIntensity: 0.75
+      color: 0x7aa3b8,
+      metalness: 0.35,
+      roughness: 0.36,
+      clearcoat: 0.15,
+      envMapIntensity: 0.55
     };
 
-    // 階段二（膨脹變身後與漂浮待機）：完全對齊 Logo_metal.jpeg 的「拉絲亮香檳金 EL + 冰河粉藍陽極清漆方塊」
+    // 階段二（膨脹變身後與漂浮待機）：高飽和暖拉絲香檳金 + 陽極冰河粉藍
     const FORGED_GOLD_STYLE = {
-      color: 0xf2d4a2,        // 暖亮香檳金（反射攝影棚後呈現亮金到琥珀漸層）
-      metalness: 0.88,
+      color: 0xd9b266,        // 飽滿暖香檳金（在 ACES 曝光下呈現 Logo_metal.jpeg 的金銅高光漸層）
+      metalness: 0.82,
       roughness: 0.24,
-      clearcoat: 0.35,
-      envMapIntensity: 1.45
+      clearcoat: 0.22,
+      envMapIntensity: 0.78
     };
     const FORGED_GLACIER_BLUE_STYLE = {
-      color: 0x9ec4d1,        // 冰河粉藍（搭配清漆與攝影棚高光，呈現琉璃陽極氧化質感）
-      metalness: 0.58,
-      roughness: 0.18,
-      clearcoat: 0.85,
-      envMapIntensity: 1.35
+      color: 0x6296ab,        // 飽滿冰河粉藍（保留藍綠調性不被高光洗白）
+      metalness: 0.55,
+      roughness: 0.22,
+      clearcoat: 0.45,
+      envMapIntensity: 0.72
     };
 
     const champagneGoldMat = new THREE.MeshPhysicalMaterial({
@@ -543,7 +527,7 @@
       roughness: LIGHT_LETTER_STYLE.roughness,
       roughnessMap: brushedRoughnessMap,
       clearcoat: LIGHT_LETTER_STYLE.clearcoat,
-      clearcoatRoughness: 0.15,
+      clearcoatRoughness: 0.18,
       envMapIntensity: LIGHT_LETTER_STYLE.envMapIntensity,
       emissive: 0x000000,
       emissiveIntensity: 0
@@ -554,7 +538,7 @@
       metalness: LIGHT_CUBE_STYLE.metalness,
       roughness: LIGHT_CUBE_STYLE.roughness,
       clearcoat: LIGHT_CUBE_STYLE.clearcoat,
-      clearcoatRoughness: 0.12,
+      clearcoatRoughness: 0.15,
       envMapIntensity: LIGHT_CUBE_STYLE.envMapIntensity,
       emissive: 0x000000,
       emissiveIntensity: 0
@@ -569,7 +553,6 @@
     let isVictoryLocked = false;
     let victoryLockTimer = null;
 
-    // 切換材質狀態：true = Logo_metal.jpeg 拉絲亮香檳金＋冰河粉藍金屬；false = 組裝中霧面零件
     function applyForgedMetalState(isForged) {
       partRegistry.forEach((item) => {
         const style = item.isLogoLetter
@@ -590,7 +573,6 @@
       });
     }
 
-    // Fly-In 用的深空軌跡
     const trajectoryMap = {
       'E': new THREE.Vector3(0, 260, 110),
       'L': new THREE.Vector3(0, -260, 110),
@@ -609,7 +591,6 @@
       'cube13': new THREE.Vector3(230, 230, 230)
     };
 
-    // Hit Play 視角跳轉：E 在正面，L 進場時自動平滑旋轉 90°（π/2）正對 L 面
     const faceRotationMap = {
       'E': { x: 0.25, y: -0.65 },
       'L': { x: 0.25, y: -2.22 },
@@ -746,17 +727,12 @@
       }
     }
 
-    // =========================================================
-    // ★ 通關高潮演出：浩克級爆框膨脹定格 + 拉絲香檳金 & 冰河藍金屬變身
-    // =========================================================
     function triggerVictoryCelebration(withCheering = true) {
       isAssemblyActive = true;
       lastActionTime = performance.now();
 
-      // 1) 切換為 Logo_metal.jpeg 拉絲亮香檳金 + 冰河粉藍陽極金屬（漂浮待機持續維持此狀態）
       applyForgedMetalState(true);
 
-      // 2) 若為 Hit Play 通關：按鈕鎖定 5 秒 + 播放 cheering.wav
       const btnPlay = document.getElementById('btn-play');
       if (withCheering) {
         isVictoryLocked = true;
@@ -769,10 +745,8 @@
         playFlyInLockChord();
       }
 
-      // 3) 整個立方體平順轉回正面展示角度
       smoothRotateCubeTo(HOME_ROTATION, 520);
 
-      // 4) 浩克級爆框膨脹 + 頂點定格 + 克制暖金光暈呼吸
       const startTime = performance.now();
       const celebrationDuration = withCheering ? 5000 : 2400;
 
@@ -781,7 +755,6 @@
           const elapsed = now - startTime;
           const t = Math.min(elapsed / celebrationDuration, 1);
 
-          // 爆框膨脹 + 頂點飽滿定格（手機 2.35x 破框，桌機 1.75x）
           const popRatio = withCheering ? 0.28 : 0.48;
           if (t < popRatio) {
             const popT = t / popRatio;
@@ -792,7 +765,6 @@
             cubeRoot.scale.setScalar(1.0);
           }
 
-          // 微光邊緣呼吸（不洗白金屬拉絲高光）
           const envelope = t < 0.12 ? (t / 0.12) : (t > 0.78 ? (1 - t) / 0.22 : 1.0);
           const pulse = 0.65 + 0.35 * Math.sin(elapsed * 0.0065);
           const glowPower = envelope * pulse;
@@ -800,11 +772,11 @@
           partRegistry.forEach((item) => {
             item.meshes.forEach((m) => {
               if (item.isLogoLetter) {
-                m.material.emissive.setHex(0xe6c384);
-                m.material.emissiveIntensity = glowPower * 0.22;
+                m.material.emissive.setHex(0xd4af37);
+                m.material.emissiveIntensity = glowPower * 0.24;
               } else {
-                m.material.emissive.setHex(0x88b8c8);
-                m.material.emissiveIntensity = glowPower * 0.16;
+                m.material.emissive.setHex(0x5b92a8);
+                m.material.emissiveIntensity = glowPower * 0.18;
               }
             });
           });
@@ -837,9 +809,6 @@
       }
     }
 
-    // =========================================================
-    // ★ 模式 A：FLY IN（15 顆精密組裝 + 結尾音效 + 膨脹變身金屬 Logo）
-    // =========================================================
     function triggerFullFlyIn() {
       if (victoryLockTimer) clearTimeout(victoryLockTimer);
       isVictoryLocked = false;
@@ -919,9 +888,6 @@
       }
     }
 
-    // =========================================================
-    // ★ 模式 B：HIT PLAY（E 正面 -> L 轉 90° 正面進場 -> 5秒通關高潮）
-    // =========================================================
     function playHitSinglePart(name) {
       const item = partRegistry.get(name);
       if (!item || item.isAssembled) return;
@@ -1044,7 +1010,6 @@
       roamSpeedFactor = 0;
       cubeRoot.scale.setScalar(1.0);
 
-      // 重置打散進入遊戲進行中時，恢復為清透霧面零件材質
       applyForgedMetalState(false);
       
       const overlay = document.getElementById('svg-overlay');
@@ -1068,9 +1033,6 @@
       cubeRoot.position.set(0, 0, 0);
     }
 
-    // =========================================================
-    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動，漂浮時維持發亮金屬 Logo）
-    // =========================================================
     let lastActionTime = performance.now();
     let isRoaming = false;
     let roamTime = 0;
