@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link rel="icon" href="data:,">
-  <title>Elements Lab - 3D Logo Cube Showcase</title>
+  <title>Elements Lab - 3D Logo Cube Assembly (Master Edition)</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,14 +11,13 @@
       padding: 0;
       touch-action: manipulation;
     }
-    
     body {
-      background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 60%, #050811 100%);
+      background: radial-gradient(circle at 50% 30%, #e2e8f0 0%, #cbd5e1 50%, #8fa0b5 100%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
-      color: #f1f5f9;
+      color: #1e293b;
     }
 
     #metal-frame {
@@ -32,9 +30,10 @@
       pointer-events: none;
       z-index: 100;
       box-shadow: 
-        inset 0 0 0 1px rgba(255, 255, 255, 0.15),
-        inset 0 0 0 2px rgba(51, 65, 85, 0.4),
-        0 0 0 1px rgba(15, 23, 42, 0.85);
+        inset 0 0 0 1px rgba(255, 255, 255, 0.85),
+        inset 0 0 0 2px rgba(148, 163, 184, 0.6),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.3),
+        0 0 0 1px rgba(71, 85, 105, 0.3);
     }
 
     #webgl-canvas {
@@ -42,8 +41,6 @@
       height: 100%;
       display: block;
       cursor: grab;
-      position: relative;
-      z-index: 5;
     }
     #webgl-canvas:active {
       cursor: grabbing;
@@ -70,10 +67,11 @@
       font-size: 1.05rem;
       font-weight: 700;
       letter-spacing: 0.2em;
-      color: #f8fafc;
+      color: #0f172a;
       text-transform: uppercase;
       position: relative;
       display: inline-block;
+      transition: color 0.25s ease;
     }
 
     .brand-title::after {
@@ -83,26 +81,119 @@
       bottom: -3px;
       width: 100%;
       height: 1px;
-      background-color: #d8b370;
+      background-color: #0f172a;
       transform: scaleX(0.3);
       transform-origin: left;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      opacity: 0.8;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+      opacity: 0.6;
     }
 
     .brand-link:hover .brand-title {
-      color: #d8b370;
+      color: #c8c074;
     }
 
     .brand-link:hover .brand-title::after {
       transform: scaleX(1);
+      background-color: #c8c074;
+      opacity: 1;
     }
 
     .brand-sub {
       font-size: 0.7rem;
       letter-spacing: 0.12em;
-      color: #94a3b8;
+      color: #475569;
       margin-top: 0.2rem;
+    }
+
+    #ui-control-bar {
+      position: absolute;
+      bottom: 3.8rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+      padding: 0.5rem 0.8rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(226,232,240,0.7) 100%);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 999px;
+      box-shadow: 
+        0 8px 24px rgba(15, 23, 42, 0.12),
+        inset 0 1px 1px rgba(255, 255, 255, 0.9);
+      z-index: 20;
+    }
+
+    .action-btn {
+      width: 135px;
+      height: 42px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f8fafc;
+      background: linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
+      border: 1px solid #475569;
+      border-bottom: 2px solid #020617;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 
+        0 3px 8px rgba(15, 23, 42, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+      background: linear-gradient(180deg, #475569 0%, #334155 50%, #1e293b 100%);
+      color: #c8c074;
+    }
+    .action-btn:active {
+      transform: translateY(2px);
+      border-bottom: 1px solid #020617;
+      box-shadow: 
+        0 1px 3px rgba(15, 23, 42, 0.3),
+        inset 0 1px 2px rgba(0, 0, 0, 0.35);
+    }
+
+    /* 通關 5 秒定格期間按鈕狀態：發光鎖定防止誤觸重置 */
+    .action-btn.victory-locked {
+      color: #c8c074;
+      border-color: #c8c074;
+      box-shadow: 0 0 16px rgba(200, 192, 116, 0.55);
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* SVG 預覽開場層：桌機維持原尺寸，手機自動放大 2.2~2.5 倍 */
+    #svg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    #svg-overlay img {
+      width: 36vw;
+      max-width: 360px;
+      height: auto;
+      transform: translateX(-32px);
+      filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.15));
+    }
+
+    @media (max-width: 768px) {
+      #svg-overlay img {
+        width: 82vw;
+        max-width: 440px;
+        transform: translateX(-14px);
+      }
     }
 
     footer {
@@ -113,22 +204,43 @@
       text-align: center;
       font-size: 0.65rem;
       letter-spacing: 0.12em;
-      color: #64748b;
+      color: #475569;
       pointer-events: auto;
       z-index: 20;
       line-height: 1.5;
     }
 
     footer .studio-link {
-      color: #94a3b8;
+      color: #334155;
       text-decoration: none;
       position: relative;
       display: inline-block;
       font-weight: 500;
+      transition: color 0.25s ease;
+    }
+
+    footer .studio-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 100%;
+      height: 1px;
+      background-color: #334155;
+      transform: scaleX(0.3);
+      transform-origin: left;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+      opacity: 0.6;
     }
 
     footer .studio-link:hover {
-      color: #d8b370;
+      color: #c8c074;
+    }
+
+    footer .studio-link:hover::after {
+      transform: scaleX(1);
+      background-color: #c8c074;
+      opacity: 1;
     }
   </style>
 
@@ -139,169 +251,317 @@
 <body>
   <div id="metal-frame"></div>
 
+  <div id="svg-overlay">
+    <img src="./logo-wire.svg" alt="Logo Wireframe">
+  </div>
+
   <header>
     <div>
-      <a href="https://3d.elementslab.net" class="brand-link">
+      <a href="https://3d.elementslab.net" class="brand-link" id="brand-link">
         <div class="brand-title">3D ELEMENTS LAB</div>
       </a>
-      <div class="brand-sub">Quiet Luxury Metal Showcase</div>
+      <div class="brand-sub">Modular Assembly Simulator</div>
     </div>
   </header>
 
   <canvas id="webgl-canvas"></canvas>
 
+  <div id="ui-control-bar">
+    <button class="action-btn" id="btn-flyin">FLY IN</button>
+    <button class="action-btn" id="btn-play">HIT PLAY</button>
+  </div>
+
   <footer>
     <div>© 2026 Elements Lab. All rights reserved.</div>
-    <div><a href="https://elementslab.net" class="studio-link">實驗元素工作室</a></div>
+    <div><a href="https://elementslab.net" class="studio-link" id="studio-link">實驗元素工作室</a></div>
   </footer>
 
+  <audio id="swoosh-audio" src="./rocket-woosh.wav" preload="auto"></audio>
+  <audio id="metal-hit-audio" src="./metal-hit.wav" preload="auto"></audio>
+  <audio id="cheering-audio" src="./cheering.wav" preload="auto"></audio>
+
   <script>
-    // 建立精準無綠色色偏的高級珠寶攝影棚環境反射貼圖（純中性白、香檳金與冷灰色階）
-    function buildCleanStudioEnv(renderer) {
-      const envCanvas = document.createElement('canvas');
-      envCanvas.width = 512;
-      envCanvas.height = 256;
-      const ctx = envCanvas.getContext('2d');
-
-      const bgGrad = ctx.createLinearGradient(0, 0, 0, 256);
-      bgGrad.addColorStop(0.0, '#f8fafc');
-      bgGrad.addColorStop(0.3, '#94a3b8');
-      bgGrad.addColorStop(0.5, '#334155');
-      bgGrad.addColorStop(0.7, '#64748b');
-      bgGrad.addColorStop(1.0, '#0f172a');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, 512, 256);
-
-      // 乾淨的頂部柔光條（模擬無色差攝影棚打燈）
-      const strips = [
-        { x: 80, w: 40, alpha: 0.9 },
-        { x: 220, w: 60, alpha: 1.0 },
-        { x: 380, w: 40, alpha: 0.9 }
-      ];
-      strips.forEach((s) => {
-        const g = ctx.createLinearGradient(s.x, 0, s.x + s.w, 0);
-        g.addColorStop(0, 'rgba(255,255,255,0)');
-        g.addColorStop(0.5, `rgba(255, 255, 255, ${s.alpha})`);
-        g.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(s.x, 0, s.w, 256);
-      });
-
-      const equirectTex = new THREE.CanvasTexture(envCanvas);
-      equirectTex.mapping = THREE.EquirectangularReflectionMapping;
-
-      const pmremGenerator = new THREE.PMREMGenerator(renderer);
-      pmremGenerator.compileEquirectangularShader();
-      const envRT = pmremGenerator.fromEquirectangular(equirectTex);
-      equirectTex.dispose();
-      pmremGenerator.dispose();
-      return envRT.texture;
-    }
-
-    // 製作極細緻的高級金屬拉絲紋理 (Brushed Metal Texture)
-    function createBrushedMetalTexture() {
-      const texCanvas = document.createElement('canvas');
-      texCanvas.width = 256;
-      texCanvas.height = 256;
-      const ctx = texCanvas.getContext('2d');
-
-      ctx.fillStyle = '#808080';
-      ctx.fillRect(0, 0, 256, 256);
-
-      for (let y = 0; y < 256; y++) {
-        const shade = Math.floor(100 + Math.random() * 55);
-        ctx.fillStyle = `rgb(${shade}, ${shade}, ${shade})`;
-        ctx.fillRect(0, y, 256, 1);
+    // --- 0. 音效控制與 Web Audio API 精密結尾音 ---
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
       }
-
-      const tex = new THREE.CanvasTexture(texCanvas);
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(2, 16); // 垂直拉絲細紋
-      return tex;
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
     }
 
+    function playRocketSwoosh() {
+      try {
+        getAudioContext();
+        const audio = document.getElementById('swoosh-audio');
+        if (audio) {
+          audio.currentTime = 0;
+          audio.volume = 0.65;
+          audio.play().catch(e => {});
+        }
+      } catch (e) {}
+    }
+
+    function playMetalHit() {
+      try {
+        const audio = document.getElementById('metal-hit-audio');
+        if (audio) {
+          audio.currentTime = 0;
+          audio.volume = 0.78;
+          audio.play().catch(e => {});
+        }
+      } catch (e) {}
+    }
+
+    function playCheeringAudio() {
+      try {
+        const audio = document.getElementById('cheering-audio');
+        if (audio) {
+          audio.currentTime = 0;
+          audio.volume = 0.85;
+          audio.play().catch(e => {});
+        }
+      } catch (e) {}
+    }
+
+    // ★ Fly-in 結尾專屬音效：精密機械磁吸卡榫 + 低頻共鳴 + 暖金微光泛音
+    function playFlyInLockChord() {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        // 1) 精密機械卡榫 Click（短促帶通白噪音）
+        const bufferSize = Math.floor(ctx.sampleRate * 0.045);
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.22));
+        }
+        const noiseSource = ctx.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
+
+        const bandpass = ctx.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.setValueAtTime(2400, now);
+        bandpass.Q.setValueAtTime(3.2, now);
+
+        const clickGain = ctx.createGain();
+        clickGain.gain.setValueAtTime(0.35, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+        noiseSource.connect(bandpass);
+        bandpass.connect(clickGain);
+        clickGain.connect(ctx.destination);
+        noiseSource.start(now);
+
+        // 2) 沉穩低頻磁吸共鳴（Sub-bass 72Hz -> 54Hz）
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(76, now);
+        subOsc.frequency.exponentialRampToValueAtTime(52, now + 0.35);
+
+        subGain.gain.setValueAtTime(0.001, now);
+        subGain.gain.linearRampToValueAtTime(0.32, now + 0.015);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+
+        subOsc.connect(subGain);
+        subGain.connect(ctx.destination);
+        subOsc.start(now);
+        subOsc.stop(now + 0.45);
+
+        // 3) 膨脹變身金屬的暖金微光泛音和弦（D5 - A5 - E6）
+        const chordFreqs = [587.33, 880.0, 1318.51];
+        chordFreqs.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          const startT = now + 0.04 + idx * 0.035;
+          osc.frequency.setValueAtTime(freq, startT);
+
+          gain.gain.setValueAtTime(0.0001, startT);
+          gain.gain.linearRampToValueAtTime(0.055 - idx * 0.01, startT + 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startT + 1.15);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(startT);
+          osc.stop(startT + 1.2);
+        });
+      } catch (e) {}
+    }
+
+    // --- 1. Three.js 場景建構 ---
     const canvas = document.getElementById('webgl-canvas');
     const scene = new THREE.Scene();
+    const cubeRoot = new THREE.Group();
+    scene.add(cubeRoot);
 
     const isMobile = window.innerWidth <= 768;
-    const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 200);
-    // 固定相機位置，完美對齊參考圖的黃金鏡頭視角
-    camera.position.set(0, 1.4, 7.5);
+    const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 200);
+    const DEFAULT_CAM_POS = new THREE.Vector3(0, 1.2, 8.2);
+    camera.position.copy(DEFAULT_CAM_POS);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
-
-    const studioEnvMap = buildCleanStudioEnv(renderer);
-
-    const modelRoot = new THREE.Group();
-    scene.add(modelRoot);
+    renderer.toneMappingExposure = 1.25;
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 2.0;
-    controls.maxDistance = 30.0;
+    controls.minDistance = 1.8;  
+    controls.maxDistance = 45.0; 
     controls.target.set(0, 0, 0);
 
-    // 純淨無色差的三點專業珠寶打光（主光、補光、輪廓光，完全排除綠色反光）
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    
-    const keyLight = new THREE.DirectionalLight(0xfffbeb, 2.0); // 暖白主光
-    keyLight.position.set(6, 12, 8);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.85));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.7);
+    keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight(0x94a3b8, 1.7);
+    fillLight.position.set(-10, 4, -8);
+    scene.add(fillLight);
+    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.2);
+    bottomBounce.position.set(0, -8, 0);
+    scene.add(bottomBounce);
 
-    const rimLight = new THREE.DirectionalLight(0xe0f2fe, 1.2); // 冷白輪廓光
-    rimLight.position.set(-8, -4, -6);
-    scene.add(rimLight);
+    // --- 2. 雙階段材質系統：組裝中淺色系 vs 完成後鍛造品牌金屬質感 ---
+    // 階段一：組裝進行中的淺色系零件材質
+    const LIGHT_LETTER_STYLE = {
+      color: 0xebd2a0,
+      metalness: 0.45,
+      roughness: 0.35
+    };
+    const LIGHT_CUBE_STYLE = {
+      color: 0x8ea8c3,
+      metalness: 0.35,
+      roughness: 0.38
+    };
 
-    const frontLight = new THREE.DirectionalLight(0xffffff, 0.7); // 正面柔和補光
-    frontLight.position.set(0, 4, 10);
-    scene.add(frontLight);
-
-    const brushedRoughnessMap = createBrushedMetalTexture();
-
-    // 1. 參考圖等級的香檳金金屬材質 (EL 字母專用)
-    const referenceGoldMat = new THREE.MeshPhysicalMaterial({
-      color: 0xdfbe7e,          // 精準香檳金色調
+    // 階段二：完成膨脹變身後的品牌金屬 Logo 材質（暖橄欖金 #B9AD72 + 冷銀藍金屬 #C4D4E0 / #2C3E55）
+    const FORGED_GOLD_STYLE = {
+      color: 0xb9ad72,
+      metalness: 0.92,
+      roughness: 0.16
+    };
+    const FORGED_SILVER_BLUE_STYLE = {
+      color: 0x6b87a3,
       metalness: 0.88,
-      roughness: 0.32,
-      roughnessMap: brushedRoughnessMap,
-      clearcoat: 0.4,
-      clearcoatRoughness: 0.15,
-      envMap: studioEnvMap,
-      envMapIntensity: 1.25
+      roughness: 0.18
+    };
+
+    const champagneGoldMat = new THREE.MeshStandardMaterial({
+      color: LIGHT_LETTER_STYLE.color,
+      metalness: LIGHT_LETTER_STYLE.metalness,
+      roughness: LIGHT_LETTER_STYLE.roughness,
+      emissive: 0x000000,
+      emissiveIntensity: 0
     });
 
-    // 2. 高級霧面冰河藍材質 (Cubes 方塊專用)
-    const referenceGlacierMat = new THREE.MeshPhysicalMaterial({
-      color: 0x93b5c6,          // 柔和高級感冰河藍
-      metalness: 0.25,
-      roughness: 0.45,
-      clearcoat: 0.6,
-      clearcoatRoughness: 0.2,
-      envMap: studioEnvMap,
-      envMapIntensity: 1.0
+    const anodizedTealMat = new THREE.MeshStandardMaterial({
+      color: LIGHT_CUBE_STYLE.color,
+      metalness: LIGHT_CUBE_STYLE.metalness,
+      roughness: LIGHT_CUBE_STYLE.roughness,
+      emissive: 0x000000,
+      emissiveIntensity: 0
     });
 
-    // 載入整合好的 EL Cubes.glb
+    const partRegistry = new Map();
+    const activeTweens = [];
+    let assembledCount = 0;
+    const TOTAL_PARTS = 15;
+    const HOME_ROTATION = { x: 0.25, y: -0.65 };
+    let isAssemblyActive = false;
+    let isVictoryLocked = false;
+    let victoryLockTimer = null;
+
+    // 切換材質狀態：true = 鍛造品牌金屬（漂浮待機維持此狀態）；false = 組裝中淺色系
+    function applyForgedMetalState(isForged) {
+      partRegistry.forEach((item) => {
+        const style = item.isLogoLetter
+          ? (isForged ? FORGED_GOLD_STYLE : LIGHT_LETTER_STYLE)
+          : (isForged ? FORGED_SILVER_BLUE_STYLE : LIGHT_CUBE_STYLE);
+
+        item.meshes.forEach((m) => {
+          m.material.color.setHex(style.color);
+          m.material.metalness = style.metalness;
+          m.material.roughness = style.roughness;
+          if (!isForged) {
+            m.material.emissive.setHex(0x000000);
+            m.material.emissiveIntensity = 0;
+          }
+        });
+      });
+    }
+
+    // Fly-In 用的深空軌跡
+    const trajectoryMap = {
+      'E': new THREE.Vector3(0, 260, 110),
+      'L': new THREE.Vector3(0, -260, 110),
+      'cube01': new THREE.Vector3(0, 320, 0),
+      'cube02': new THREE.Vector3(260, 200, -200),
+      'cube03': new THREE.Vector3(-280, -160, -160),
+      'cube04': new THREE.Vector3(240, -180, 240),
+      'cube05': new THREE.Vector3(-230, 270, -200),
+      'cube06': new THREE.Vector3(270, 160, 200),
+      'cube07': new THREE.Vector3(-260, -210, 200),
+      'cube08': new THREE.Vector3(230, -260, -230),
+      'cube09': new THREE.Vector3(-320, 0, 80),
+      'cube10': new THREE.Vector3(320, 0, -80),
+      'cube11': new THREE.Vector3(0, 80, 320),
+      'cube12': new THREE.Vector3(0, -80, -320),
+      'cube13': new THREE.Vector3(230, 230, 230)
+    };
+
+    // Hit Play 視角跳轉：E 在正面，L 進場時自動平滑旋轉 90°（π/2）正對 L 面
+    const faceRotationMap = {
+      'E': { x: 0.25, y: -0.65 },
+      'L': { x: 0.25, y: -2.22 },
+      'cube01': { x: 0.45, y: -1.35 },
+      'cube02': { x: -0.55, y: 2.55 },
+      'cube03': { x: 0.65, y: -2.60 },
+      'cube04': { x: 0.40, y: 1.35 },
+      'cube05': { x: -0.75, y: 0.95 },
+      'cube06': { x: 0.70, y: 3.60 },
+      'cube07': { x: 0.35, y: -3.25 },
+      'cube08': { x: 0.55, y: -2.20 },
+      'cube09': { x: -0.45, y: -1.40 },
+      'cube10': { x: 0.50, y: 1.45 },
+      'cube11': { x: -0.35, y: -0.95 },
+      'cube12': { x: 0.55, y: 2.85 },
+      'cube13': { x: -0.60, y: 0.65 }
+    };
+
+    // --- 3. 載入模型 + * 0.7 比例精準置中校正 ---
     const loader = new THREE.GLTFLoader();
     loader.load(
-      './EL%20Cubes.glb',
-      (gltf) => {
-        const root = gltf.scene;
-        root.updateMatrixWorld(true);
+      './el-logo asm.glb',
+      (gltf) => { initAssemblyScene(gltf); },
+      undefined,
+      (error) => { console.error("GLB Load Error:", error); }
+    );
 
-        // 自動置中與縮放
-        const box = new THREE.Box3().setFromObject(root);
+    function initAssemblyScene(gltf) {
+      try {
+        const root = gltf.scene;
+        const targetPartNames = new Set([
+          'E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05',
+          'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'
+        ]);
+
+        root.updateMatrixWorld(true);
+        const assemblyBox = new THREE.Box3().setFromObject(root);
         const size = new THREE.Vector3();
-        box.getSize(size);
+        assemblyBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.75;
+        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.7;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
 
@@ -311,38 +571,482 @@
         root.position.sub(center);
         root.updateMatrixWorld(true);
 
-        // 精準對應材質
         root.traverse((node) => {
-          if (node.isMesh) {
-            const origName = (node.material && node.material.name) ? node.material.name : '';
-            const isGold = origName.includes('0.700') || (node.parent && node.parent.name === 'EL' && !origName.includes('0.820'));
+          if (targetPartNames.has(node.name)) {
+            const isLogoLetter = (node.name === 'E' || node.name === 'L');
+            const solidMat = isLogoLetter ? champagneGoldMat.clone() : anodizedTealMat.clone();
 
-            if (isGold) {
-              node.material = referenceGoldMat;
-            } else {
-              node.material = referenceGlacierMat;
-            }
+            const meshes = [];
+            node.traverse((child) => {
+              if (child.isMesh) {
+                child.material = solidMat;
+                meshes.push(child);
+              }
+            });
+
+            const targetPos = node.position.clone();
+            const deepSpaceDir = trajectoryMap[node.name] || new THREE.Vector3(60, 50, 55);
+            const hiddenDeepSpacePos = targetPos.clone().add(deepSpaceDir);
+
+            node.position.copy(hiddenDeepSpacePos);
+            node.scale.setScalar(0.85);
+            node.visible = false;
+            meshes.forEach(m => m.visible = false);
+
+            partRegistry.set(node.name, {
+              node: node,
+              meshes: meshes,
+              isLogoLetter: isLogoLetter,
+              targetPos: targetPos,
+              deepSpacePos: hiddenDeepSpacePos,
+              isAssembled: false
+            });
           }
         });
 
-        modelRoot.add(root);
-      },
-      undefined,
-      (error) => { console.error("EL Cubes Load Error:", error); }
-    );
+        cubeRoot.add(root);
+        cubeRoot.position.set(0, 0, 0);
+        cubeRoot.rotation.set(HOME_ROTATION.x, HOME_ROTATION.y, 0);
+      } catch(err) {
+        console.error("Assembly Init Error:", err);
+      }
+    }
 
-    // ★ 關鍵：直接將模型初始角度旋轉對齊，讓它一進來就完美正對鏡頭（呈現參考圖的角度）
-    modelRoot.rotation.set(0.32, -0.78, 0.05);
+    function resetCameraAndPosition(duration = 320) {
+      const startCamPos = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const startCubePos = cubeRoot.position.clone();
+      const startTime = performance.now();
 
-    // 動畫循環
+      activeTweens.push({
+        update(now) {
+          const t = Math.min((now - startTime) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          camera.position.lerpVectors(startCamPos, DEFAULT_CAM_POS, ease);
+          controls.target.lerpVectors(startTarget, new THREE.Vector3(0, 0, 0), ease);
+          cubeRoot.position.lerpVectors(startCubePos, new THREE.Vector3(0, 0, 0), ease);
+          controls.update();
+          return t < 1;
+        }
+      });
+    }
+
+    function smoothRotateCubeTo(targetRot, duration = 450, onComplete = null) {
+      const startRotX = cubeRoot.rotation.x;
+      const startRotY = cubeRoot.rotation.y;
+      const startTime = performance.now();
+
+      activeTweens.push({
+        update(now) {
+          const t = Math.min((now - startTime) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          cubeRoot.rotation.x = THREE.MathUtils.lerp(startRotX, targetRot.x, ease);
+          cubeRoot.rotation.y = THREE.MathUtils.lerp(startRotY, targetRot.y, ease);
+          if (t >= 1 && onComplete) onComplete();
+          return t < 1;
+        }
+      });
+    }
+
+    function hideSvgOverlay() {
+      const overlay = document.getElementById('svg-overlay');
+      if (overlay && overlay.style.opacity !== '0') {
+        overlay.style.opacity = '0';
+        setTimeout(() => { overlay.style.display = 'none'; }, 500);
+      }
+    }
+
+    // =========================================================
+    // ★ 通關高潮演出（共用：withCheering = true 為 Hit Play，false 為 Fly In）
+    //   膨脹變身為品牌金屬 Logo + 發光 + 漂浮時維持金屬 Logo
+    // =========================================================
+    function triggerVictoryCelebration(withCheering = true) {
+      isAssemblyActive = true;
+      lastActionTime = performance.now();
+
+      // 1) 切換為品牌鍛造金屬 Logo（漂浮待機時將持續維持此金屬狀態）
+      applyForgedMetalState(true);
+
+      // 2) 若為 Hit Play 通關：按鈕鎖定 5 秒 + 播放 cheering.wav（不再讓左上與 Footer 文字變色）
+      const btnPlay = document.getElementById('btn-play');
+      if (withCheering) {
+        isVictoryLocked = true;
+        if (btnPlay) {
+          btnPlay.classList.add('victory-locked');
+          btnPlay.textContent = 'COMPLETED!';
+        }
+        playCheeringAudio();
+      } else {
+        // Fly In 結尾：播放精密機械磁吸卡榫 + 低頻共鳴 + 暖金微光泛音
+        playFlyInLockChord();
+      }
+
+      // 3) 整個立方體平順轉回正面展示角度
+      smoothRotateCubeTo(HOME_ROTATION, 520);
+
+      // 4) 整體膨脹脈衝（1.0 -> 1.12 -> 1.0）+ 暖金與銀藍金屬發光動畫
+      const startTime = performance.now();
+      const celebrationDuration = withCheering ? 5000 : 2400;
+
+      activeTweens.push({
+        update(now) {
+          const elapsed = now - startTime;
+          const t = Math.min(elapsed / celebrationDuration, 1);
+
+          // 膨脹變身彈跳回饋（1.0 -> 1.12 -> 1.0）
+          const popRatio = withCheering ? 0.16 : 0.32;
+          if (t < popRatio) {
+            const popT = t / popRatio;
+            const scaleBoost = 1 + Math.sin(popT * Math.PI) * 0.12;
+            cubeRoot.scale.setScalar(scaleBoost);
+          } else {
+            cubeRoot.scale.setScalar(1.0);
+          }
+
+          // 金屬自發光呼吸曲線
+          const envelope = t < 0.12 ? (t / 0.12) : (t > 0.78 ? (1 - t) / 0.22 : 1.0);
+          const pulse = 0.7 + 0.3 * Math.sin(elapsed * 0.0065);
+          const glowPower = envelope * pulse;
+
+          partRegistry.forEach((item) => {
+            item.meshes.forEach((m) => {
+              if (item.isLogoLetter) {
+                m.material.emissive.setHex(0xb9ad72); // 暖橄欖金品牌光暈
+                m.material.emissiveIntensity = glowPower * 0.65;
+              } else {
+                m.material.emissive.setHex(0x88b4dc); // 冷銀藍金屬光暈
+                m.material.emissiveIntensity = glowPower * 0.42;
+              }
+            });
+          });
+
+          if (t >= 1) {
+            // 自發光淡出，但「鍛造金屬材質（color / metalness / roughness）」保留給漂浮待機使用
+            partRegistry.forEach((item) => {
+              item.meshes.forEach((m) => {
+                m.material.emissive.setHex(0x000000);
+                m.material.emissiveIntensity = 0;
+              });
+            });
+            cubeRoot.scale.setScalar(1.0);
+            isAssemblyActive = false;
+            lastActionTime = performance.now();
+            return false;
+          }
+          return true;
+        }
+      });
+
+      // 5 秒後解除 Hit Play 按鈕鎖定
+      if (withCheering) {
+        if (victoryLockTimer) clearTimeout(victoryLockTimer);
+        victoryLockTimer = setTimeout(() => {
+          isVictoryLocked = false;
+          if (btnPlay) {
+            btnPlay.classList.remove('victory-locked');
+            btnPlay.textContent = 'HIT PLAY';
+          }
+        }, celebrationDuration);
+      }
+    }
+
+    // =========================================================
+    // ★ 模式 A：FLY IN（15 顆精密組裝 + 結尾音效 + 膨脹變身金屬 Logo）
+    // =========================================================
+    function triggerFullFlyIn() {
+      if (victoryLockTimer) clearTimeout(victoryLockTimer);
+      isVictoryLocked = false;
+      const btnPlay = document.getElementById('btn-play');
+      if (btnPlay) {
+        btnPlay.classList.remove('victory-locked');
+        btnPlay.textContent = 'HIT PLAY';
+      }
+
+      resetCameraAndPosition();
+      clearAllToDeepSpace();
+      hideSvgOverlay();
+
+      isAssemblyActive = true;
+      lastActionTime = performance.now();
+      smoothRotateCubeTo(HOME_ROTATION, 400);
+
+      playRocketSwoosh();
+
+      const totalFlyDuration = 3400;
+
+      partOrder.forEach((name, idx) => {
+        const item = partRegistry.get(name);
+        if (!item) return;
+
+        item.isAssembled = true;
+        item.node.visible = true;
+        item.meshes.forEach(m => m.visible = true);
+
+        const node = item.node;
+        const targetPos = item.targetPos.clone();
+        const startPos = item.deepSpacePos.clone();
+
+        const staggerDelay = idx * 24;
+        const partDuration = totalFlyDuration - staggerDelay;
+        const startTime = performance.now() + staggerDelay;
+
+        const spinStart = new THREE.Euler(
+          (Math.random() - 0.5) * Math.PI * 2.5,
+          (Math.random() - 0.5) * Math.PI * 2.5,
+          (Math.random() - 0.5) * Math.PI * 2.5
+        );
+
+        activeTweens.push({
+          update(now) {
+            if (now < startTime) return true;
+
+            const elapsed = now - startTime;
+            const t = Math.min(elapsed / partDuration, 1);
+            const ease = 1 - Math.pow(1 - t, 5.2);
+
+            node.position.lerpVectors(startPos, targetPos, ease);
+            node.scale.setScalar(THREE.MathUtils.lerp(0.82, 1.0, ease));
+            node.rotation.set(
+              THREE.MathUtils.lerp(spinStart.x, 0, ease),
+              THREE.MathUtils.lerp(spinStart.y, 0, ease),
+              THREE.MathUtils.lerp(spinStart.z, 0, ease)
+            );
+
+            if (t >= 1) {
+              node.position.copy(targetPos);
+              node.scale.setScalar(1.0);
+              node.rotation.set(0, 0, 0);
+              assembledCount++;
+              checkAllFlyInFinished();
+              return false;
+            }
+            return true;
+          }
+        });
+      });
+    }
+
+    function checkAllFlyInFinished() {
+      if (assembledCount >= TOTAL_PARTS) {
+        // 組完瞬間觸發膨脹變身金屬 Logo + 精密機械卡榫結尾音（不播 cheering）
+        triggerVictoryCelebration(false);
+      }
+    }
+
+    // =========================================================
+    // ★ 模式 B：HIT PLAY（E 正面 -> L 轉 90° 正面進場 -> 5秒通關高潮）
+    // =========================================================
+    function playHitSinglePart(name) {
+      const item = partRegistry.get(name);
+      if (!item || item.isAssembled) return;
+
+      hideSvgOverlay();
+      isAssemblyActive = true;
+      lastActionTime = performance.now();
+
+      item.isAssembled = true;
+      item.node.visible = true;
+      item.meshes.forEach(m => m.visible = true);
+
+      playMetalHit();
+
+      const targetRot = faceRotationMap[name] || HOME_ROTATION;
+      smoothRotateCubeTo(targetRot, 480);
+
+      const node = item.node;
+      const targetPos = item.targetPos.clone();
+
+      const targetEuler = new THREE.Euler(targetRot.x, targetRot.y, 0);
+      const targetQuat = new THREE.Quaternion().setFromEuler(targetEuler);
+      const invQuat = targetQuat.clone().invert();
+
+      const outwardDir = targetPos.clone();
+      if (outwardDir.lengthSq() < 0.001) {
+        outwardDir.set(0, 0.2, 1);
+      }
+      outwardDir.normalize();
+
+      const cameraFrontLocal = new THREE.Vector3(0, 0.25, 1).applyQuaternion(invQuat).normalize();
+      const nonPenetratingDir = outwardDir.multiplyScalar(0.65).addScaledVector(cameraFrontLocal, 0.35).normalize();
+      const startPos = targetPos.clone().addScaledVector(nonPenetratingDir, 38);
+      const arcOffset = nonPenetratingDir.clone().multiplyScalar(3.2);
+
+      const startRot = new THREE.Euler(
+        (Math.random() > 0.5 ? 1 : -1) * Math.PI * 0.5,
+        (Math.random() > 0.5 ? 1 : -1) * Math.PI,
+        0
+      );
+
+      node.position.copy(startPos);
+      const startTime = performance.now();
+      const duration = 950;
+
+      activeTweens.push({
+        update(now) {
+          const elapsed = now - startTime;
+          const t = Math.min(elapsed / duration, 1);
+          const ease = t === 1 ? 1 : 1 - Math.pow(2, -9 * t);
+
+          node.position.lerpVectors(startPos, targetPos, ease);
+          const arcFactor = Math.sin(Math.PI * t) * (1 - ease);
+          node.position.addScaledVector(arcOffset, arcFactor);
+
+          node.scale.setScalar(THREE.MathUtils.lerp(0.8, 1.0, ease));
+          node.rotation.set(
+            THREE.MathUtils.lerp(startRot.x, 0, ease),
+            THREE.MathUtils.lerp(startRot.y, 0, ease),
+            THREE.MathUtils.lerp(startRot.z, 0, ease)
+          );
+
+          if (t >= 1) {
+            node.position.copy(targetPos);
+            node.scale.setScalar(1.0);
+            node.rotation.set(0, 0, 0);
+            assembledCount++;
+
+            if (assembledCount === TOTAL_PARTS) {
+              triggerVictoryCelebration(true);
+            } else {
+              setTimeout(() => {
+                if (assembledCount < TOTAL_PARTS) {
+                  isAssemblyActive = false;
+                }
+              }, 1200);
+            }
+            return false;
+          }
+          return true;
+        }
+      });
+    }
+
+    const btnFlyIn = document.getElementById('btn-flyin');
+    const btnPlay = document.getElementById('btn-play');
+    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
+
+    btnFlyIn.onclick = () => {
+      triggerFullFlyIn();
+    };
+
+    let playHitIdx = 0;
+    btnPlay.onclick = () => {
+      if (isVictoryLocked) return;
+
+      resetCameraAndPosition();
+
+      if (assembledCount >= TOTAL_PARTS) {
+        clearAllToDeepSpace();
+        playHitIdx = 0;
+      }
+
+      while (playHitIdx < partOrder.length) {
+        const nextPart = partOrder[playHitIdx++];
+        const item = partRegistry.get(nextPart);
+        if (item && !item.isAssembled) {
+          playHitSinglePart(nextPart);
+          break;
+        }
+      }
+    };
+
+    function clearAllToDeepSpace() {
+      playHitIdx = 0;
+      assembledCount = 0;
+      isAssemblyActive = false;
+      isRoaming = false;
+      roamTime = 0;
+      roamSpeedFactor = 0;
+      cubeRoot.scale.setScalar(1.0);
+
+      // 重置打散進入遊戲進行中時，恢復為淺色系零件材質
+      applyForgedMetalState(false);
+      
+      const overlay = document.getElementById('svg-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
+      }
+
+      partRegistry.forEach((item) => {
+        item.isAssembled = false;
+        item.node.visible = false;
+        item.node.position.copy(item.deepSpacePos);
+        item.node.scale.setScalar(0.85);
+        item.node.rotation.set(0, 0, 0);
+        item.meshes.forEach(m => {
+          m.visible = true;
+          m.material.emissive.setHex(0x000000);
+          m.material.emissiveIntensity = 0;
+        });
+      });
+      cubeRoot.position.set(0, 0, 0);
+    }
+
+    // =========================================================
+    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動，漂浮時維持金屬 Logo）
+    // =========================================================
+    let lastActionTime = performance.now();
+    let isRoaming = false;
+    let roamTime = 0;
+    let roamSpeedFactor = 0;
+
+    window.addEventListener('pointerdown', () => { 
+      lastActionTime = performance.now(); 
+
+      if (isRoaming) {
+        isRoaming = false;
+        roamSpeedFactor = 0;
+        const startPos = cubeRoot.position.clone();
+        const endPos = new THREE.Vector3(0, 0, 0);
+        const startTime = performance.now();
+        activeTweens.push({
+          update(now) {
+            const t = Math.min((now - startTime) / 400, 1);
+            cubeRoot.position.lerpVectors(startPos, endPos, 1 - Math.pow(1 - t, 3));
+            return t < 1;
+          }
+        });
+      }
+    });
+
     function animate() {
       requestAnimationFrame(animate);
+      const now = performance.now();
+
+      for (let i = activeTweens.length - 1; i >= 0; i--) {
+        try {
+          if (!activeTweens[i].update(now)) {
+            activeTweens.splice(i, 1);
+          }
+        } catch(e) {
+          activeTweens.splice(i, 1);
+        }
+      }
+
       controls.update();
+
+      if (!isAssemblyActive && now - lastActionTime > 3800) {
+        if (!isRoaming) {
+          isRoaming = true;
+          roamTime = 0;
+          roamSpeedFactor = 0;
+        }
+        roamSpeedFactor = Math.min(roamSpeedFactor + 0.011, 1);
+        const smoothEase = roamSpeedFactor * roamSpeedFactor * (3 - 2 * roamSpeedFactor);
+
+        roamTime += 0.010 * smoothEase;
+        const ampScale = (isMobile ? 1.0 : 0.45) * smoothEase;
+
+        cubeRoot.position.x = Math.sin(roamTime * 0.65) * 3.2 * ampScale;
+        cubeRoot.position.y = Math.sin(roamTime * 0.45) * 2.0 * ampScale;
+        cubeRoot.position.z = Math.sin(roamTime * 0.35) * 1.6 * ampScale;
+        cubeRoot.rotation.y += 0.0035 * smoothEase;
+      }
+
       renderer.render(scene, camera);
     }
     animate();
 
-    // 視窗縮放適應
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
