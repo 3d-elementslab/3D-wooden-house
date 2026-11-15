@@ -88,14 +88,11 @@
       opacity: 0.6;
     }
 
-    /* 青黃金色號 #c8c074 */
-    .brand-link:hover .brand-title,
-    .brand-link.celebrate-gold .brand-title {
+    .brand-link:hover .brand-title {
       color: #c8c074;
     }
 
-    .brand-link:hover .brand-title::after,
-    .brand-link.celebrate-gold .brand-title::after {
+    .brand-link:hover .brand-title::after {
       transform: scaleX(1);
       background-color: #c8c074;
       opacity: 1;
@@ -169,7 +166,7 @@
       pointer-events: none;
     }
 
-    /* SVG 預覽開場層 */
+    /* SVG 預覽開場層：桌機維持原尺寸，手機自動放大 2.2~2.5 倍 */
     #svg-overlay {
       position: absolute;
       top: 0;
@@ -189,6 +186,14 @@
       height: auto;
       transform: translateX(-32px);
       filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.15));
+    }
+
+    @media (max-width: 768px) {
+      #svg-overlay img {
+        width: 82vw;
+        max-width: 440px;
+        transform: translateX(-14px);
+      }
     }
 
     footer {
@@ -228,15 +233,11 @@
       opacity: 0.6;
     }
 
-    .brand-link:hover .brand-title,
-    .brand-link.celebrate-gold .brand-title,
-    footer .studio-link:hover,
-    footer .studio-link.celebrate-gold {
+    footer .studio-link:hover {
       color: #c8c074;
     }
 
-    footer .studio-link:hover::after,
-    footer .studio-link.celebrate-gold::after {
+    footer .studio-link:hover::after {
       transform: scaleX(1);
       background-color: #c8c074;
       opacity: 1;
@@ -267,7 +268,7 @@
 
   <div id="ui-control-bar">
     <button class="action-btn" id="btn-flyin">FLY IN</button>
-    <button class="action-btn" id="btn-play">PLAY & HIT</button>
+    <button class="action-btn" id="btn-play">HIT PLAY</button>
   </div>
 
   <footer>
@@ -280,13 +281,26 @@
   <audio id="cheering-audio" src="./cheering.wav" preload="auto"></audio>
 
   <script>
-    // --- 0. 音效控制 ---
+    // --- 0. 音效控制與 Web Audio API 精密結尾音 ---
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
     function playRocketSwoosh() {
       try {
+        getAudioContext();
         const audio = document.getElementById('swoosh-audio');
         if (audio) {
           audio.currentTime = 0;
-          audio.volume = 0.7;
+          audio.volume = 0.65;
           audio.play().catch(e => {});
         }
       } catch (e) {}
@@ -314,11 +328,72 @@
       } catch (e) {}
     }
 
-    function triggerGoldTextHighlight(active) {
-      const brandLink = document.getElementById('brand-link');
-      const studioLink = document.getElementById('studio-link');
-      if (brandLink) brandLink.classList.toggle('celebrate-gold', active);
-      if (studioLink) studioLink.classList.toggle('celebrate-gold', active);
+    // ★ Fly-in 結尾專屬音效：精密機械磁吸卡榫 + 低頻共鳴 + 暖金微光泛音
+    function playFlyInLockChord() {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        // 1) 精密機械卡榫 Click（短促帶通白噪音）
+        const bufferSize = Math.floor(ctx.sampleRate * 0.045);
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.22));
+        }
+        const noiseSource = ctx.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
+
+        const bandpass = ctx.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.setValueAtTime(2400, now);
+        bandpass.Q.setValueAtTime(3.2, now);
+
+        const clickGain = ctx.createGain();
+        clickGain.gain.setValueAtTime(0.35, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+        noiseSource.connect(bandpass);
+        bandpass.connect(clickGain);
+        clickGain.connect(ctx.destination);
+        noiseSource.start(now);
+
+        // 2) 沉穩低頻磁吸共鳴（Sub-bass 72Hz -> 54Hz）
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(76, now);
+        subOsc.frequency.exponentialRampToValueAtTime(52, now + 0.35);
+
+        subGain.gain.setValueAtTime(0.001, now);
+        subGain.gain.linearRampToValueAtTime(0.32, now + 0.015);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+
+        subOsc.connect(subGain);
+        subGain.connect(ctx.destination);
+        subOsc.start(now);
+        subOsc.stop(now + 0.45);
+
+        // 3) 膨脹變身金屬的暖金微光泛音和弦（D5 - A5 - E6）
+        const chordFreqs = [587.33, 880.0, 1318.51];
+        chordFreqs.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          const startT = now + 0.04 + idx * 0.035;
+          osc.frequency.setValueAtTime(freq, startT);
+
+          gain.gain.setValueAtTime(0.0001, startT);
+          gain.gain.linearRampToValueAtTime(0.055 - idx * 0.01, startT + 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startT + 1.15);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(startT);
+          osc.stop(startT + 1.2);
+        });
+      } catch (e) {}
     }
 
     // --- 1. Three.js 場景建構 ---
@@ -345,30 +420,54 @@
     controls.maxDistance = 45.0; 
     controls.target.set(0, 0, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.9));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.85));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.7);
     keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0x64748b, 1.6);
+    const fillLight = new THREE.DirectionalLight(0x94a3b8, 1.7);
     fillLight.position.set(-10, 4, -8);
     scene.add(fillLight);
-    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.1);
+    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.2);
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 2. 高級金屬材質（支援通關暖金自發光動畫） ---
-    const champagneGoldMat = new THREE.MeshStandardMaterial({
+    // --- 2. 雙階段材質系統：組裝中淺色系 vs 完成後鍛造品牌金屬質感 ---
+    // 階段一：組裝進行中的淺色系零件材質
+    const LIGHT_LETTER_STYLE = {
       color: 0xebd2a0,
-      metalness: 0.85,
-      roughness: 0.22,
+      metalness: 0.45,
+      roughness: 0.35
+    };
+    const LIGHT_CUBE_STYLE = {
+      color: 0x8ea8c3,
+      metalness: 0.35,
+      roughness: 0.38
+    };
+
+    // 階段二：完成膨脹變身後的品牌金屬 Logo 材質（暖橄欖金 #B9AD72 + 冷銀藍金屬 #C4D4E0 / #2C3E55）
+    const FORGED_GOLD_STYLE = {
+      color: 0xb9ad72,
+      metalness: 0.92,
+      roughness: 0.16
+    };
+    const FORGED_SILVER_BLUE_STYLE = {
+      color: 0x6b87a3,
+      metalness: 0.88,
+      roughness: 0.18
+    };
+
+    const champagneGoldMat = new THREE.MeshStandardMaterial({
+      color: LIGHT_LETTER_STYLE.color,
+      metalness: LIGHT_LETTER_STYLE.metalness,
+      roughness: LIGHT_LETTER_STYLE.roughness,
       emissive: 0x000000,
       emissiveIntensity: 0
     });
 
     const anodizedTealMat = new THREE.MeshStandardMaterial({
-      color: 0x4a729c,
-      metalness: 0.65,
-      roughness: 0.25,
+      color: LIGHT_CUBE_STYLE.color,
+      metalness: LIGHT_CUBE_STYLE.metalness,
+      roughness: LIGHT_CUBE_STYLE.roughness,
       emissive: 0x000000,
       emissiveIntensity: 0
     });
@@ -379,8 +478,27 @@
     const TOTAL_PARTS = 15;
     const HOME_ROTATION = { x: 0.25, y: -0.65 };
     let isAssemblyActive = false;
-    let isVictoryLocked = false; // ★ 通關 5 秒防誤觸鎖定旗標
+    let isVictoryLocked = false;
     let victoryLockTimer = null;
+
+    // 切換材質狀態：true = 鍛造品牌金屬（漂浮待機維持此狀態）；false = 組裝中淺色系
+    function applyForgedMetalState(isForged) {
+      partRegistry.forEach((item) => {
+        const style = item.isLogoLetter
+          ? (isForged ? FORGED_GOLD_STYLE : LIGHT_LETTER_STYLE)
+          : (isForged ? FORGED_SILVER_BLUE_STYLE : LIGHT_CUBE_STYLE);
+
+        item.meshes.forEach((m) => {
+          m.material.color.setHex(style.color);
+          m.material.metalness = style.metalness;
+          m.material.roughness = style.roughness;
+          if (!isForged) {
+            m.material.emissive.setHex(0x000000);
+            m.material.emissiveIntensity = 0;
+          }
+        });
+      });
+    }
 
     // Fly-In 用的深空軌跡
     const trajectoryMap = {
@@ -401,10 +519,10 @@
       'cube13': new THREE.Vector3(230, 230, 230)
     };
 
-    // 刺激大角度視角跳轉
+    // Hit Play 視角跳轉：E 在正面，L 進場時自動平滑旋轉 90°（π/2）正對 L 面
     const faceRotationMap = {
       'E': { x: 0.25, y: -0.65 },
-      'L': { x: 0.35, y: -0.45 },
+      'L': { x: 0.25, y: -2.22 },
       'cube01': { x: 0.45, y: -1.35 },
       'cube02': { x: -0.55, y: 2.55 },
       'cube03': { x: 0.65, y: -2.60 },
@@ -443,7 +561,6 @@
         assemblyBox.getSize(size);
         const maxDim = Math.max(size.x, size.y, size.z);
 
-        // * 0.7 比例倍率
         const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.7;
         root.scale.setScalar(targetScale);
         root.updateMatrixWorld(true);
@@ -540,64 +657,71 @@
     }
 
     // =========================================================
-    // ★ 通關高潮演出：整體暖金發光 + 彈跳呼吸 + 鎖定 5 秒聽完 cheering.wav
+    // ★ 通關高潮演出（共用：withCheering = true 為 Hit Play，false 為 Fly In）
+    //   膨脹變身為品牌金屬 Logo + 發光 + 漂浮時維持金屬 Logo
     // =========================================================
-    function triggerVictoryCelebration() {
-      isVictoryLocked = true;
+    function triggerVictoryCelebration(withCheering = true) {
       isAssemblyActive = true;
       lastActionTime = performance.now();
 
-      // 1) 按鈕鎖定 5 秒防止慣性誤觸重置，並顯示 COMPLETED!
-      const btnPlay = document.getElementById('btn-play');
-      if (btnPlay) {
-        btnPlay.classList.add('victory-locked');
-        btnPlay.textContent = 'COMPLETED!';
-      }
+      // 1) 切換為品牌鍛造金屬 Logo（漂浮待機時將持續維持此金屬狀態）
+      applyForgedMetalState(true);
 
-      // 2) 文字亮起青黃金 #c8c074 並播放 cheering.wav
-      triggerGoldTextHighlight(true);
-      playCheeringAudio();
+      // 2) 若為 Hit Play 通關：按鈕鎖定 5 秒 + 播放 cheering.wav（不再讓左上與 Footer 文字變色）
+      const btnPlay = document.getElementById('btn-play');
+      if (withCheering) {
+        isVictoryLocked = true;
+        if (btnPlay) {
+          btnPlay.classList.add('victory-locked');
+          btnPlay.textContent = 'COMPLETED!';
+        }
+        playCheeringAudio();
+      } else {
+        // Fly In 結尾：播放精密機械磁吸卡榫 + 低頻共鳴 + 暖金微光泛音
+        playFlyInLockChord();
+      }
 
       // 3) 整個立方體平順轉回正面展示角度
       smoothRotateCubeTo(HOME_ROTATION, 520);
 
-      // 4) 整體彈跳脈衝 + 暖金色金屬微光呼吸動畫（持續 5 秒）
+      // 4) 整體膨脹脈衝（1.0 -> 1.12 -> 1.0）+ 暖金與銀藍金屬發光動畫
       const startTime = performance.now();
-      const celebrationDuration = 5000;
+      const celebrationDuration = withCheering ? 5000 : 2400;
 
       activeTweens.push({
         update(now) {
           const elapsed = now - startTime;
           const t = Math.min(elapsed / celebrationDuration, 1);
 
-          // 前 0.6 秒有一個立體彈跳放大回饋（1.0 -> 1.09 -> 1.0）
-          if (t < 0.14) {
-            const popT = t / 0.14;
-            const scaleBoost = 1 + Math.sin(popT * Math.PI) * 0.09;
+          // 膨脹變身彈跳回饋（1.0 -> 1.12 -> 1.0）
+          const popRatio = withCheering ? 0.16 : 0.32;
+          if (t < popRatio) {
+            const popT = t / popRatio;
+            const scaleBoost = 1 + Math.sin(popT * Math.PI) * 0.12;
             cubeRoot.scale.setScalar(scaleBoost);
           } else {
             cubeRoot.scale.setScalar(1.0);
           }
 
-          // 暖金金屬光暈呼吸曲線（前段快速點亮，接著溫和呼吸脈動，5秒結束時優雅淡出）
-          const envelope = t < 0.1 ? (t / 0.1) : (t > 0.8 ? (1 - t) / 0.2 : 1.0);
-          const pulse = 0.65 + 0.35 * Math.sin(elapsed * 0.006);
+          // 金屬自發光呼吸曲線
+          const envelope = t < 0.12 ? (t / 0.12) : (t > 0.78 ? (1 - t) / 0.22 : 1.0);
+          const pulse = 0.7 + 0.3 * Math.sin(elapsed * 0.0065);
           const glowPower = envelope * pulse;
 
           partRegistry.forEach((item) => {
             item.meshes.forEach((m) => {
               if (item.isLogoLetter) {
-                m.material.emissive.setHex(0xd4af37); // 香檳暖金光暈
-                m.material.emissiveIntensity = glowPower * 0.55;
+                m.material.emissive.setHex(0xb9ad72); // 暖橄欖金品牌光暈
+                m.material.emissiveIntensity = glowPower * 0.65;
               } else {
-                m.material.emissive.setHex(0x64b5f6); // 科技冰藍金邊光暈
-                m.material.emissiveIntensity = glowPower * 0.38;
+                m.material.emissive.setHex(0x88b4dc); // 冷銀藍金屬光暈
+                m.material.emissiveIntensity = glowPower * 0.42;
               }
             });
           });
 
           if (t >= 1) {
-            // 恢復正常金屬光澤
+            // 自發光淡出，但「鍛造金屬材質（color / metalness / roughness）」保留給漂浮待機使用
             partRegistry.forEach((item) => {
               item.meshes.forEach((m) => {
                 m.material.emissive.setHex(0x000000);
@@ -613,34 +737,34 @@
         }
       });
 
-      // 5 秒後解除按鈕鎖定，可再次點擊進行新一輪
-      if (victoryLockTimer) clearTimeout(victoryLockTimer);
-      victoryLockTimer = setTimeout(() => {
-        isVictoryLocked = false;
-        if (btnPlay) {
-          btnPlay.classList.remove('victory-locked');
-          btnPlay.textContent = 'PLAY & HIT';
-        }
-      }, celebrationDuration);
+      // 5 秒後解除 Hit Play 按鈕鎖定
+      if (withCheering) {
+        if (victoryLockTimer) clearTimeout(victoryLockTimer);
+        victoryLockTimer = setTimeout(() => {
+          isVictoryLocked = false;
+          if (btnPlay) {
+            btnPlay.classList.remove('victory-locked');
+            btnPlay.textContent = 'HIT PLAY';
+          }
+        }, celebrationDuration);
+      }
     }
 
     // =========================================================
-    // ★ 模式 A：FLY IN（乾淨 15 顆精密組裝，移除掉落彩蛋與合成結尾音）
+    // ★ 模式 A：FLY IN（15 顆精密組裝 + 結尾音效 + 膨脹變身金屬 Logo）
     // =========================================================
     function triggerFullFlyIn() {
-      // 若正在 5 秒通關慶祝中按 FLY IN，直接解除鎖定切換過去
       if (victoryLockTimer) clearTimeout(victoryLockTimer);
       isVictoryLocked = false;
       const btnPlay = document.getElementById('btn-play');
       if (btnPlay) {
         btnPlay.classList.remove('victory-locked');
-        btnPlay.textContent = 'PLAY & HIT';
+        btnPlay.textContent = 'HIT PLAY';
       }
 
       resetCameraAndPosition();
       clearAllToDeepSpace();
       hideSvgOverlay();
-      triggerGoldTextHighlight(false);
 
       isAssemblyActive = true;
       lastActionTime = performance.now();
@@ -648,7 +772,7 @@
 
       playRocketSwoosh();
 
-      const totalFlyDuration = 3800;
+      const totalFlyDuration = 3400;
 
       partOrder.forEach((name, idx) => {
         const item = partRegistry.get(name);
@@ -662,7 +786,7 @@
         const targetPos = item.targetPos.clone();
         const startPos = item.deepSpacePos.clone();
 
-        const staggerDelay = idx * 28;
+        const staggerDelay = idx * 24;
         const partDuration = totalFlyDuration - staggerDelay;
         const startTime = performance.now() + staggerDelay;
 
@@ -704,16 +828,13 @@
 
     function checkAllFlyInFinished() {
       if (assembledCount >= TOTAL_PARTS) {
-       
-        smoothRotateCubeTo(HOME_ROTATION, 350, () => {
-          isAssemblyActive = false;
-          lastActionTime = performance.now();
-        });
+        // 組完瞬間觸發膨脹變身金屬 Logo + 精密機械卡榫結尾音（不播 cheering）
+        triggerVictoryCelebration(false);
       }
     }
 
     // =========================================================
-    // ★ 模式 B：PLAY & HIT（零穿透外側飛入 + 大角度跳轉 + metal-hit.wav + 5秒通關高潮）
+    // ★ 模式 B：HIT PLAY（E 正面 -> L 轉 90° 正面進場 -> 5秒通關高潮）
     // =========================================================
     function playHitSinglePart(name) {
       const item = partRegistry.get(name);
@@ -783,9 +904,8 @@
             node.rotation.set(0, 0, 0);
             assembledCount++;
 
-            // ★ 敲滿 15 顆！啟動整體發光＋5秒定格保護聽完 cheering.wav
             if (assembledCount === TOTAL_PARTS) {
-              triggerVictoryCelebration();
+              triggerVictoryCelebration(true);
             } else {
               setTimeout(() => {
                 if (assembledCount < TOTAL_PARTS) {
@@ -810,14 +930,12 @@
 
     let playHitIdx = 0;
     btnPlay.onclick = () => {
-      // ★ 若正在 5 秒通關慶祝中，忽略任何慣性連點，確保完整欣賞發光與 cheering.wav
       if (isVictoryLocked) return;
 
       resetCameraAndPosition();
 
       if (assembledCount >= TOTAL_PARTS) {
         clearAllToDeepSpace();
-        triggerGoldTextHighlight(false);
         playHitIdx = 0;
       }
 
@@ -839,6 +957,9 @@
       roamTime = 0;
       roamSpeedFactor = 0;
       cubeRoot.scale.setScalar(1.0);
+
+      // 重置打散進入遊戲進行中時，恢復為淺色系零件材質
+      applyForgedMetalState(false);
       
       const overlay = document.getElementById('svg-overlay');
       if (overlay) {
@@ -862,7 +983,7 @@
     }
 
     // =========================================================
-    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動）
+    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動，漂浮時維持金屬 Logo）
     // =========================================================
     let lastActionTime = performance.now();
     let isRoaming = false;
