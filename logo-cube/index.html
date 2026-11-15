@@ -247,6 +247,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
 </head>
 <body>
   <div id="metal-frame"></div>
@@ -335,7 +336,6 @@
         if (!ctx) return;
         const now = ctx.currentTime;
 
-        // 1) 精密機械卡榫 Click（短促帶通白噪音）
         const bufferSize = Math.floor(ctx.sampleRate * 0.045);
         const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
         const data = noiseBuffer.getChannelData(0);
@@ -359,7 +359,6 @@
         clickGain.connect(ctx.destination);
         noiseSource.start(now);
 
-        // 2) 沉穩低頻磁吸共鳴（Sub-bass 72Hz -> 54Hz）
         const subOsc = ctx.createOscillator();
         const subGain = ctx.createGain();
         subOsc.type = 'sine';
@@ -375,7 +374,6 @@
         subOsc.start(now);
         subOsc.stop(now + 0.45);
 
-        // 3) 膨脹變身金屬的暖金微光泛音和弦（D5 - A5 - E6）
         const chordFreqs = [587.33, 880.0, 1318.51];
         chordFreqs.forEach((freq, idx) => {
           const osc = ctx.createOscillator();
@@ -396,7 +394,7 @@
       } catch (e) {}
     }
 
-    // --- 1. Three.js 場景建構 ---
+    // --- 1. Three.js 場景建構 + 虛擬金屬攝影棚環境貼圖（防止金屬反射變黑） ---
     const canvas = document.getElementById('webgl-canvas');
     const scene = new THREE.Scene();
     const cubeRoot = new THREE.Group();
@@ -411,7 +409,14 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.15;
+
+    // ★ 關鍵修正：加入 RoomEnvironment 環境貼圖，高金屬度材質才會有明亮的香檳金與銀藍反射，不會變黑褐色
+    try {
+      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmremGenerator.fromScene(new THREE.RoomEnvironment(), 0.04).texture;
+      pmremGenerator.dispose();
+    } catch (e) {}
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -420,46 +425,47 @@
     controls.maxDistance = 45.0; 
     controls.target.set(0, 0, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.85));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.7);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.15));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.65);
     keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0x94a3b8, 1.7);
+    const fillLight = new THREE.DirectionalLight(0xcbd5e1, 0.95);
     fillLight.position.set(-10, 4, -8);
     scene.add(fillLight);
-    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.2);
+    const bottomBounce = new THREE.DirectionalLight(0xe2e8f0, 0.75);
     bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 2. 雙階段材質系統：組裝中淺色系 vs 完成後鍛造品牌金屬質感 ---
-    // 階段一：組裝進行中的淺色系零件材質
+    // --- 2. 統一雙階段材質系統（鎖定「暖香檳金 EL + 冷灰藍方塊」主色調，消除三色混亂） ---
+    // 階段一：組裝進行中的柔和淺色霧面質感
     const LIGHT_LETTER_STYLE = {
-      color: 0xebd2a0,
-      metalness: 0.45,
-      roughness: 0.35
+      color: 0xe8d5b0,
+      metalness: 0.25,
+      roughness: 0.42
     };
     const LIGHT_CUBE_STYLE = {
-      color: 0x8ea8c3,
-      metalness: 0.35,
-      roughness: 0.38
+      color: 0x869db5,
+      metalness: 0.22,
+      roughness: 0.44
     };
 
-    // 階段二：完成膨脹變身後的品牌金屬 Logo 材質（暖橄欖金 #B9AD72 + 冷銀藍金屬 #C4D4E0 / #2C3E55）
+    // 階段二：變身後的鍛造金屬質感（保留圖 2 的經典香檳金 + 銀灰藍調性，提升金屬度與鏡面高光）
     const FORGED_GOLD_STYLE = {
-      color: 0xb9ad72,
-      metalness: 0.92,
-      roughness: 0.16
+      color: 0xdec48d,
+      metalness: 0.82,
+      roughness: 0.18
     };
     const FORGED_SILVER_BLUE_STYLE = {
-      color: 0x6b87a3,
-      metalness: 0.88,
-      roughness: 0.18
+      color: 0x6c87a3,
+      metalness: 0.78,
+      roughness: 0.20
     };
 
     const champagneGoldMat = new THREE.MeshStandardMaterial({
       color: LIGHT_LETTER_STYLE.color,
       metalness: LIGHT_LETTER_STYLE.metalness,
       roughness: LIGHT_LETTER_STYLE.roughness,
+      envMapIntensity: 1.15,
       emissive: 0x000000,
       emissiveIntensity: 0
     });
@@ -468,6 +474,7 @@
       color: LIGHT_CUBE_STYLE.color,
       metalness: LIGHT_CUBE_STYLE.metalness,
       roughness: LIGHT_CUBE_STYLE.roughness,
+      envMapIntensity: 1.15,
       emissive: 0x000000,
       emissiveIntensity: 0
     });
@@ -481,7 +488,7 @@
     let isVictoryLocked = false;
     let victoryLockTimer = null;
 
-    // 切換材質狀態：true = 鍛造品牌金屬（漂浮待機維持此狀態）；false = 組裝中淺色系
+    // 切換材質狀態：true = 鍛造金屬（漂浮待機維持此狀態）；false = 組裝中柔和霧面
     function applyForgedMetalState(isForged) {
       partRegistry.forEach((item) => {
         const style = item.isLogoLetter
@@ -657,17 +664,16 @@
     }
 
     // =========================================================
-    // ★ 通關高潮演出（共用：withCheering = true 為 Hit Play，false 為 Fly In）
-    //   膨脹變身為品牌金屬 Logo + 發光 + 漂浮時維持金屬 Logo
+    // ★ 通關高潮演出：浩克級爆框膨脹定格 + 鍛造金屬變身 + 微光呼吸（不洗白）
     // =========================================================
     function triggerVictoryCelebration(withCheering = true) {
       isAssemblyActive = true;
       lastActionTime = performance.now();
 
-      // 1) 切換為品牌鍛造金屬 Logo（漂浮待機時將持續維持此金屬狀態）
+      // 1) 切換為拋光鍛造金屬 Logo（漂浮待機時將持續維持此金屬狀態）
       applyForgedMetalState(true);
 
-      // 2) 若為 Hit Play 通關：按鈕鎖定 5 秒 + 播放 cheering.wav（不再讓左上與 Footer 文字變色）
+      // 2) 若為 Hit Play 通關：按鈕鎖定 5 秒 + 播放 cheering.wav
       const btnPlay = document.getElementById('btn-play');
       if (withCheering) {
         isVictoryLocked = true;
@@ -677,14 +683,13 @@
         }
         playCheeringAudio();
       } else {
-        // Fly In 結尾：播放精密機械磁吸卡榫 + 低頻共鳴 + 暖金微光泛音
         playFlyInLockChord();
       }
 
       // 3) 整個立方體平順轉回正面展示角度
       smoothRotateCubeTo(HOME_ROTATION, 520);
 
-      // 4) 整體膨脹脈衝（1.0 -> 1.12 -> 1.0）+ 暖金與銀藍金屬發光動畫
+      // 4) 浩克級爆框膨脹 + 頂點定格 + 克制型微光呼吸（不洗白）
       const startTime = performance.now();
       const celebrationDuration = withCheering ? 5000 : 2400;
 
@@ -693,35 +698,35 @@
           const elapsed = now - startTime;
           const t = Math.min(elapsed / celebrationDuration, 1);
 
-          // 膨脹變身彈跳回饋（1.0 -> 1.12 -> 1.0）
-          const popRatio = withCheering ? 0.16 : 0.32;
+          // 爆框膨脹 + 頂點飽滿定格（手機 2.35x 破框，桌機 1.75x）
+          const popRatio = withCheering ? 0.28 : 0.48;
           if (t < popRatio) {
             const popT = t / popRatio;
-            const scaleBoost = 1 + Math.sin(popT * Math.PI) * 0.12;
+            const peakBoost = isMobile ? 1.35 : 0.75;
+            const scaleBoost = 1 + Math.pow(Math.sin(popT * Math.PI), 0.45) * peakBoost;
             cubeRoot.scale.setScalar(scaleBoost);
           } else {
             cubeRoot.scale.setScalar(1.0);
           }
 
-          // 金屬自發光呼吸曲線
+          // 克制型自發光呼吸（最高 0.28，保留金屬立體明暗與本色，不會洗成白灰色）
           const envelope = t < 0.12 ? (t / 0.12) : (t > 0.78 ? (1 - t) / 0.22 : 1.0);
-          const pulse = 0.7 + 0.3 * Math.sin(elapsed * 0.0065);
+          const pulse = 0.65 + 0.35 * Math.sin(elapsed * 0.0065);
           const glowPower = envelope * pulse;
 
           partRegistry.forEach((item) => {
             item.meshes.forEach((m) => {
               if (item.isLogoLetter) {
-                m.material.emissive.setHex(0xb9ad72); // 暖橄欖金品牌光暈
-                m.material.emissiveIntensity = glowPower * 0.65;
+                m.material.emissive.setHex(0xd4af37);
+                m.material.emissiveIntensity = glowPower * 0.28;
               } else {
-                m.material.emissive.setHex(0x88b4dc); // 冷銀藍金屬光暈
-                m.material.emissiveIntensity = glowPower * 0.42;
+                m.material.emissive.setHex(0x6487a8);
+                m.material.emissiveIntensity = glowPower * 0.20;
               }
             });
           });
 
           if (t >= 1) {
-            // 自發光淡出，但「鍛造金屬材質（color / metalness / roughness）」保留給漂浮待機使用
             partRegistry.forEach((item) => {
               item.meshes.forEach((m) => {
                 m.material.emissive.setHex(0x000000);
@@ -737,7 +742,6 @@
         }
       });
 
-      // 5 秒後解除 Hit Play 按鈕鎖定
       if (withCheering) {
         if (victoryLockTimer) clearTimeout(victoryLockTimer);
         victoryLockTimer = setTimeout(() => {
@@ -828,7 +832,6 @@
 
     function checkAllFlyInFinished() {
       if (assembledCount >= TOTAL_PARTS) {
-        // 組完瞬間觸發膨脹變身金屬 Logo + 精密機械卡榫結尾音（不播 cheering）
         triggerVictoryCelebration(false);
       }
     }
@@ -850,208 +853,4 @@
 
       playMetalHit();
 
-      const targetRot = faceRotationMap[name] || HOME_ROTATION;
-      smoothRotateCubeTo(targetRot, 480);
-
-      const node = item.node;
-      const targetPos = item.targetPos.clone();
-
-      const targetEuler = new THREE.Euler(targetRot.x, targetRot.y, 0);
-      const targetQuat = new THREE.Quaternion().setFromEuler(targetEuler);
-      const invQuat = targetQuat.clone().invert();
-
-      const outwardDir = targetPos.clone();
-      if (outwardDir.lengthSq() < 0.001) {
-        outwardDir.set(0, 0.2, 1);
-      }
-      outwardDir.normalize();
-
-      const cameraFrontLocal = new THREE.Vector3(0, 0.25, 1).applyQuaternion(invQuat).normalize();
-      const nonPenetratingDir = outwardDir.multiplyScalar(0.65).addScaledVector(cameraFrontLocal, 0.35).normalize();
-      const startPos = targetPos.clone().addScaledVector(nonPenetratingDir, 38);
-      const arcOffset = nonPenetratingDir.clone().multiplyScalar(3.2);
-
-      const startRot = new THREE.Euler(
-        (Math.random() > 0.5 ? 1 : -1) * Math.PI * 0.5,
-        (Math.random() > 0.5 ? 1 : -1) * Math.PI,
-        0
-      );
-
-      node.position.copy(startPos);
-      const startTime = performance.now();
-      const duration = 950;
-
-      activeTweens.push({
-        update(now) {
-          const elapsed = now - startTime;
-          const t = Math.min(elapsed / duration, 1);
-          const ease = t === 1 ? 1 : 1 - Math.pow(2, -9 * t);
-
-          node.position.lerpVectors(startPos, targetPos, ease);
-          const arcFactor = Math.sin(Math.PI * t) * (1 - ease);
-          node.position.addScaledVector(arcOffset, arcFactor);
-
-          node.scale.setScalar(THREE.MathUtils.lerp(0.8, 1.0, ease));
-          node.rotation.set(
-            THREE.MathUtils.lerp(startRot.x, 0, ease),
-            THREE.MathUtils.lerp(startRot.y, 0, ease),
-            THREE.MathUtils.lerp(startRot.z, 0, ease)
-          );
-
-          if (t >= 1) {
-            node.position.copy(targetPos);
-            node.scale.setScalar(1.0);
-            node.rotation.set(0, 0, 0);
-            assembledCount++;
-
-            if (assembledCount === TOTAL_PARTS) {
-              triggerVictoryCelebration(true);
-            } else {
-              setTimeout(() => {
-                if (assembledCount < TOTAL_PARTS) {
-                  isAssemblyActive = false;
-                }
-              }, 1200);
-            }
-            return false;
-          }
-          return true;
-        }
-      });
-    }
-
-    const btnFlyIn = document.getElementById('btn-flyin');
-    const btnPlay = document.getElementById('btn-play');
-    const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
-
-    btnFlyIn.onclick = () => {
-      triggerFullFlyIn();
-    };
-
-    let playHitIdx = 0;
-    btnPlay.onclick = () => {
-      if (isVictoryLocked) return;
-
-      resetCameraAndPosition();
-
-      if (assembledCount >= TOTAL_PARTS) {
-        clearAllToDeepSpace();
-        playHitIdx = 0;
-      }
-
-      while (playHitIdx < partOrder.length) {
-        const nextPart = partOrder[playHitIdx++];
-        const item = partRegistry.get(nextPart);
-        if (item && !item.isAssembled) {
-          playHitSinglePart(nextPart);
-          break;
-        }
-      }
-    };
-
-    function clearAllToDeepSpace() {
-      playHitIdx = 0;
-      assembledCount = 0;
-      isAssemblyActive = false;
-      isRoaming = false;
-      roamTime = 0;
-      roamSpeedFactor = 0;
-      cubeRoot.scale.setScalar(1.0);
-
-      // 重置打散進入遊戲進行中時，恢復為淺色系零件材質
-      applyForgedMetalState(false);
-      
-      const overlay = document.getElementById('svg-overlay');
-      if (overlay) {
-        overlay.style.display = 'flex';
-        overlay.style.opacity = '1';
-      }
-
-      partRegistry.forEach((item) => {
-        item.isAssembled = false;
-        item.node.visible = false;
-        item.node.position.copy(item.deepSpacePos);
-        item.node.scale.setScalar(0.85);
-        item.node.rotation.set(0, 0, 0);
-        item.meshes.forEach(m => {
-          m.visible = true;
-          m.material.emissive.setHex(0x000000);
-          m.material.emissiveIntensity = 0;
-        });
-      });
-      cubeRoot.position.set(0, 0, 0);
-    }
-
-    // =========================================================
-    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動，漂浮時維持金屬 Logo）
-    // =========================================================
-    let lastActionTime = performance.now();
-    let isRoaming = false;
-    let roamTime = 0;
-    let roamSpeedFactor = 0;
-
-    window.addEventListener('pointerdown', () => { 
-      lastActionTime = performance.now(); 
-
-      if (isRoaming) {
-        isRoaming = false;
-        roamSpeedFactor = 0;
-        const startPos = cubeRoot.position.clone();
-        const endPos = new THREE.Vector3(0, 0, 0);
-        const startTime = performance.now();
-        activeTweens.push({
-          update(now) {
-            const t = Math.min((now - startTime) / 400, 1);
-            cubeRoot.position.lerpVectors(startPos, endPos, 1 - Math.pow(1 - t, 3));
-            return t < 1;
-          }
-        });
-      }
-    });
-
-    function animate() {
-      requestAnimationFrame(animate);
-      const now = performance.now();
-
-      for (let i = activeTweens.length - 1; i >= 0; i--) {
-        try {
-          if (!activeTweens[i].update(now)) {
-            activeTweens.splice(i, 1);
-          }
-        } catch(e) {
-          activeTweens.splice(i, 1);
-        }
-      }
-
-      controls.update();
-
-      if (!isAssemblyActive && now - lastActionTime > 3800) {
-        if (!isRoaming) {
-          isRoaming = true;
-          roamTime = 0;
-          roamSpeedFactor = 0;
-        }
-        roamSpeedFactor = Math.min(roamSpeedFactor + 0.011, 1);
-        const smoothEase = roamSpeedFactor * roamSpeedFactor * (3 - 2 * roamSpeedFactor);
-
-        roamTime += 0.010 * smoothEase;
-        const ampScale = (isMobile ? 1.0 : 0.45) * smoothEase;
-
-        cubeRoot.position.x = Math.sin(roamTime * 0.65) * 3.2 * ampScale;
-        cubeRoot.position.y = Math.sin(roamTime * 0.45) * 2.0 * ampScale;
-        cubeRoot.position.z = Math.sin(roamTime * 0.35) * 1.6 * ampScale;
-        cubeRoot.rotation.y += 0.0035 * smoothEase;
-      }
-
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</body>
-</html>
+      const targetRot = face
