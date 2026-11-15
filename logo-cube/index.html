@@ -393,7 +393,7 @@
       } catch (e) {}
     }
 
-    // --- 1. Three.js 場景建構 + 多方位柔光箱佈光（不依賴外部環境貼圖檔） ---
+    // --- 1. Three.js 場景建構（還原你原本的精準三點金屬佈光，杜絕過曝洗白） ---
     const canvas = document.getElementById('webgl-canvas');
     const scene = new THREE.Scene();
     const cubeRoot = new THREE.Group();
@@ -417,49 +417,41 @@
     controls.maxDistance = 45.0; 
     controls.target.set(0, 0, 0);
 
-    // 360° 環形多點補光，確保高金屬度在無外部貼圖下依然有飽滿亮麗的香檳金與銀藍高光
-    scene.add(new THREE.HemisphereLight(0xf8fafc, 0x94a3b8, 1.45));
-    scene.add(new THREE.AmbientLight(0xffffff, 1.35));
-
-    const keyLight = new THREE.DirectionalLight(0xfffbeb, 2.4);
-    keyLight.position.set(10, 15, 12);
+    // 還原你原始碼最飽和立體的金屬光影比例
+    scene.add(new THREE.AmbientLight(0xffffff, 1.9));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+    keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
-
-    const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.6);
-    fillLight.position.set(-12, 6, 8);
+    const fillLight = new THREE.DirectionalLight(0x64748b, 1.6);
+    fillLight.position.set(-10, 4, -8);
     scene.add(fillLight);
-
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    rimLight.position.set(0, 8, -14);
-    scene.add(rimLight);
-
-    const bottomBounce = new THREE.DirectionalLight(0xe2e8f0, 1.1);
-    bottomBounce.position.set(0, -10, 4);
+    const bottomBounce = new THREE.DirectionalLight(0xcbd5e1, 1.1);
+    bottomBounce.position.set(0, -8, 0);
     scene.add(bottomBounce);
 
-    // --- 2. 統一雙階段材質系統（鎖定「暖香檳金 EL + 冷灰藍方塊」主色調，消除三色混亂） ---
-    // 階段一：組裝進行中的柔和霧面質感
+    // --- 2. 雙階段品牌金屬材質（對齊 YouTube Logo 香檳橄欖金 + 陽極銀灰藍） ---
+    // 階段一（組裝進行中）：你原本最經典的清亮香檳金 + 銀灰藍金屬
     const LIGHT_LETTER_STYLE = {
-      color: 0xebd5ab,
-      metalness: 0.25,
-      roughness: 0.42
+      color: 0xebd2a0,
+      metalness: 0.80,
+      roughness: 0.24
     };
     const LIGHT_CUBE_STYLE = {
-      color: 0x8ba2ba,
-      metalness: 0.22,
-      roughness: 0.44
+      color: 0x4a729c,
+      metalness: 0.62,
+      roughness: 0.26
     };
 
-    // 階段二：變身後的鍛造金屬質感（維持同一套香檳金 + 銀灰藍調性，提升鏡面高光反射，不變黑也不發白）
+    // 階段二（膨脹變身後與漂浮待機）：更濃郁的鍛造香檳金 + 陽極氧化深銀藍（與你 YouTube 頭像 Logo 一致）
     const FORGED_GOLD_STYLE = {
-      color: 0xe6ca92,
-      metalness: 0.62,
-      roughness: 0.16
+      color: 0xd4be7a,
+      metalness: 0.85,
+      roughness: 0.18
     };
     const FORGED_SILVER_BLUE_STYLE = {
-      color: 0x7390ad,
-      metalness: 0.58,
-      roughness: 0.18
+      color: 0x3b5d82,
+      metalness: 0.72,
+      roughness: 0.20
     };
 
     const champagneGoldMat = new THREE.MeshStandardMaterial({
@@ -487,7 +479,7 @@
     let isVictoryLocked = false;
     let victoryLockTimer = null;
 
-    // 切換材質狀態：true = 鍛造金屬（漂浮待機維持此狀態）；false = 組裝中柔和霧面
+    // 切換材質狀態：true = 鍛造濃郁金屬（漂浮待機維持此狀態）；false = 組裝中清亮金屬
     function applyForgedMetalState(isForged) {
       partRegistry.forEach((item) => {
         const style = item.isLogoLetter
@@ -663,13 +655,13 @@
     }
 
     // =========================================================
-    // ★ 通關高潮演出：浩克級爆框膨脹定格 + 鍛造金屬變身 + 微光呼吸（不洗白）
+    // ★ 通關高潮演出：浩克級爆框膨脹定格 + 鍛造金屬變身 + 暖金微光呼吸
     // =========================================================
     function triggerVictoryCelebration(withCheering = true) {
       isAssemblyActive = true;
       lastActionTime = performance.now();
 
-      // 1) 切換為拋光鍛造金屬 Logo（漂浮待機時將持續維持此金屬狀態）
+      // 1) 切換為濃郁鍛造金屬 Logo（漂浮待機時將持續維持此金屬狀態）
       applyForgedMetalState(true);
 
       // 2) 若為 Hit Play 通關：按鈕鎖定 5 秒 + 播放 cheering.wav
@@ -688,7 +680,7 @@
       // 3) 整個立方體平順轉回正面展示角度
       smoothRotateCubeTo(HOME_ROTATION, 520);
 
-      // 4) 浩克級爆框膨脹 + 頂點定格 + 克制型微光呼吸（不洗白）
+      // 4) 浩克級爆框膨脹 + 頂點定格 + 暖金微光呼吸
       const startTime = performance.now();
       const celebrationDuration = withCheering ? 5000 : 2400;
 
@@ -708,7 +700,7 @@
             cubeRoot.scale.setScalar(1.0);
           }
 
-          // 克制型自發光呼吸（最高 0.26，保留金屬立體明暗與本色，不會洗成白灰色）
+          // 暖金與科技藍自發光呼吸（適度飽和不洗白）
           const envelope = t < 0.12 ? (t / 0.12) : (t > 0.78 ? (1 - t) / 0.22 : 1.0);
           const pulse = 0.65 + 0.35 * Math.sin(elapsed * 0.0065);
           const glowPower = envelope * pulse;
@@ -716,11 +708,11 @@
           partRegistry.forEach((item) => {
             item.meshes.forEach((m) => {
               if (item.isLogoLetter) {
-                m.material.emissive.setHex(0xd4af37);
-                m.material.emissiveIntensity = glowPower * 0.26;
+                m.material.emissive.setHex(0xb9ad72);
+                m.material.emissiveIntensity = glowPower * 0.32;
               } else {
-                m.material.emissive.setHex(0x6487a8);
-                m.material.emissiveIntensity = glowPower * 0.18;
+                m.material.emissive.setHex(0x4a729c);
+                m.material.emissiveIntensity = glowPower * 0.24;
               }
             });
           });
@@ -960,7 +952,7 @@
       roamSpeedFactor = 0;
       cubeRoot.scale.setScalar(1.0);
 
-      // 重置打散進入遊戲進行中時，恢復為柔和霧面材質
+      // 重置打散進入遊戲進行中時，恢復為清亮香檳金 + 銀灰藍金屬材質
       applyForgedMetalState(false);
       
       const overlay = document.getElementById('svg-overlay');
@@ -985,7 +977,7 @@
     }
 
     // =========================================================
-    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動，漂浮時維持金屬 Logo）
+    // ★ 漫遊控制（靜止 3.8 秒後從速度 0 平滑啟動，漂浮時維持濃郁金屬 Logo）
     // =========================================================
     let lastActionTime = performance.now();
     let isRoaming = false;
