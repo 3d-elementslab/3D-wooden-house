@@ -13,7 +13,6 @@
       touch-action: manipulation;
     }
     
-    /* 網頁基礎：日間模式與夜空模式的平滑過渡 */
     body {
       background: radial-gradient(circle at 50% 30%, #e2e8f0 0%, #cbd5e1 50%, #8fa0b5 100%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
@@ -29,7 +28,6 @@
       color: #f1f5f9;
     }
 
-    /* 璀璨星空背景層 (大小星點並存) */
     #starfield {
       position: absolute;
       top: 0;
@@ -59,7 +57,7 @@
         inset 0 0 0 2px rgba(148, 163, 184, 0.6),
         inset 0 0 0 3px rgba(255, 255, 255, 0.3),
         0 0 0 1px rgba(71, 85, 105, 0.3);
-      transition: border-color 1s ease, box-shadow 1s ease;
+      transition: box-shadow 1s ease;
     }
     body.night-mode #metal-frame {
       box-shadow: 
@@ -106,7 +104,7 @@
       text-transform: uppercase;
       position: relative;
       display: inline-block;
-      transition: color 0.25s ease, transform 0.25s ease;
+      transition: color 0.25s ease;
     }
     body.night-mode .brand-title {
       color: #f8fafc;
@@ -234,7 +232,7 @@
       align-items: center;
       z-index: 10;
       pointer-events: none;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.45s ease;
     }
     #svg-overlay img {
       width: 36vw;
@@ -315,7 +313,6 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
-  <!-- 璀璨星空背景 (大小星點交錯) -->
   <canvas id="starfield"></canvas>
 
   <div id="metal-frame"></div>
@@ -350,7 +347,7 @@
   <audio id="cheering-audio" src="./cheering.wav" preload="auto"></audio>
 
   <script>
-    // --- 0. 璀璨星空 2D 背景 (大小星點並存，獨立控制動畫與閃爍) ---
+    // --- 0. 璀璨星空 2D 背景 (大小星點並存) ---
     const starCanvas = document.getElementById('starfield');
     const starCtx = starCanvas.getContext('2d');
     let stars = [];
@@ -364,20 +361,20 @@
 
     function initStars() {
       stars = [];
-      const count = Math.floor((starCanvas.width * starCanvas.height) / 1600); // 豐富的星星密度
+      const count = Math.floor((starCanvas.width * starCanvas.height) / 1600);
 
       for (let i = 0; i < count; i++) {
         const sizeRand = Math.random();
-        let size = 0.5 + Math.random() * 0.8; // 小星點
+        let size = 0.5 + Math.random() * 0.8;
         let type = 'tiny';
         let color = '#ffffff';
 
         if (sizeRand > 0.96) {
-          size = 1.8 + Math.random() * 1.5; // 大璀璨星
+          size = 1.8 + Math.random() * 1.5;
           type = 'giant';
-          color = Math.random() > 0.3 ? '#fffbeb' : '#e0f2fe'; // 暖白與星空微藍
+          color = Math.random() > 0.3 ? '#fffbeb' : '#e0f2fe';
         } else if (sizeRand > 0.85) {
-          size = 1.0 + Math.random() * 0.7; // 中星點
+          size = 1.0 + Math.random() * 0.7;
           type = 'medium';
         }
 
@@ -388,8 +385,7 @@
           type: type,
           color: color,
           alpha: Math.random(),
-          speed: 0.005 + Math.random() * 0.015,
-          glow: Math.random() > 0.5
+          speed: 0.005 + Math.random() * 0.015
         });
       }
     }
@@ -399,7 +395,6 @@
       starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
 
       stars.forEach(s => {
-        // 自然呼吸閃爍
         s.alpha += s.speed;
         if (s.alpha > 1 || s.alpha < 0.15) s.speed = -s.speed;
 
@@ -408,7 +403,6 @@
         starCtx.fillStyle = s.color;
 
         if (s.type === 'giant') {
-          // 繪製大璀璨星 (十字微光)
           const flare = s.size * 2.5;
           const grad = starCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.size * 1.5);
           grad.addColorStop(0, '#ffffff');
@@ -418,7 +412,6 @@
           starCtx.arc(s.x, s.y, s.size * 1.5, 0, Math.PI * 2);
           starCtx.fill();
 
-          // 繪製十字微芒
           starCtx.strokeStyle = s.color;
           starCtx.lineWidth = 0.6;
           starCtx.beginPath();
@@ -428,14 +421,12 @@
           starCtx.lineTo(s.x, s.y + flare);
           starCtx.stroke();
         } else if (s.type === 'medium') {
-          // 繪製中星點與柔和光暈
           starCtx.shadowBlur = 4;
           starCtx.shadowColor = s.color;
           starCtx.beginPath();
           starCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
           starCtx.fill();
         } else {
-          // 繪製小星點
           starCtx.beginPath();
           starCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
           starCtx.fill();
@@ -457,10 +448,6 @@
       }
     }
 
-    window.addEventListener('resize', () => {
-      if (isStarfieldActive) resizeStarfield();
-    });
-
     // --- 0. 音效控制與 Web Audio API 精密結尾音 ---
     let audioCtx = null;
     function getAudioContext() {
@@ -481,7 +468,7 @@
         if (audio) {
           audio.currentTime = 0;
           audio.volume = 0.65;
-          audio.play().catch(e => {});
+          audio.play().catch(() => {});
         }
       } catch (e) {}
     }
@@ -492,7 +479,7 @@
         if (audio) {
           audio.currentTime = 0;
           audio.volume = 0.78;
-          audio.play().catch(e => {});
+          audio.play().catch(() => {});
         }
       } catch (e) {}
     }
@@ -503,12 +490,11 @@
         if (audio) {
           audio.currentTime = 0;
           audio.volume = 0.85;
-          audio.play().catch(e => {});
+          audio.play().catch(() => {});
         }
       } catch (e) {}
     }
 
-    // ★ Fly-in 結尾專屬音效：精密機械磁吸卡榫 + 低頻共鳴 + 暖金微光泛音
     function playFlyInLockChord() {
       try {
         const ctx = getAudioContext();
@@ -573,23 +559,21 @@
       } catch (e) {}
     }
 
-    // --- 1. 關鍵突破：高飽和、全包覆「柔光帳篷」PMREM 攝影棚反射圖，360° 消除暗銀色死角！ ---
+    // --- 1. 360° 全包覆「柔光帳篷」PMREM 攝影棚反射圖 ---
     function buildStudioPMREM(renderer) {
       const envCanvas = document.createElement('canvas');
       envCanvas.width = 512;
       envCanvas.height = 256;
       const ctx = envCanvas.getContext('2d');
 
-      // 1) 360 度全包覆珍珠白與香檳金漸層（拿掉所有暗灰/深色死角，確保轉到哪都是暖金高亮！）
       const bgGrad = ctx.createLinearGradient(0, 0, 0, 256);
-      bgGrad.addColorStop(0.0, '#fffbeb'); // 珍珠白頂光
-      bgGrad.addColorStop(0.3, '#f7f1e1'); // 香檳暖白
-      bgGrad.addColorStop(0.6, '#eae1cd'); // 淺香檳金
-      bgGrad.addColorStop(1.0, '#f2e6d0'); // 柔亮底光
+      bgGrad.addColorStop(0.0, '#fffbeb');
+      bgGrad.addColorStop(0.3, '#f7f1e1');
+      bgGrad.addColorStop(0.6, '#eae1cd');
+      bgGrad.addColorStop(1.0, '#f2e6d0');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, 512, 256);
 
-      // 2) 加入多道「超高亮度」刺眼柔光箱（產生 EL 的亮白與鏡面漸層）
       const strips = [
         { x: 30, w: 45, alpha: 0.98 },
         { x: 135, w: 35, alpha: 0.92 },
@@ -600,84 +584,4 @@
       strips.forEach((s) => {
         const g = ctx.createLinearGradient(s.x, 0, s.x + s.w, 0);
         g.addColorStop(0, 'rgba(255,255,255,0)');
-        g.addColorStop(0.5, `rgba(255, 255, 255, ${s.alpha})`);
-        g.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(s.x, 6, s.w, 244);
-      });
-
-      // 3) 僅加入極細的琥珀過渡帶（模擬 CAD 面轉折時的拉絲陰影，不再有大片灰暗）
-      const softLines = [95, 215, 345, 435];
-      softLines.forEach((x) => {
-        const lineGrad = ctx.createLinearGradient(x, 0, x + 12, 0);
-        lineGrad.addColorStop(0, 'rgba(212,163,89,0)');
-        lineGrad.addColorStop(0.5, 'rgba(180,132,60,0.32)');
-        lineGrad.addColorStop(1, 'rgba(212,163,89,0)');
-        ctx.fillStyle = lineGrad;
-        ctx.fillRect(x, 15, 12, 226);
-      });
-
-      const equirectTex = new THREE.CanvasTexture(envCanvas);
-      equirectTex.mapping = THREE.EquirectangularReflectionMapping;
-
-      // 使用 PMREM Generator 轉換成正式 WebGL PBR PREM 貼圖（徹底解決不反光問題）
-      const pmremGenerator = new THREE.PMREMGenerator(renderer);
-      pmremGenerator.compileEquirectangularShader();
-      const envRT = pmremGenerator.fromEquirectangular(equirectTex);
-      equirectTex.dispose();
-      pmremGenerator.dispose();
-      return envRT.texture;
-    }
-
-    // 水平拉絲髮絲紋貼圖 (Brushed Metal)
-    function createBrushedMetalTexture() {
-      const texCanvas = document.createElement('canvas');
-      texCanvas.width = 256;
-      texCanvas.height = 256;
-      const ctx = texCanvas.getContext('2d');
-
-      ctx.fillStyle = '#808080';
-      ctx.fillRect(0, 0, 256, 256);
-
-      for (let y = 0; y < 256; y++) {
-        const shade = Math.floor(100 + Math.random() * 85);
-        ctx.fillStyle = `rgb(${shade}, ${shade}, ${shade})`;
-        ctx.fillRect(0, y, 256, 1);
-      }
-
-      const tex = new THREE.CanvasTexture(texCanvas);
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(2, 8);
-      return tex;
-    }
-
-    // --- 2. Three.js 場景建構 ---
-    const canvas = document.getElementById('webgl-canvas');
-    const scene = new THREE.Scene();
-
-    const isMobile = window.innerWidth <= 768;
-    const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 200);
-    const DEFAULT_CAM_POS = new THREE.Vector3(0, 1.2, 8.2);
-    camera.position.copy(DEFAULT_CAM_POS);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
-
-    // 載入 360° 柔光帳篷 PBR 反射（不影響 HTML 背景色）
-    scene.environment = buildStudioPMREM(renderer);
-
-    const cubeRoot = new THREE.Group();
-    scene.add(cubeRoot);
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.minDistance = 1.8;  
-    controls.maxDistance = 45.0; 
-    controls.target.set(0, 0, 0);
-
-    // 平衡三點補光，與全包覆 PM
+        g.addColorStop(0.5, `rgba
