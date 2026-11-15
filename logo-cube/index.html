@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="icon" href="data:,">
-  <title>Elements Lab - 3D Logo Cube Assembly (Master Edition)</title>
+  <title>Elements Lab - 3D Logo Cube Assembly</title>
   <style>
     * {
       box-sizing: border-box;
@@ -24,7 +24,7 @@
     }
 
     body.night-mode {
-      background: radial-gradient(circle at 50% 30%, #111e36 0%, #09101f 60%, #03060c 100%);
+      background: radial-gradient(circle at 50% 30%, #0f1c33 0%, #070d1a 60%, #02050a 100%);
       color: #f1f5f9;
     }
 
@@ -37,7 +37,7 @@
       pointer-events: none;
       z-index: 1;
       opacity: 0;
-      transition: opacity 2s cubic-bezier(0.25, 1, 0.5, 1);
+      transition: opacity 1.8s cubic-bezier(0.25, 1, 0.5, 1);
     }
     #starfield.visible {
       opacity: 1;
@@ -61,10 +61,10 @@
     }
     body.night-mode #metal-frame {
       box-shadow: 
-        inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.22),
         inset 0 0 0 2px rgba(51, 65, 85, 0.5),
-        inset 0 0 0 3px rgba(255, 255, 255, 0.05),
-        0 0 0 1px rgba(15, 23, 42, 0.8);
+        inset 0 0 0 3px rgba(255, 255, 255, 0.04),
+        0 0 0 1px rgba(15, 23, 42, 0.85);
     }
 
     #webgl-canvas {
@@ -128,12 +128,12 @@
     }
 
     .brand-link:hover .brand-title {
-      color: #c8c074;
+      color: #d8b370;
     }
 
     .brand-link:hover .brand-title::after {
       transform: scaleX(1);
-      background-color: #c8c074;
+      background-color: #d8b370;
       opacity: 1;
     }
 
@@ -203,7 +203,7 @@
     }
     .action-btn:hover {
       background: linear-gradient(180deg, #475569 0%, #334155 50%, #1e293b 100%);
-      color: #c8c074;
+      color: #d8b370;
     }
     .action-btn:active {
       transform: translateY(2px);
@@ -214,9 +214,9 @@
     }
 
     .action-btn.victory-locked {
-      color: #c8c074;
-      border-color: #c8c074;
-      box-shadow: 0 0 16px rgba(200, 192, 116, 0.55);
+      color: #d8b370;
+      border-color: #d8b370;
+      box-shadow: 0 0 16px rgba(216, 179, 112, 0.55);
       cursor: default;
       pointer-events: none;
     }
@@ -298,12 +298,12 @@
     }
 
     footer .studio-link:hover {
-      color: #c8c074;
+      color: #d8b370;
     }
 
     footer .studio-link:hover::after {
       transform: scaleX(1);
-      background-color: #c8c074;
+      background-color: #d8b370;
       opacity: 1;
     }
   </style>
@@ -347,12 +347,17 @@
   <audio id="cheering-audio" src="./cheering.wav" preload="auto"></audio>
 
   <script>
-    // --- 統一在頂部宣告所有全局狀態變數 ---
+    // --- 全局狀態宣告 ---
     const partRegistry = new Map();
     const activeTweens = [];
     const partOrder = ['E', 'L', 'cube01', 'cube02', 'cube03', 'cube04', 'cube05', 'cube06', 'cube07', 'cube08', 'cube09', 'cube10', 'cube11', 'cube12', 'cube13'];
     const TOTAL_PARTS = 15;
     const HOME_ROTATION = { x: 0.25, y: -0.65 };
+
+    let assembledRoot = null; // 15顆組裝零件群組（純霧面，不吃環境貼圖）
+    let heroCubeRoot = null;  // 完整一體成形 Hero Cube (EL Cubes.glb)
+    const heroGoldMeshes = [];
+    const heroBlueMeshes = [];
 
     let assembledCount = 0;
     let playHitIdx = 0;
@@ -364,7 +369,7 @@
     let roamTime = 0;
     let roamSpeedFactor = 0;
 
-    // --- 星空 2D 背景 ---
+    // --- 璀璨星空背景 (減量 30%，保留大中小星點層次) ---
     const starCanvas = document.getElementById('starfield');
     const starCtx = starCanvas.getContext('2d');
     let stars = [];
@@ -374,19 +379,20 @@
       starCanvas.width = window.innerWidth;
       starCanvas.height = window.innerHeight;
       stars = [];
-      const count = Math.floor((starCanvas.width * starCanvas.height) / 1600);
+      const count = Math.floor((starCanvas.width * starCanvas.height) / 2300);
+
       for (let i = 0; i < count; i++) {
         const sizeRand = Math.random();
-        let size = 0.5 + Math.random() * 0.8;
+        let size = 0.55 + Math.random() * 0.75;
         let type = 'tiny';
         let color = '#ffffff';
 
         if (sizeRand > 0.96) {
-          size = 1.8 + Math.random() * 1.5;
+          size = 1.9 + Math.random() * 1.4;
           type = 'giant';
-          color = Math.random() > 0.3 ? '#fffbeb' : '#e0f2fe';
+          color = Math.random() > 0.35 ? '#fffbeb' : '#e0f2fe';
         } else if (sizeRand > 0.85) {
-          size = 1.0 + Math.random() * 0.7;
+          size = 1.05 + Math.random() * 0.65;
           type = 'medium';
         }
 
@@ -397,7 +403,7 @@
           type: type,
           color: color,
           alpha: Math.random(),
-          speed: 0.005 + Math.random() * 0.015
+          speed: 0.005 + Math.random() * 0.014
         });
       }
     }
@@ -460,7 +466,7 @@
       }
     }
 
-    // --- 音效控制 ---
+    // --- 音效系統 ---
     let audioCtx = null;
     function getAudioContext() {
       if (!audioCtx) {
@@ -571,45 +577,35 @@
       } catch (e) {}
     }
 
-    // --- 360° 全包覆柔光帳篷 PMREM 攝影棚反射圖 ---
-    function buildStudioPMREM(renderer) {
+    // --- 專供 Hero Cube 使用的珠寶攝影棚反射貼圖（不套用到組裝霧面零件） ---
+    function buildJewelryStudioEnv(renderer) {
       const envCanvas = document.createElement('canvas');
       envCanvas.width = 512;
       envCanvas.height = 256;
       const ctx = envCanvas.getContext('2d');
 
       const bgGrad = ctx.createLinearGradient(0, 0, 0, 256);
-      bgGrad.addColorStop(0.0, '#fffbeb');
-      bgGrad.addColorStop(0.3, '#f7f1e1');
-      bgGrad.addColorStop(0.6, '#eae1cd');
-      bgGrad.addColorStop(1.0, '#f2e6d0');
+      bgGrad.addColorStop(0.0, '#ffffff');
+      bgGrad.addColorStop(0.22, '#9a8462');
+      bgGrad.addColorStop(0.50, '#4a3d2b');
+      bgGrad.addColorStop(0.75, '#bfa378');
+      bgGrad.addColorStop(1.0, '#333b48');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, 512, 256);
 
       const strips = [
-        { x: 30, w: 45, alpha: 0.98 },
-        { x: 135, w: 35, alpha: 0.92 },
-        { x: 245, w: 75, alpha: 1.0 },
-        { x: 380, w: 48, alpha: 0.95 },
-        { x: 470, w: 30, alpha: 0.90 }
+        { x: 42, w: 28, alpha: 1.0 },
+        { x: 155, w: 22, alpha: 0.95 },
+        { x: 260, w: 46, alpha: 1.0 },
+        { x: 390, w: 26, alpha: 0.95 }
       ];
       strips.forEach((s) => {
         const g = ctx.createLinearGradient(s.x, 0, s.x + s.w, 0);
         g.addColorStop(0, 'rgba(255,255,255,0)');
-        g.addColorStop(0.5, `rgba(255, 255, 255, ${s.alpha})`);
+        g.addColorStop(0.5, `rgba(255, 252, 240, ${s.alpha})`);
         g.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = g;
-        ctx.fillRect(s.x, 6, s.w, 244);
-      });
-
-      const softLines = [95, 215, 345, 435];
-      softLines.forEach((x) => {
-        const lineGrad = ctx.createLinearGradient(x, 0, x + 12, 0);
-        lineGrad.addColorStop(0, 'rgba(212,163,89,0)');
-        lineGrad.addColorStop(0.5, 'rgba(180,132,60,0.32)');
-        lineGrad.addColorStop(1, 'rgba(212,163,89,0)');
-        ctx.fillStyle = lineGrad;
-        ctx.fillRect(x, 15, 12, 226);
+        ctx.fillRect(s.x, 8, s.w, 240);
       });
 
       const equirectTex = new THREE.CanvasTexture(envCanvas);
@@ -633,7 +629,7 @@
       ctx.fillRect(0, 0, 256, 256);
 
       for (let y = 0; y < 256; y++) {
-        const shade = Math.floor(100 + Math.random() * 85);
+        const shade = Math.floor(90 + Math.random() * 95);
         ctx.fillStyle = `rgb(${shade}, ${shade}, ${shade})`;
         ctx.fillRect(0, y, 256, 1);
       }
@@ -641,7 +637,7 @@
       const tex = new THREE.CanvasTexture(texCanvas);
       tex.wrapS = THREE.RepeatWrapping;
       tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(2, 8);
+      tex.repeat.set(3, 10);
       return tex;
     }
 
@@ -658,9 +654,10 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.05;
 
-    scene.environment = buildStudioPMREM(renderer);
+    // 產生專屬於 Hero Cube 的反射貼圖（不設在全域 scene.environment，避免污染組裝階段霧面零件！）
+    const jewelryEnvMap = buildJewelryStudioEnv(renderer);
 
     const cubeRoot = new THREE.Group();
     scene.add(cubeRoot);
@@ -672,92 +669,69 @@
     controls.maxDistance = 45.0; 
     controls.target.set(0, 0, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-    const keyLight = new THREE.DirectionalLight(0xfffbeb, 1.95);
-    keyLight.position.set(10, 15, 10);
+    // 柔和基礎光 + 三點立體照明（讓霧面零件立體、金屬高光飽滿）
+    scene.add(new THREE.AmbientLight(0xffffff, 0.42));
+    const keyLight = new THREE.DirectionalLight(0xfff8e7, 1.85);
+    keyLight.position.set(8, 14, 10);
     scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.15);
-    fillLight.position.set(-10, 5, -8);
-    scene.add(fillLight);
-    const topLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    topLight.position.set(0, 15, 0);
-    scene.add(topLight);
+    const rimLight = new THREE.DirectionalLight(0xdbeafe, 1.15);
+    rimLight.position.set(-10, -4, -9);
+    scene.add(rimLight);
+    const frontFill = new THREE.DirectionalLight(0xffffff, 0.55);
+    frontFill.position.set(-4, 5, 12);
+    scene.add(frontFill);
 
-    // --- 雙階段 PBR 金屬材質 ---
+    // --- 兩套完全隔離的材質：1) 組立階段純霧面材質  2) Hero Cube 珠寶金屬材質 ---
     const brushedRoughnessMap = createBrushedMetalTexture();
 
-    const LIGHT_LETTER_STYLE = {
-      color: 0xebcb91,
-      metalness: 0.32,
-      roughness: 0.45,
-      clearcoat: 0.05,
-      envMapIntensity: 0.35
-    };
-    const LIGHT_CUBE_STYLE = {
-      color: 0x82b2cb,
-      metalness: 0.25,
-      roughness: 0.45,
-      clearcoat: 0.10,
-      envMapIntensity: 0.35
-    };
+    // 1) 組立階段（15 顆零件）：嚴格關閉 envMap，呈現原本純粹紮實的霧面質感，絕不泛粉白！
+    const asmLetterMat = new THREE.MeshStandardMaterial({
+      color: 0xc9ab6e,
+      metalness: 0.12,
+      roughness: 0.58,
+      envMap: null
+    });
 
-    const FORGED_GOLD_STYLE = {
-      color: 0xf2d6a5,
-      metalness: 0.96,
-      roughness: 0.22,
-      clearcoat: 0.45,
-      envMapIntensity: 1.45
-    };
-    const FORGED_GLACIER_BLUE_STYLE = {
-      color: 0x8bc0d4,
-      metalness: 0.76,
-      roughness: 0.16,
-      clearcoat: 0.95,
-      envMapIntensity: 1.35
-    };
+    const asmCubeMat = new THREE.MeshStandardMaterial({
+      color: 0x6f98b0,
+      metalness: 0.10,
+      roughness: 0.58,
+      envMap: null
+    });
 
-    const champagneGoldMat = new THREE.MeshPhysicalMaterial({
-      color: LIGHT_LETTER_STYLE.color,
-      metalness: LIGHT_LETTER_STYLE.metalness,
-      roughness: LIGHT_LETTER_STYLE.roughness,
+    // 2) Hero Cube 變身展示材質（EL Cubes.glb 專用）：掛載 jewelryEnvMap 反射貼圖
+    const heroGoldMat = new THREE.MeshPhysicalMaterial({
+      color: 0xd6b06b,
+      metalness: 0.92,
+      roughness: 0.26,
       roughnessMap: brushedRoughnessMap,
-      clearcoat: LIGHT_LETTER_STYLE.clearcoat,
-      clearcoatRoughness: 0.14,
-      envMapIntensity: LIGHT_LETTER_STYLE.envMapIntensity,
+      clearcoat: 0.35,
+      clearcoatRoughness: 0.16,
+      envMap: jewelryEnvMap,
+      envMapIntensity: 1.40,
       emissive: 0x000000,
       emissiveIntensity: 0
     });
 
-    const anodizedTealMat = new THREE.MeshPhysicalMaterial({
-      color: LIGHT_CUBE_STYLE.color,
-      metalness: LIGHT_CUBE_STYLE.metalness,
-      roughness: LIGHT_CUBE_STYLE.roughness,
-      clearcoat: LIGHT_CUBE_STYLE.clearcoat,
+    const heroGlacierBlueMat = new THREE.MeshPhysicalMaterial({
+      color: 0x6ea6be,
+      metalness: 0.68,
+      roughness: 0.16,
+      clearcoat: 0.90,
       clearcoatRoughness: 0.10,
-      envMapIntensity: LIGHT_CUBE_STYLE.envMapIntensity,
+      envMap: jewelryEnvMap,
+      envMapIntensity: 1.35,
       emissive: 0x000000,
       emissiveIntensity: 0
     });
 
-    function applyForgedMetalState(isForged) {
-      partRegistry.forEach((item) => {
-        const style = item.isLogoLetter
-          ? (isForged ? FORGED_GOLD_STYLE : LIGHT_LETTER_STYLE)
-          : (isForged ? FORGED_GLACIER_BLUE_STYLE : LIGHT_CUBE_STYLE);
-
-        item.meshes.forEach((m) => {
-          m.material.color.setHex(style.color);
-          m.material.metalness = style.metalness;
-          m.material.roughness = style.roughness;
-          m.material.clearcoat = style.clearcoat;
-          m.material.envMapIntensity = style.envMapIntensity;
-          m.material.needsUpdate = true;
-          if (!isForged) {
-            m.material.emissive.setHex(0x000000);
-            m.material.emissiveIntensity = 0;
-          }
-        });
-      });
+    function setHeroCubeMode(showHero) {
+      if (heroCubeRoot && heroCubeRoot.children.length > 0) {
+        if (assembledRoot) assembledRoot.visible = !showHero;
+        heroCubeRoot.visible = showHero;
+      } else if (assembledRoot) {
+        assembledRoot.visible = true;
+      }
     }
 
     const trajectoryMap = {
@@ -796,14 +770,31 @@
       'cube13': { x: -0.60, y: 0.65 }
     };
 
-    // --- 載入模型 ---
+    // --- 同時載入兩顆模型：1) el-logo asm.glb (霧面組立用)  2) EL Cubes.glb (金屬變身用) ---
     const loader = new THREE.GLTFLoader();
+
     loader.load(
       './el-logo asm.glb',
       (gltf) => { initAssemblyScene(gltf); },
       undefined,
-      (error) => { console.error("GLB Load Error:", error); }
+      (error) => { console.error("Assembly GLB Load Error:", error); }
     );
+
+    function loadHeroCubeModel(url, fallbackUrl) {
+      loader.load(
+        url,
+        (gltf) => { initHeroCubeScene(gltf); },
+        undefined,
+        (err) => {
+          if (fallbackUrl) {
+            loadHeroCubeModel(fallbackUrl, null);
+          } else {
+            console.error("Hero GLB Load Error:", err);
+          }
+        }
+      );
+    }
+    loadHeroCubeModel('./EL%20Cubes.glb', './EL Cubes.glb');
 
     function initAssemblyScene(gltf) {
       try {
@@ -829,7 +820,7 @@
         root.traverse((node) => {
           if (targetPartNames.has(node.name)) {
             const isLogoLetter = (node.name === 'E' || node.name === 'L');
-            const solidMat = isLogoLetter ? champagneGoldMat.clone() : anodizedTealMat.clone();
+            const solidMat = isLogoLetter ? asmLetterMat : asmCubeMat;
 
             const meshes = [];
             node.traverse((child) => {
@@ -859,11 +850,55 @@
           }
         });
 
-        cubeRoot.add(root);
+        assembledRoot = root;
+        cubeRoot.add(assembledRoot);
         cubeRoot.position.set(0, 0, 0);
         cubeRoot.rotation.set(HOME_ROTATION.x, HOME_ROTATION.y, 0);
-      } catch(err) {
+      } catch (err) {
         console.error("Assembly Init Error:", err);
+      }
+    }
+
+    function initHeroCubeScene(gltf) {
+      try {
+        const root = gltf.scene;
+        root.updateMatrixWorld(true);
+
+        const box = new THREE.Box3().setFromObject(root);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const maxDim = Math.max(size.x, size.y, size.z);
+
+        const targetScale = ((isMobile ? 2.0 : 2.3) / (maxDim || 1)) * 0.7;
+        root.scale.setScalar(targetScale);
+        root.updateMatrixWorld(true);
+
+        const scaledBox = new THREE.Box3().setFromObject(root);
+        const center = new THREE.Vector3();
+        scaledBox.getCenter(center);
+        root.position.sub(center);
+        root.updateMatrixWorld(true);
+
+        root.traverse((node) => {
+          if (node.isMesh) {
+            const origName = (node.material && node.material.name) ? node.material.name : '';
+            const isGold = origName.includes('0.700') || (node.parent && node.parent.name === 'EL' && !origName.includes('0.820'));
+
+            if (isGold) {
+              node.material = heroGoldMat.clone();
+              heroGoldMeshes.push(node);
+            } else {
+              node.material = heroGlacierBlueMat.clone();
+              heroBlueMeshes.push(node);
+            }
+          }
+        });
+
+        root.visible = false;
+        heroCubeRoot = root;
+        cubeRoot.add(heroCubeRoot);
+      } catch (err) {
+        console.error("Hero Cube Init Error:", err);
       }
     }
 
@@ -919,11 +954,14 @@
       }
     }
 
+    // =========================================================
+    // ★ 變身高潮演出：無縫切換 Hero Cube ＋ 大爆框 ＋ 深藍星空
+    // =========================================================
     function triggerVictoryCelebration(withCheering = true) {
       isAssemblyActive = true;
       lastActionTime = performance.now();
 
-      applyForgedMetalState(true);
+      setHeroCubeMode(true);
 
       document.body.classList.add('night-mode');
       setStarfieldVisibility(true);
@@ -964,24 +1002,23 @@
           const pulse = 0.65 + 0.35 * Math.sin(elapsed * 0.0065);
           const glowPower = envelope * pulse;
 
-          partRegistry.forEach((item) => {
-            item.meshes.forEach((m) => {
-              if (item.isLogoLetter) {
-                m.material.emissive.setHex(0xd4af37);
-                m.material.emissiveIntensity = glowPower * 0.20;
-              } else {
-                m.material.emissive.setHex(0x6ba4b8);
-                m.material.emissiveIntensity = glowPower * 0.14;
-              }
-            });
+          heroGoldMeshes.forEach((m) => {
+            m.material.emissive.setHex(0xc89d54);
+            m.material.emissiveIntensity = glowPower * 0.18;
+          });
+          heroBlueMeshes.forEach((m) => {
+            m.material.emissive.setHex(0x5b95ad);
+            m.material.emissiveIntensity = glowPower * 0.12;
           });
 
           if (t >= 1) {
-            partRegistry.forEach((item) => {
-              item.meshes.forEach((m) => {
-                m.material.emissive.setHex(0x000000);
-                m.material.emissiveIntensity = 0;
-              });
+            heroGoldMeshes.forEach((m) => {
+              m.material.emissive.setHex(0x000000);
+              m.material.emissiveIntensity = 0;
+            });
+            heroBlueMeshes.forEach((m) => {
+              m.material.emissive.setHex(0x000000);
+              m.material.emissiveIntensity = 0;
             });
             cubeRoot.scale.setScalar(1.0);
             isAssemblyActive = false;
@@ -1013,7 +1050,7 @@
       roamSpeedFactor = 0;
       cubeRoot.scale.setScalar(1.0);
 
-      applyForgedMetalState(false);
+      setHeroCubeMode(false);
       
       document.body.classList.remove('night-mode');
       setStarfieldVisibility(false);
@@ -1032,8 +1069,6 @@
         item.node.rotation.set(0, 0, 0);
         item.meshes.forEach(m => {
           m.visible = true;
-          m.material.emissive.setHex(0x000000);
-          m.material.emissiveIntensity = 0;
         });
       });
       cubeRoot.position.set(0, 0, 0);
@@ -1130,164 +1165,3 @@
 
       const targetRot = faceRotationMap[name] || HOME_ROTATION;
       smoothRotateCubeTo(targetRot, 480);
-
-      const node = item.node;
-      const targetPos = item.targetPos.clone();
-
-      const targetEuler = new THREE.Euler(targetRot.x, targetRot.y, 0);
-      const targetQuat = new THREE.Quaternion().setFromEuler(targetEuler);
-      const invQuat = targetQuat.clone().invert();
-
-      const outwardDir = targetPos.clone();
-      if (outwardDir.lengthSq() < 0.001) {
-        outwardDir.set(0, 0.2, 1);
-      }
-      outwardDir.normalize();
-
-      const cameraFrontLocal = new THREE.Vector3(0, 0.25, 1).applyQuaternion(invQuat).normalize();
-      const nonPenetratingDir = outwardDir.multiplyScalar(0.65).addScaledVector(cameraFrontLocal, 0.35).normalize();
-      const startPos = targetPos.clone().addScaledVector(nonPenetratingDir, 38);
-      const arcOffset = nonPenetratingDir.clone().multiplyScalar(3.2);
-
-      const startRot = new THREE.Euler(
-        (Math.random() > 0.5 ? 1 : -1) * Math.PI * 0.5,
-        (Math.random() > 0.5 ? 1 : -1) * Math.PI,
-        0
-      );
-
-      node.position.copy(startPos);
-      const startTime = performance.now();
-      const duration = 950;
-
-      activeTweens.push({
-        update(now) {
-          const elapsed = now - startTime;
-          const t = Math.min(elapsed / duration, 1);
-          const ease = t === 1 ? 1 : 1 - Math.pow(2, -9 * t);
-
-          node.position.lerpVectors(startPos, targetPos, ease);
-          const arcFactor = Math.sin(Math.PI * t) * (1 - ease);
-          node.position.addScaledVector(arcOffset, arcFactor);
-
-          node.scale.setScalar(THREE.MathUtils.lerp(0.8, 1.0, ease));
-          node.rotation.set(
-            THREE.MathUtils.lerp(startRot.x, 0, ease),
-            THREE.MathUtils.lerp(startRot.y, 0, ease),
-            THREE.MathUtils.lerp(startRot.z, 0, ease)
-          );
-
-          if (t >= 1) {
-            node.position.copy(targetPos);
-            node.scale.setScalar(1.0);
-            node.rotation.set(0, 0, 0);
-            assembledCount++;
-
-            if (assembledCount === TOTAL_PARTS) {
-              triggerVictoryCelebration(true);
-            } else {
-              setTimeout(() => {
-                if (assembledCount < TOTAL_PARTS) {
-                  isAssemblyActive = false;
-                }
-              }, 1200);
-            }
-            return false;
-          }
-          return true;
-        }
-      });
-    }
-
-    const btnFlyIn = document.getElementById('btn-flyin');
-    const btnPlay = document.getElementById('btn-play');
-
-    btnFlyIn.onclick = () => {
-      triggerFullFlyIn();
-    };
-
-    btnPlay.onclick = () => {
-      if (isVictoryLocked) return;
-
-      resetCameraAndPosition();
-
-      if (assembledCount >= TOTAL_PARTS) {
-        clearAllToDeepSpace(false);
-        playHitIdx = 0;
-      }
-
-      while (playHitIdx < partOrder.length) {
-        const nextPart = partOrder[playHitIdx++];
-        const item = partRegistry.get(nextPart);
-        if (item && !item.isAssembled) {
-          playHitSinglePart(nextPart);
-          break;
-        }
-      }
-    };
-
-    window.addEventListener('pointerdown', () => { 
-      lastActionTime = performance.now(); 
-
-      if (isRoaming) {
-        isRoaming = false;
-        roamSpeedFactor = 0;
-        const startPos = cubeRoot.position.clone();
-        const endPos = new THREE.Vector3(0, 0, 0);
-        const startTime = performance.now();
-        activeTweens.push({
-          update(now) {
-            const t = Math.min((now - startTime) / 400, 1);
-            cubeRoot.position.lerpVectors(startPos, endPos, 1 - Math.pow(1 - t, 3));
-            return t < 1;
-          }
-        });
-      }
-    });
-
-    function animate() {
-      requestAnimationFrame(animate);
-      const now = performance.now();
-
-      for (let i = activeTweens.length - 1; i >= 0; i--) {
-        try {
-          if (!activeTweens[i].update(now)) {
-            activeTweens.splice(i, 1);
-          }
-        } catch(e) {
-          activeTweens.splice(i, 1);
-        }
-      }
-
-      controls.update();
-
-      if (!isAssemblyActive && now - lastActionTime > 3800) {
-        if (!isRoaming) {
-          isRoaming = true;
-          roamTime = 0;
-          roamSpeedFactor = 0;
-        }
-        roamSpeedFactor = Math.min(roamSpeedFactor + 0.011, 1);
-        const smoothEase = roamSpeedFactor * roamSpeedFactor * (3 - 2 * roamSpeedFactor);
-
-        roamTime += 0.010 * smoothEase;
-        const ampScale = (isMobile ? 1.0 : 0.45) * smoothEase;
-
-        cubeRoot.position.x = Math.sin(roamTime * 0.65) * 3.2 * ampScale;
-        cubeRoot.position.y = Math.sin(roamTime * 0.45) * 2.0 * ampScale;
-        cubeRoot.position.z = Math.sin(roamTime * 0.35) * 1.6 * ampScale;
-        cubeRoot.rotation.y += 0.0035 * smoothEase;
-      }
-
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      if (isStarfieldActive) resizeStarfield();
-    });
-  </script>
-</body>
-</html>
