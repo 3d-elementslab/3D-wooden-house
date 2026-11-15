@@ -391,42 +391,52 @@
       } catch (e) {}
     }
 
-    // --- 1. 克制型攝影棚反光板（只提供高光邊緣條紋，不把金屬底色沖白） ---
-    function createStudioEnvMap() {
+    // --- 1. 真正經由 PMREMGenerator 編譯的高反差攝影棚環境反射貼圖 ---
+    function buildStudioPMREM(renderer) {
       const envCanvas = document.createElement('canvas');
       envCanvas.width = 512;
       envCanvas.height = 256;
       const ctx = envCanvas.getContext('2d');
 
-      // 中性暖灰底，確保金屬立面保留飽和色階
+      // 高反差深琥珀灰到暖銀背景，讓金屬能映出深淺分明的鏡面漸層（不再是均勻霧面）
       const bgGrad = ctx.createLinearGradient(0, 0, 0, 256);
-      bgGrad.addColorStop(0.0, '#cbd5e1');
-      bgGrad.addColorStop(0.5, '#64748b');
-      bgGrad.addColorStop(1.0, '#475569');
+      bgGrad.addColorStop(0.0, '#f8fafc');
+      bgGrad.addColorStop(0.28, '#475569');
+      bgGrad.addColorStop(0.55, '#1e293b');
+      bgGrad.addColorStop(0.82, '#64748b');
+      bgGrad.addColorStop(1.0, '#cbd5e1');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, 512, 256);
 
-      // 窄版高光燈條（做出 Logo_metal.jpeg 的金屬絲綢高光線，而不整片洗白）
-      const softboxes = [
-        { x: 55, w: 32, alpha: 0.92 },
-        { x: 185, w: 24, alpha: 0.85 },
-        { x: 310, w: 40, alpha: 0.95 },
-        { x: 440, w: 28, alpha: 0.85 }
+      // 銳利垂直長條軟光箱（在 EL 與方塊立面上拉出亮白與暖金鏡面光帶）
+      const strips = [
+        { x: 35, w: 42, color: 'rgba(255, 253, 245, 1.0)' },
+        { x: 145, w: 28, color: 'rgba(255, 248, 225, 0.95)' },
+        { x: 255, w: 58, color: 'rgba(255, 255, 255, 1.0)' },
+        { x: 390, w: 36, color: 'rgba(255, 250, 235, 0.95)' }
       ];
-      softboxes.forEach((box) => {
-        const boxGrad = ctx.createLinearGradient(box.x, 0, box.x + box.w, 0);
-        boxGrad.addColorStop(0, 'rgba(255, 250, 235, 0)');
-        boxGrad.addColorStop(0.5, `rgba(255, 250, 235, ${box.alpha})`);
-        boxGrad.addColorStop(1, 'rgba(255, 250, 235, 0)');
-        ctx.fillStyle = boxGrad;
-        ctx.fillRect(box.x, 10, box.w, 236);
+      strips.forEach((s) => {
+        const g = ctx.createLinearGradient(s.x, 0, s.x + s.w, 0);
+        g.addColorStop(0, 'rgba(255,255,255,0)');
+        g.addColorStop(0.5, s.color);
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(s.x, 8, s.w, 240);
       });
 
-      const texture = new THREE.CanvasTexture(envCanvas);
-      texture.mapping = THREE.EquirectangularReflectionMapping;
-      return texture;
+      const equirectTex = new THREE.CanvasTexture(envCanvas);
+      equirectTex.mapping = THREE.EquirectangularReflectionMapping;
+
+      // ★ 關鍵修正：必須用 PMREMGenerator 轉換，r128 PBR 材質才會真正套用環境反射！
+      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      pmremGenerator.compileEquirectangularShader();
+      const envRT = pmremGenerator.fromEquirectangular(equirectTex);
+      equirectTex.dispose();
+      pmremGenerator.dispose();
+      return envRT.texture;
     }
 
+    // 水平拉絲髮絲紋貼圖（Brushed Metal）
     function createBrushedMetalTexture() {
       const texCanvas = document.createElement('canvas');
       texCanvas.width = 256;
@@ -437,7 +447,7 @@
       ctx.fillRect(0, 0, 256, 256);
 
       for (let y = 0; y < 256; y++) {
-        const shade = Math.floor(95 + Math.random() * 65);
+        const shade = Math.floor(85 + Math.random() * 85);
         ctx.fillStyle = `rgb(${shade}, ${shade}, ${shade})`;
         ctx.fillRect(0, y, 256, 1);
       }
@@ -445,17 +455,13 @@
       const tex = new THREE.CanvasTexture(texCanvas);
       tex.wrapS = THREE.RepeatWrapping;
       tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(2, 6);
+      tex.repeat.set(2, 8);
       return tex;
     }
 
     // --- 2. Three.js 場景建構 ---
     const canvas = document.getElementById('webgl-canvas');
     const scene = new THREE.Scene();
-    scene.environment = createStudioEnvMap();
-
-    const cubeRoot = new THREE.Group();
-    scene.add(cubeRoot);
 
     const isMobile = window.innerWidth <= 768;
     const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 200);
@@ -466,7 +472,13 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.12;
+    renderer.toneMappingExposure = 1.22;
+
+    // 載入編譯好的 PMREM 攝影棚環境貼圖（完全不影響透明背景）
+    scene.environment = buildStudioPMREM(renderer);
+
+    const cubeRoot = new THREE.Group();
+    scene.add(cubeRoot);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -475,50 +487,48 @@
     controls.maxDistance = 45.0; 
     controls.target.set(0, 0, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.25));
-    const keyLight = new THREE.DirectionalLight(0xfffbeb, 2.1);
+    // 降低均勻環境光，讓 PMREM 金屬高光漸層主導立體感
+    scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+    const keyLight = new THREE.DirectionalLight(0xfffbeb, 1.65);
     keyLight.position.set(10, 15, 10);
     scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0xcbd5e1, 1.25);
+    const fillLight = new THREE.DirectionalLight(0xdbeafe, 0.95);
     fillLight.position.set(-10, 5, -8);
     scene.add(fillLight);
-    const bottomBounce = new THREE.DirectionalLight(0xe2e8f0, 0.85);
-    bottomBounce.position.set(0, -8, 4);
-    scene.add(bottomBounce);
 
-    // --- 3. 高飽和校正雙階段材質（在 ACES 下還原 Logo_metal.jpeg 的飽滿香檳金 + 冰河粉藍） ---
+    // --- 3. 雙階段金屬材質系統 ---
     const brushedRoughnessMap = createBrushedMetalTexture();
 
-    // 階段一（組裝進行中）：清亮柔和零件色
+    // 階段一（組裝進行中）：清透霧面零件
     const LIGHT_LETTER_STYLE = {
-      color: 0xe6c88a,
-      metalness: 0.45,
-      roughness: 0.34,
-      clearcoat: 0.10,
-      envMapIntensity: 0.55
+      color: 0xe8ce96,
+      metalness: 0.25,
+      roughness: 0.45,
+      clearcoat: 0.05,
+      envMapIntensity: 0.35
     };
     const LIGHT_CUBE_STYLE = {
-      color: 0x7aa3b8,
-      metalness: 0.35,
-      roughness: 0.36,
-      clearcoat: 0.15,
-      envMapIntensity: 0.55
+      color: 0x8fb4c7,
+      metalness: 0.20,
+      roughness: 0.45,
+      clearcoat: 0.10,
+      envMapIntensity: 0.35
     };
 
-    // 階段二（膨脹變身後與漂浮待機）：高飽和暖拉絲香檳金 + 陽極冰河粉藍
+    // 階段二（膨脹變身後與漂浮待機）：真金屬高光反射（拉絲香檳金 + 陽極冰河粉藍）
     const FORGED_GOLD_STYLE = {
-      color: 0xd9b266,        // 飽滿暖香檳金（在 ACES 曝光下呈現 Logo_metal.jpeg 的金銅高光漸層）
-      metalness: 0.82,
-      roughness: 0.24,
-      clearcoat: 0.22,
-      envMapIntensity: 0.78
+      color: 0xf0cfa0,        // 暖亮香檳金
+      metalness: 0.94,        // 高金屬度配合 PMREM 產生銳利鏡面漸層
+      roughness: 0.22,
+      clearcoat: 0.35,
+      envMapIntensity: 1.35
     };
     const FORGED_GLACIER_BLUE_STYLE = {
-      color: 0x6296ab,        // 飽滿冰河粉藍（保留藍綠調性不被高光洗白）
-      metalness: 0.55,
-      roughness: 0.22,
-      clearcoat: 0.45,
-      envMapIntensity: 0.72
+      color: 0x9bc4d4,        // 冰河粉藍
+      metalness: 0.72,
+      roughness: 0.16,
+      clearcoat: 0.90,        // 琉璃陽極氧化清漆反光
+      envMapIntensity: 1.25
     };
 
     const champagneGoldMat = new THREE.MeshPhysicalMaterial({
@@ -527,7 +537,7 @@
       roughness: LIGHT_LETTER_STYLE.roughness,
       roughnessMap: brushedRoughnessMap,
       clearcoat: LIGHT_LETTER_STYLE.clearcoat,
-      clearcoatRoughness: 0.18,
+      clearcoatRoughness: 0.14,
       envMapIntensity: LIGHT_LETTER_STYLE.envMapIntensity,
       emissive: 0x000000,
       emissiveIntensity: 0
@@ -538,7 +548,7 @@
       metalness: LIGHT_CUBE_STYLE.metalness,
       roughness: LIGHT_CUBE_STYLE.roughness,
       clearcoat: LIGHT_CUBE_STYLE.clearcoat,
-      clearcoatRoughness: 0.15,
+      clearcoatRoughness: 0.10,
       envMapIntensity: LIGHT_CUBE_STYLE.envMapIntensity,
       emissive: 0x000000,
       emissiveIntensity: 0
@@ -565,6 +575,7 @@
           m.material.roughness = style.roughness;
           m.material.clearcoat = style.clearcoat;
           m.material.envMapIntensity = style.envMapIntensity;
+          m.material.needsUpdate = true;
           if (!isForged) {
             m.material.emissive.setHex(0x000000);
             m.material.emissiveIntensity = 0;
@@ -773,10 +784,10 @@
             item.meshes.forEach((m) => {
               if (item.isLogoLetter) {
                 m.material.emissive.setHex(0xd4af37);
-                m.material.emissiveIntensity = glowPower * 0.24;
+                m.material.emissiveIntensity = glowPower * 0.20;
               } else {
-                m.material.emissive.setHex(0x5b92a8);
-                m.material.emissiveIntensity = glowPower * 0.18;
+                m.material.emissive.setHex(0x6ba4b8);
+                m.material.emissiveIntensity = glowPower * 0.14;
               }
             });
           });
