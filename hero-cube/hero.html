@@ -1,4 +1,4 @@
-<div id="wp-hero-container" style="position: relative; width: 100vw; height: 100vh; overflow: hidden; background: linear-gradient(135deg, #e8edf3 0%, #b8c7d8 100%); margin: 0; padding: 0;">
+<div id="wp-hero-container" style="position: relative; width: 100vw; height: 300vh; overflow: hidden; background: linear-gradient(135deg, #e8edf3 0%, #b8c7d8 100%); margin: 0; padding: 0;">
 </div>
 
 <script>
@@ -109,8 +109,9 @@
       logoGroup.rotation.y += 0.003;
       renderer.render(scene, camera);
       
-      logoGroup.position.y = Math.sin(t * 0.8) * 0.5;     
-      logoGroup.position.z = Math.cos(t * 0.5) * 0.8;
+      logoGroup.position.x = Math.sin(t * 0.5) * 1;     
+      logoGroup.position.y = Math.sin(t * 0.8) * 0.8;     
+      logoGroup.position.z = Math.cos(t * 0.5) * 1.2;     
     
     }
     animate();
