@@ -3,25 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <title>Elements Lab Hero Cube</title>
-  style>
+  <style>
+  * {
+    box-sizing: border-box;
+  }
   html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
-    
     background: linear-gradient(to bottom, #edf2f7 0%, #cbd5e1 60%, #94a3b8 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
   }
   canvas {
     display: block;
     width: 100%;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+  .hero-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+    width: 100%;
+    padding: 0 20px;
+  }
+  .hero-overlay h1 {
+    color: #0f172a;
+    font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    letter-spacing: 3px;
+    text-shadow: 0 2px 12px rgba(255, 255, 255, 0.7);
+  }
+  .hero-overlay p {
+    color: #1e293b;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 3px;
+    text-shadow: 0 1px 8px rgba(255, 255, 255, 0.6);
   }
 </style>
 </head>
 <body>
 
+  <div class="hero-overlay">
+    <h1>從3D建模 列印 到3D空間互動</h1>
+    <p>Interactive Web 3D</p>
+  </div>
+  
   <!-- 依序動態載入 Three.js 與外掛 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
