@@ -12,16 +12,11 @@
       overflow: hidden;
       background: linear-gradient(135deg, #e8edf3 0%, #b8c7d8 100%);
     }
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
   </style>
 </head>
 <body>
 
-  <!-- 引入 Three.js 核心與外掛 -->
+  <!-- 依序動態載入 Three.js 與外掛 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
@@ -46,7 +41,7 @@
     dirLight.position.set(5, 10, 7);
     scene.add(dirLight);
 
-    // 動態產生金屬髮絲紋理
+    // 金屬髮絲紋理
     function createBrushedTexture() {
       const canvas = document.createElement('canvas');
       canvas.width = 256; canvas.height = 256;
@@ -70,7 +65,7 @@
 
     const loader = new THREE.GLTFLoader();
 
-    // 材質設定（香檳金 EL 與 冰河藍 Cubes）
+    // 材質設定
     const elMaterial = new THREE.MeshPhysicalMaterial({
       color: 0xd6b06b, metalness: 0.92, roughness: 0.28, roughnessMap: brushedTex, envMapIntensity: 1.40, clearcoat: 0.3
     });
@@ -79,15 +74,14 @@
       color: 0x6ea6be, metalness: 0.75, roughness: 0.22, roughnessMap: brushedTex, clearcoat: 0.85, clearcoatRoughness: 0.1, envMapIntensity: 1.35
     });
 
-    // 載入 EL 字體模型
-    loader.load('https://3d.elementslab.net/hero-cube/EL.glb?v=' + Date.now(), (gltf) => {
+    // 載入 EL.glb 與 cubes.glb
+    loader.load('EL.glb?v=' + Date.now(), (gltf) => {
       gltf.scene.traverse(n => { if (n.isMesh) n.material = elMaterial; });
       gltf.scene.position.set(-2, 0, -2);
       logoGroup.add(gltf.scene);
     });
 
-    // 載入 Cubes 模型
-    loader.load('https://3d.elementslab.net/hero-cube/cubes.glb?v=' + Date.now(), (gltf) => {
+    loader.load('cubes.glb?v=' + Date.now(), (gltf) => {
       gltf.scene.traverse(n => {
         if (n.isMesh) {
           n.material = cubeMaterial;
@@ -97,27 +91,25 @@
       logoGroup.add(gltf.scene);
     });
 
-    // 動態漫遊與三軸旋轉搖擺動畫
+    // 動畫迴圈（包含 X、Y、Z 三軸搖擺與自轉）
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
       const t = clock.getElapsedTime();
       
-      // 旋轉
       logoGroup.rotation.x = Math.sin(t * 0.4) * 0.6;
       logoGroup.rotation.y += 0.003;
       logoGroup.rotation.z = Math.sin(t * 0.5) * 0.5;
 
-      // 三軸遠近左右搖擺位移 (X 左右、Y 上下、Z 前後)
       logoGroup.position.x = Math.sin(t * 0.5) * 0.3;
-      logoGroup.position.y = Math.sin(t * 0.8) * 2;
+      logoGroup.position.y = Math.sin(t * 0.8) * 0.22;
       logoGroup.position.z = Math.cos(t * 0.5) * 0.5;
 
       renderer.render(scene, camera);
     }
     animate();
 
-    // 響應視窗大小調整
+    // 視窗縮放適應
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
