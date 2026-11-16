@@ -52,7 +52,7 @@
     letter-spacing: 3px;
     text-shadow: 0 1px 8px rgba(255, 255, 255, 0.6);
   }
-</style>
+  </style>
 </head>
 <body>
 
@@ -146,9 +146,9 @@
       logoGroup.rotation.y += 0.003;
       logoGroup.rotation.z = Math.sin(t * 0.5) * 0.5;
 
-      logoGroup.position.x = Math.sin(t * 0.5) * 0.3;
-      logoGroup.position.y = Math.sin(t * 0.8) * 0.22;
-      logoGroup.position.z = Math.cos(t * 0.5) * 0.5;
+      logoGroup.position.x = Math.sin(t * 0.5) * 2;
+      logoGroup.position.y = Math.sin(t * 0.8) * 2;
+      logoGroup.position.z = Math.cos(t * 0.5) * 2;
 
       renderer.render(scene, camera);
     }
