@@ -185,12 +185,17 @@
     }
     #svg-overlay img {
       width: 36vw;
-      max-width: 480px;
+      max-width: 360px;
       height: auto;
       transform: translateX(-32px);
       filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.15));
     }
-
+    @media (max-width: 768px) {
+      #svg-overlay img {
+        width: 82vw;        /* 讓手機版直接吃寬度百分比 */
+        max-width: 480px;   /* 這裡就是你要的手機版上限 */
+      }
+    }
     footer {
       position: absolute;
       bottom: 0.9rem;
