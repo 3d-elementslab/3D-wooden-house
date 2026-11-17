@@ -10,17 +10,15 @@
       margin: 0;
       padding: 0;
       touch-action: manipulation;
-    }
     body {
-      /* ★ 細膩、均勻的高級冷調灰藍漸層 */
       background: 
-        radial-gradient(circle at 50% 35%, rgba(203, 213, 225, 0.12) 0%, transparent 70%),
-        linear-gradient(180deg, #1e293b 0%, #0f172a 50%, #090d16 100%);
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 50% 30%, #e2e8f0 0%, #cbd5e1 50%, #8fa0b5 100%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
-      color: #e2e8f0;
+      color: #1e293b;
     }
 
     #metal-frame {
@@ -33,9 +31,10 @@
       pointer-events: none;
       z-index: 100;
       box-shadow: 
-        inset 0 0 0 1px rgba(255, 255, 255, 0.15),
-        inset 0 0 0 2px rgba(148, 163, 184, 0.25),
-        0 0 0 1px rgba(15, 23, 42, 0.6);
+        inset 0 0 0 1px rgba(255, 255, 255, 0.85),
+        inset 0 0 0 2px rgba(148, 163, 184, 0.6),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.3),
+        0 0 0 1px rgba(71, 85, 105, 0.3);
     }
 
     #webgl-canvas {
