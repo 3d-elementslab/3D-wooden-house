@@ -12,27 +12,14 @@
       touch-action: manipulation;
     }
     body {
-      /* ★ 放大光圈、拉高四周霧面藍灰基調 */
+      /* ★ 回歸高雅的冰河冷藍與銀灰擴散 */
       background: 
-        radial-gradient(circle at 50% 30%, rgba(186, 202, 222, 0.35) 0%, rgba(30, 41, 59, 0.6) 50%, #0f172a 100%);
+        radial-gradient(circle at 50% 32%, rgba(226, 232, 240, 0.25) 0%, rgba(148, 163, 184, 0.08) 45%, #0e131f 100%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
       color: #e2e8f0;
-    }
-
-    /* ★ 增加全螢幕的高級消光金屬邊框與內高光（取代原本生硬的粗框） */
-    .app-frame {
-      position: fixed;
-      inset: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      pointer-events: none;
-      z-index: 100;
-      box-shadow: 
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.15), /* 頂部極細消光高光 */
-        0 24px 48px rgba(0, 0, 0, 0.5);            /* 深層沈浸陰影 */
     }
 
     #metal-frame {
