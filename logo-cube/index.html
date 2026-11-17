@@ -12,12 +12,10 @@
       touch-action: manipulation;
     }
     body {
-      /* ★ 1. 升級為三層交錯的沉浸式光影背景（帶有極微量的冷調銀藍與深海藍層次） */
+      /* ★ 頂級珠寶展台光影：中央透出細緻銀藍微光，四周沉入極深沈浸感 */
       background: 
-        radial-gradient(circle at 50% 20%, rgba(226, 232, 240, 0.12) 0%, transparent 60%),
-        radial-gradient(circle at 20% 80%, rgba(148, 163, 184, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(15, 23, 42, 0.85) 0%, #090d16 100%),
-        #0e131f;
+        radial-gradient(circle at 50% 28%, rgba(148, 163, 184, 0.22) 0%, transparent 60%),
+        radial-gradient(circle at 50% 50%, #162032 0%, #070a12 100%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       overflow: hidden;
       width: 100vw;
@@ -25,16 +23,17 @@
       color: #e2e8f0;
     }
 
-    /* ★ 2. 增加畫面的金屬工藝邊框與高級消光質感（模擬珠寶盒或精密儀器外框） */
+    /* ★ 增加全螢幕的高級消光金屬邊框與內高光（取代原本生硬的粗框） */
     .app-frame {
-      position: absolute;
-      inset: 20px;
+      position: fixed;
+      inset: 12px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 12px;
-      box-shadow: 
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.12), /* 頂部微高光（消光金屬邊緣） */
-        0 24px 48px rgba(0, 0, 0, 0.4);           /* 深層沈浸陰影 */
       pointer-events: none;
+      z-index: 100;
+      box-shadow: 
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.15), /* 頂部極細消光高光 */
+        0 24px 48px rgba(0, 0, 0, 0.5);            /* 深層沈浸陰影 */
     }
 
     #metal-frame {
@@ -47,10 +46,9 @@
       pointer-events: none;
       z-index: 100;
       box-shadow: 
-        inset 0 0 0 1px rgba(255, 255, 255, 0.85),
-        inset 0 0 0 2px rgba(148, 163, 184, 0.6),
-        inset 0 0 0 3px rgba(255, 255, 255, 0.3),
-        0 0 0 1px rgba(71, 85, 105, 0.3);
+        inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+        inset 0 0 0 2px rgba(148, 163, 184, 0.25),
+        0 0 0 1px rgba(15, 23, 42, 0.6);
     }
 
     #webgl-canvas {
