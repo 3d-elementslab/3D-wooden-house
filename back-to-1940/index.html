@@ -911,6 +911,7 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
 
         basePositions[meta.id] = group.position.clone();
         componentGroups[meta.id] = group;
+        updateComponentTransforms();
         scene.add(group);
         return true;
       };
@@ -1416,6 +1417,7 @@ Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reser
         isAudioPlaying = !isAudioPlaying;
 
         if (isAudioPlaying) {
+          preloadDogBarkBuffer();
           startSoundscapeLoop();
           if (isRainActive) startRainAudio();
           toggleBtn.classList.add('border-amber-400', 'bg-amber-900/40');
@@ -1697,8 +1699,38 @@ function scheduleRandomAmbientSounds() {
       osc.stop(t + 0.78);
     }
 
+    let dogBarkBuffer = null;
+    let dogBarkLoading = false;
+
+    async function preloadDogBarkBuffer() {
+      if (!audioCtx || dogBarkBuffer || dogBarkLoading) return;
+      dogBarkLoading = true;
+      try {
+        const resp = await fetch('./audio/dog-barking.wav');
+        if (resp.ok) {
+          const arr = await resp.arrayBuffer();
+          dogBarkBuffer = await audioCtx.decodeAudioData(arr);
+        }
+      } catch (e) {
+        console.warn('Failed to load dog-barking.wav, using fallback:', e);
+      } finally {
+        dogBarkLoading = false;
+      }
+    }
+
     function playDogBark() {
       if (!audioCtx || audioCtx.state === 'suspended') return;
+      if (dogBarkBuffer) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = dogBarkBuffer;
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.35, audioCtx.currentTime);
+        src.connect(g);
+        g.connect(audioCtx.destination);
+        src.start(audioCtx.currentTime);
+        return;
+      }
+      preloadDogBarkBuffer();
       const t = audioCtx.currentTime;
       [0, 0.22].forEach(offset => {
         const osc = audioCtx.createOscillator();
@@ -2021,14 +2053,14 @@ function scheduleRandomAmbientSounds() {
     const DEFAULT_GUESTBOOK_MESSAGES = [
       {
         id: 1,
-        author: 'Alex',
+        author: 'Guest',
         time: 'Just now',
         content: 'Wow, this 3D digital house is amazing',
         isPrivate: false
       },
       {
         id: 2,
-        author: '阿華',
+        author: '訪客',
         time: '剛剛',
         content: '有懷舊的感覺，我喜歡這個雨淋板',
         isPrivate: false
