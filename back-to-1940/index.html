@@ -1,1 +1,2352 @@
+<!--
+================================================================================
+🏛️ 台南北忠街小屋舍 3D 空間保存與生活記憶重構專案 (1969–1971)
+Copyright (c) 2024–2026 Elements Lab (實驗元素工作室). All Rights Reserved.
 
+【智慧財產權與法律保護聲明】
+本專案之 3D 建築幾何模型、結構拆解參數、聲景合成演算法與歷史文案，
+皆為「實驗元素工作室 Elements Lab」原創研發與數位典藏與空間記憶資產。
+未經著作權人正式書面授權，嚴禁任何個人或組織進行下載拷貝、逆向提取、
+模型重構、二次發布或任何形式之商業使用。版權所有，侵權必究。
+================================================================================
+-->
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>台南北忠街小屋舍 3D 數位孿生空間 | 紀念 1969–1971 | Elements Lab</title>
+  <meta name="description" content="台南北忠街小屋舍 3D 數位孿生空間：走入 1960 年代台南生活記憶，1:1 沉浸式探索 2×2×2 公尺日式微型木造長屋（Nagaya）、14 項建築零件拆解（Exploded View）與常民生活聲景。紀念 1969–1971，由 Elements Lab 實驗元素工作室呈獻。">
+  <meta name="keywords" content="台南北忠街小屋舍, 數位孿生, Digital Twin, 3D建築模型, 日式木造長屋, 昭和建築, 1960年代台南, 雨淋板, 建築零件拆解, Exploded View, 常民聲景, 台南歷史街區, 總爺街, 白金町, 鎮北坊文化園區, 微型住宅, Three.js 3D, WebGL, Elements Lab, 實驗元素工作室, Showa Nagaya, Japanese wooden house, Tainan heritage">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="author" content="實驗元素工作室 Elements Lab">
+  
+  <!-- Canonical URL (權重集中標籤：防止 GitHub Pages 與自訂網域權重分散，所有 SEO 權重集中鎖定 3d.elementslab.net) -->
+  <link rel="canonical" href="https://3d.elementslab.net/">
+  <link rel="author" href="https://elementslab.net/">
+
+  <!-- Open Graph / Facebook / LINE Preview Metadata -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://3d.elementslab.net/">
+  <meta property="og:title" content="台南北忠街小屋舍 3D 數位孿生空間 | 紀念 1969–1971">
+  <meta property="og:description" content="走入 1960 年代台南常民生活記憶，1:1 沉浸式探索 2×2×2 公尺日式微型木造長屋，支援 14 項建築零件拆解與生活聲景。">
+  <meta property="og:image" content="https://3d.elementslab.net/01.JPG">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="台南北忠街小屋舍 3D 數位孿生模型外觀">
+  <meta property="og:site_name" content="實驗元素工作室 Elements Lab">
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:locale:alternate" content="ja_JP">
+
+  <!-- Twitter Card Metadata -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://3d.elementslab.net/">
+  <meta name="twitter:title" content="台南北忠街小屋舍 3D 數位孿生空間 | 紀念 1969–1971">
+  <meta name="twitter:description" content="走入 1960 年代台南常民生活記憶，1:1 沉浸式探索 2×2×2 公尺日式微型木造長屋，支援 14 項建築零件拆解與生活聲景。">
+  <meta name="twitter:image" content="https://3d.elementslab.net/01.JPG">
+  <meta name="twitter:image:alt" content="台南北忠街小屋舍 3D 數位孿生空間">
+
+  <!-- Google Schema.org JSON-LD Structured Data (Google 知識圖譜與富媒體搜尋最高規格標記) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://3d.elementslab.net/#website",
+        "url": "https://3d.elementslab.net/",
+        "name": "台南北忠街小屋舍 3D 數位孿生空間",
+        "description": "1960年代台南北忠街1.2坪日式微型木造長屋 3D 數位孿生空間，紀念 1969–1971。",
+        "inLanguage": ["zh-TW", "en", "ja"],
+        "publisher": {
+          "@type": "Organization",
+          "@id": "https://elementslab.net/#organization",
+          "name": "實驗元素工作室 Elements Lab",
+          "url": "https://elementslab.net/"
+        }
+      },
+      {
+        "@type": "VisualArtwork",
+        "@id": "https://3d.elementslab.net/#artwork",
+        "name": "台南北忠街小屋舍 3D 數位孿生 (Beizhong Street Wooden House 3D Digital Twin)",
+        "alternateName": "台南北忠街日式木造長屋數位孿生",
+        "artform": "3D Digital Architecture & WebGL Simulation",
+        "artworkSurface": "Japanese Wood Structure, Sugi Clapboard, Single-slope Tile Roof",
+        "dateCreated": "1969",
+        "temporalCoverage": "1969/1971",
+        "creator": {
+          "@type": "Organization",
+          "name": "Elements Lab 實驗元素工作室",
+          "url": "https://elementslab.net/"
+        },
+        "spatialCoverage": {
+          "@type": "Place",
+          "name": "台南北忠街歷史聚落 (原白金町 / 總爺街周邊)",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "北忠街 (Beizhong St.)",
+            "addressLocality": "北區",
+            "addressRegion": "台南市",
+            "addressCountry": "TW"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "22.9986",
+            "longitude": "120.2110"
+          }
+        },
+        "description": "以 1:1 比例重構 1960 年代台南北忠街 2×2×2 公尺（1.2 坪）微型日式木構長屋，支援 14 項建築構件爆炸圖拆解與程序化常民聲景模擬。"
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://3d.elementslab.net/#webpage",
+        "url": "https://3d.elementslab.net/",
+        "name": "台南北忠街小屋舍 3D 數位孿生空間 | 紀念 1969–1971 | Elements Lab",
+        "isPartOf": {
+          "@id": "https://3d.elementslab.net/#website"
+        },
+        "about": {
+          "@id": "https://3d.elementslab.net/#artwork"
+        },
+        "primaryImageOfPage": {
+          "@type": "ImageObject",
+          "url": "https://3d.elementslab.net/01.JPG"
+        },
+        "relatedLink": "https://elementslab.net/2026/10/29/japanese-wooden-house-digital-twin/"
+      }
+    ]
+  }
+  </script>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Three.js, OrbitControls, TWEEN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      touch-action: manipulation;
+      background-color: #12100e;
+      color: #f5f5f4;
+    }
+    .font-serif-tc {
+      font-family: 'Noto Serif TC', serif;
+    }
+    .parchment-pattern {
+      background-color: #14110f;
+      background-image: radial-gradient(rgba(217, 119, 6, 0.08) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+    #canvas-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none;
+      display: block;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .glass-panel {
+      background: rgba(22, 18, 15, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(217, 119, 6, 0.32);
+    }
+    .glass-btn {
+      background: rgba(38, 31, 26, 0.8);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(180, 130, 80, 0.3);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-btn:hover {
+      background: rgba(58, 46, 38, 0.95);
+      border-color: rgba(217, 119, 6, 0.7);
+      transform: translateY(-1px);
+    }
+    .glass-btn:active {
+      transform: translateY(1px);
+    }
+    .component-chip {
+      transition: all 0.2s ease;
+    }
+    .component-chip:hover {
+      transform: translateY(-2px);
+      border-color: #d97706;
+    }
+    .component-chip.active {
+      background: rgba(217, 119, 6, 0.32);
+      border-color: #f59e0b;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+    }
+    input[type=range] {
+      accent-color: #d97706;
+    }
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marqueeScroll 22s linear infinite;
+    }
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+  </style>
+  <!-- OBJLoader CDN fallback -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+</head>
+<body class="h-full w-full select-none overflow-x-hidden">
+
+  <!-- ========================================================================= -->
+  <!-- 頁面 1: 說明頁 (已完全依照要求刪除所有多餘文宣，保留專屬獻詞、純淨大標與精準內文) -->
+  <!-- ========================================================================= -->
+  <div id="view-landing" class="fixed inset-0 z-50 flex flex-col justify-between parchment-pattern overflow-y-auto px-4 py-8 sm:p-12 transition-opacity duration-500">
+    
+        <!-- Top Mini Nav -->
+    <div class="max-w-4xl w-full mx-auto flex items-center justify-between text-xs text-stone-400 border-b border-stone-800/80 pb-4">
+      <!-- Landing Page Top-Left House Line-Art Logo Container (Original Elegant Position) -->
+      <div id="landing-logo-container" class="flex items-center gap-2 group cursor-default" title="台南北忠街小屋舍 3D 互動空間">
+        <div class="w-8 h-8 flex items-center justify-center p-0.5 rounded-lg bg-amber-950/40 border border-amber-600/40 shadow-inner group-hover:border-amber-500/70 transition-all">
+          <svg viewBox="0 0 136.06 136.063" class="w-6 h-6 flex-shrink-0" fill="none"><g> <path fill="#E29622" d="M119.691,39.185L74.341,12.699l-0.086-0.209c0.417-0.837-1.176-3.545-1.176-3.545 c0.25-0.469-0.75-1.094-0.75-1.094l-0.422-0.219h-0.781l-0.641,0.219c0,0-0.132,0.439,0.222,0.807H66.88 c-0.23-0.248-0.53-0.439-0.53-0.439L65.929,8h-0.781l-0.641,0.219c0,0-0.06,0.199,0.004,0.439H61.13 c-0.23-0.248-0.53-0.439-0.53-0.439L60.179,8h-0.781l-0.641,0.219c0,0-0.06,0.199,0.004,0.439h-4.818 c-0.23-0.248-0.53-0.439-0.53-0.439L52.991,8H52.21l-0.641,0.219c0,0-0.06,0.199,0.004,0.439h-4.731 c-0.23-0.248-0.53-0.439-0.53-0.439L45.891,8h-0.781l-0.641,0.219c0,0-0.06,0.199,0.004,0.439h-4.506 c-0.23-0.248-0.53-0.439-0.53-0.439L39.016,8h-0.781l-0.641,0.219c0,0-0.06,0.199,0.004,0.439h-4.484 c-0.082-1.252-1.551-2.408-1.551-2.408h-2.875c-1.034,0.886-1.265,1.861-1.31,2.408h-1.623c-0.265-0.133-0.545-0.22-0.841-0.22 c-1.428,0-2.586,1.679-2.586,3.75c0,2.022,1.105,3.658,2.486,3.735v4.797h0.738l3.512,1.979v105.582H30h1.064h84.811v-1v-1V47.095 h3.064h0.5h0.5v-7.479v-0.293L119.691,39.185z M73.68,13.47l42.951,25.084c-0.254,0.085-0.502,0.223-0.739,0.417L71.757,13.47 H73.68z M72.008,9.658l0.266,0.646c0.193,0.873,0.152,1.905,0.138,2.166h-4.064c-0.018-0.81-0.708-2.177-1.053-2.813H72.008z M70.333,13.47l-0.019,0.033L112.6,37.936c-1.73-0.162-2.835,0.427-3.336,0.792L65.552,13.47H70.333z M65.845,9.658 c0.56,0.611,0.612,2.078,0.6,2.813h-3.848c-0.018-0.81-0.708-2.177-1.053-2.813H65.845z M64.128,13.47l-0.019,0.033l42.418,24.51 c-1.74-0.181-2.855,0.398-3.374,0.769L59.347,13.47H64.128z M60.095,9.658c0.56,0.611,0.612,2.078,0.6,2.813H55.41 c-0.018-0.81-0.708-2.177-1.053-2.813H60.095z M57.923,13.47l-0.019,0.033l42.421,24.511c-1.743-0.185-2.86,0.393-3.384,0.764 l-43.8-25.308H57.923z M84.955,38.599L41.465,13.47h4.048l-0.019,0.033L87.855,37.98C86.412,37.856,85.46,38.27,84.955,38.599z M90.773,38.799L46.937,13.47h4.782l-0.019,0.033l42.412,24.506C92.38,37.846,91.275,38.435,90.773,38.799z M52.908,9.658 c0.56,0.611,0.612,2.078,0.6,2.813h-5.198c-0.018-0.81-0.708-2.177-1.053-2.813H52.908z M45.807,9.658 c0.56,0.611,0.612,2.078,0.6,2.813h-4.973c-0.018-0.81-0.708-2.177-1.053-2.813H45.807z M40.042,13.47l-0.019,0.033L82.61,38.11 c-1.86-0.201-3.132,0.37-3.694,0.703L35.055,13.47H40.042z M38.932,9.658c0.56,0.611,0.612,2.078,0.6,2.813h-4.886 c0.676-1.057-0.178-2.165-0.865-2.813H38.932z M33.631,13.47l-0.019,0.033l43.444,25.102c-2.525-0.621-3.915,0.309-4.326,0.662 L28.084,13.47H33.631z M30.379,9.658c0.505,0.675,0.554,2.095,0.543,2.813H27.48c0.005-0.095,0.02-0.186,0.02-0.283 c0-0.979-0.265-1.862-0.688-2.53H30.379z M26.633,14.97c0.244-0.317,0.428-0.712,0.574-1.141l45.188,26.11l0.011-0.019v1.022 l-45.75-25.237V14.97H26.633z M72.328,126.281H31.064v-59.25h41.264V126.281z M72.328,66.031H31.064V23.827l41.25,23.247v0.021 h0.014V66.031z M72.393,44.822L26.814,19.136V16.85l45.578,25.228V44.822z M76.375,126.281V70.906h10.166v55.375H76.375z M92.167,126.281V70.906h0.499v55.375H92.167z M98.292,126.281V70.906h0.624v55.375H98.292z M104.542,126.281V70.906h0.583v55.375 H104.542z M110.667,126.281V70.906h0.622v55.375H110.667z M113.875,126.281h-0.586V68.928h-1v-0.021H76.375h-1.864h-0.136v57.375 h-1.047v-59.25h40.547V126.281z M113.875,66.031H73.328V47.095h40.547V66.031z M118.939,45.095H73.393v-2.812l45.547,0.102V45.095z M118.939,41.386l-45.783-0.102v-1.392c0.116-0.118,1.763-1.695,5.51,0.09l0.167-0.35l0.027,0.016l0.095-0.165l0.107,0.132 c0.092-0.075,2.319-1.79,6.17,0.046l0.014-0.028l0.024,0.014l0.317-0.55c0.751-0.391,2.344-0.804,4.968,0.442l0.187,0.108 l0.114-0.198l0.14,0.135c0.075-0.077,1.891-1.858,5.707-0.04l0.014-0.029l0.23,0.133l0.09-0.156l0.097,0.093 c0.075-0.077,1.892-1.858,5.707-0.04l0.028-0.06l0.283,0.164l0.095-0.164l0.104,0.101c0.075-0.077,1.892-1.858,5.707-0.04 l0.025-0.054l0.273,0.158l0.098-0.169l0.034,0.033c0.075-0.078,1.892-1.857,5.707-0.04l0.013-0.027l0.154,0.089 c-0.016,0.021-0.033,0.039-0.049,0.062l0.291,0.237l0.319,0.198c0.209-0.292,0.733-1.018,1.886-0.786l1.129,0.66V41.386z"/> <path fill="#E29622" d="M59.083,48.031H44h-0.442H43v14.625h0.5H44h15.583v-0.021h0.5V48.031h-0.442H59.083z M45.684,61.656H44 V49.031h1.684V61.656z M54.434,61.656h-5.937V49.031h1.271v12.604h2.813V49.031h1.854V61.656z M59.083,61.656h-1.836V49.031h1.836 V61.656z"/> </g> <path fill="#FFFFFF" d="M89.366,98.541c0,0.489-0.396,0.885-0.885,0.885l0,0c-0.488,0-0.885-0.396-0.885-0.885v-2.087 c0-0.489,0.396-0.885,0.885-0.885l0,0c0.489,0,0.885,0.396,0.885,0.885V98.541z"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="30.813" y1="15.531" x2="30.813" y2="18.05"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="35.125" y1="18.05" x2="35.125" y2="20.938"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="39.188" y1="20.406" x2="39.188" y2="22.969"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="43.719" y1="22.969" x2="43.719" y2="25.469"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="47.688" y1="25.219" x2="47.688" y2="27.969"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="52.375" y1="27.813" x2="52.375" y2="30.563"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="57.583" y1="30.948" x2="57.583" y2="33.615"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="62.417" y1="33.615" x2="62.417" y2="36.198"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="67.5" y1="36.589" x2="67.5" y2="38.88"/> <path fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" d="M54.959,30.913"/></svg>
+        </div>
+        <span class="font-medium tracking-wider text-amber-200/90 group-hover:text-amber-100 transition-colors font-mono text-[11px] sm:text-xs">Japanese 3D Wooden House</span>
+      </div>
+      <a href="https://elementslab.net/2026/10/29/japanese-wooden-house-digital-twin/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded border border-amber-900/40 text-amber-400 hover:text-amber-300 hover:border-amber-700/60 bg-stone-900/60 font-medium text-[11px] sm:text-xs tracking-wider transition-colors inline-flex items-center gap-1.5 shadow-sm" title="閱讀專案緣起專文：走入1960年代的台南生活標本 (Elements Lab)"><span>專案緣起</span><svg class="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>
+    </div>
+
+    <!-- Centered Hero Content -->
+    <div class="max-w-3xl w-full mx-auto text-center space-y-7 my-auto py-8">
+      
+      <!-- Dedication & Title & Subtitle -->
+      <div class="space-y-3">
+        <!-- Item 8: Dedicated to my best friend's parents (唯一的專屬獻詞) -->
+        <div class="text-xs sm:text-sm tracking-widest text-amber-400 font-serif-tc italic">
+          Dedicated to my best friend's parents
+        </div>
+
+        <!-- 主大標 台南北忠街小屋舍 與 房屋金色線條 Logo -->
+        <div class="flex items-center justify-center gap-3 sm:gap-4.5">
+          <div class="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center p-1 sm:p-1.5 rounded-xl bg-amber-950/30 border border-amber-600/40 shadow-lg shadow-amber-950/40 flex-shrink-0" title="台南北忠街小屋舍 原創線條標誌">
+            <svg viewBox="0 0 136.06 136.063" class="w-8 h-8 sm:w-11 sm:h-11 flex-shrink-0" fill="none"><g> <path fill="#E29622" d="M119.691,39.185L74.341,12.699l-0.086-0.209c0.417-0.837-1.176-3.545-1.176-3.545 c0.25-0.469-0.75-1.094-0.75-1.094l-0.422-0.219h-0.781l-0.641,0.219c0,0-0.132,0.439,0.222,0.807H66.88 c-0.23-0.248-0.53-0.439-0.53-0.439L65.929,8h-0.781l-0.641,0.219c0,0-0.06,0.199,0.004,0.439H61.13 c-0.23-0.248-0.53-0.439-0.53-0.439L60.179,8h-0.781l-0.641,0.219c0,0-0.06,0.199,0.004,0.439h-4.818 c-0.23-0.248-0.53-0.439-0.53-0.439L52.991,8H52.21l-0.641,0.219c0,0-0.06,0.199,0.004,0.439h-4.731 c-0.23-0.248-0.53-0.439-0.53-0.439L45.891,8h-0.781l-0.641,0.219c0,0-0.06,0.199,0.004,0.439h-4.506 c-0.23-0.248-0.53-0.439-0.53-0.439L39.016,8h-0.781l-0.641,0.219c0,0-0.06,0.199,0.004,0.439h-4.484 c-0.082-1.252-1.551-2.408-1.551-2.408h-2.875c-1.034,0.886-1.265,1.861-1.31,2.408h-1.623c-0.265-0.133-0.545-0.22-0.841-0.22 c-1.428,0-2.586,1.679-2.586,3.75c0,2.022,1.105,3.658,2.486,3.735v4.797h0.738l3.512,1.979v105.582H30h1.064h84.811v-1v-1V47.095 h3.064h0.5h0.5v-7.479v-0.293L119.691,39.185z M73.68,13.47l42.951,25.084c-0.254,0.085-0.502,0.223-0.739,0.417L71.757,13.47 H73.68z M72.008,9.658l0.266,0.646c0.193,0.873,0.152,1.905,0.138,2.166h-4.064c-0.018-0.81-0.708-2.177-1.053-2.813H72.008z M70.333,13.47l-0.019,0.033L112.6,37.936c-1.73-0.162-2.835,0.427-3.336,0.792L65.552,13.47H70.333z M65.845,9.658 c0.56,0.611,0.612,2.078,0.6,2.813h-3.848c-0.018-0.81-0.708-2.177-1.053-2.813H65.845z M64.128,13.47l-0.019,0.033l42.418,24.51 c-1.74-0.181-2.855,0.398-3.374,0.769L59.347,13.47H64.128z M60.095,9.658c0.56,0.611,0.612,2.078,0.6,2.813H55.41 c-0.018-0.81-0.708-2.177-1.053-2.813H60.095z M57.923,13.47l-0.019,0.033l42.421,24.511c-1.743-0.185-2.86,0.393-3.384,0.764 l-43.8-25.308H57.923z M84.955,38.599L41.465,13.47h4.048l-0.019,0.033L87.855,37.98C86.412,37.856,85.46,38.27,84.955,38.599z M90.773,38.799L46.937,13.47h4.782l-0.019,0.033l42.412,24.506C92.38,37.846,91.275,38.435,90.773,38.799z M52.908,9.658 c0.56,0.611,0.612,2.078,0.6,2.813h-5.198c-0.018-0.81-0.708-2.177-1.053-2.813H52.908z M45.807,9.658 c0.56,0.611,0.612,2.078,0.6,2.813h-4.973c-0.018-0.81-0.708-2.177-1.053-2.813H45.807z M40.042,13.47l-0.019,0.033L82.61,38.11 c-1.86-0.201-3.132,0.37-3.694,0.703L35.055,13.47H40.042z M38.932,9.658c0.56,0.611,0.612,2.078,0.6,2.813h-4.886 c0.676-1.057-0.178-2.165-0.865-2.813H38.932z M33.631,13.47l-0.019,0.033l43.444,25.102c-2.525-0.621-3.915,0.309-4.326,0.662 L28.084,13.47H33.631z M30.379,9.658c0.505,0.675,0.554,2.095,0.543,2.813H27.48c0.005-0.095,0.02-0.186,0.02-0.283 c0-0.979-0.265-1.862-0.688-2.53H30.379z M26.633,14.97c0.244-0.317,0.428-0.712,0.574-1.141l45.188,26.11l0.011-0.019v1.022 l-45.75-25.237V14.97H26.633z M72.328,126.281H31.064v-59.25h41.264V126.281z M72.328,66.031H31.064V23.827l41.25,23.247v0.021 h0.014V66.031z M72.393,44.822L26.814,19.136V16.85l45.578,25.228V44.822z M76.375,126.281V70.906h10.166v55.375H76.375z M92.167,126.281V70.906h0.499v55.375H92.167z M98.292,126.281V70.906h0.624v55.375H98.292z M104.542,126.281V70.906h0.583v55.375 H104.542z M110.667,126.281V70.906h0.622v55.375H110.667z M113.875,126.281h-0.586V68.928h-1v-0.021H76.375h-1.864h-0.136v57.375 h-1.047v-59.25h40.547V126.281z M113.875,66.031H73.328V47.095h40.547V66.031z M118.939,45.095H73.393v-2.812l45.547,0.102V45.095z M118.939,41.386l-45.783-0.102v-1.392c0.116-0.118,1.763-1.695,5.51,0.09l0.167-0.35l0.027,0.016l0.095-0.165l0.107,0.132 c0.092-0.075,2.319-1.79,6.17,0.046l0.014-0.028l0.024,0.014l0.317-0.55c0.751-0.391,2.344-0.804,4.968,0.442l0.187,0.108 l0.114-0.198l0.14,0.135c0.075-0.077,1.891-1.858,5.707-0.04l0.014-0.029l0.23,0.133l0.09-0.156l0.097,0.093 c0.075-0.077,1.892-1.858,5.707-0.04l0.028-0.06l0.283,0.164l0.095-0.164l0.104,0.101c0.075-0.077,1.892-1.858,5.707-0.04 l0.025-0.054l0.273,0.158l0.098-0.169l0.034,0.033c0.075-0.078,1.892-1.857,5.707-0.04l0.013-0.027l0.154,0.089 c-0.016,0.021-0.033,0.039-0.049,0.062l0.291,0.237l0.319,0.198c0.209-0.292,0.733-1.018,1.886-0.786l1.129,0.66V41.386z"/> <path fill="#E29622" d="M59.083,48.031H44h-0.442H43v14.625h0.5H44h15.583v-0.021h0.5V48.031h-0.442H59.083z M45.684,61.656H44 V49.031h1.684V61.656z M54.434,61.656h-5.937V49.031h1.271v12.604h2.813V49.031h1.854V61.656z M59.083,61.656h-1.836V49.031h1.836 V61.656z"/> </g> <path fill="#FFFFFF" d="M89.366,98.541c0,0.489-0.396,0.885-0.885,0.885l0,0c-0.488,0-0.885-0.396-0.885-0.885v-2.087 c0-0.489,0.396-0.885,0.885-0.885l0,0c0.489,0,0.885,0.396,0.885,0.885V98.541z"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="30.813" y1="15.531" x2="30.813" y2="18.05"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="35.125" y1="18.05" x2="35.125" y2="20.938"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="39.188" y1="20.406" x2="39.188" y2="22.969"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="43.719" y1="22.969" x2="43.719" y2="25.469"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="47.688" y1="25.219" x2="47.688" y2="27.969"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="52.375" y1="27.813" x2="52.375" y2="30.563"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="57.583" y1="30.948" x2="57.583" y2="33.615"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="62.417" y1="33.615" x2="62.417" y2="36.198"/> <line fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" x1="67.5" y1="36.589" x2="67.5" y2="38.88"/> <path fill="none" stroke="#E29622" stroke-width="0.5" stroke-miterlimit="10" d="M54.959,30.913"/></svg>
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-black font-serif-tc text-stone-100 tracking-tight leading-tight">
+            台南北忠街小屋舍
+          </h1>
+        </div>
+
+        <!-- 副標 紀念1969-1971 -->
+        <div class="inline-block px-3.5 py-1 rounded-full bg-amber-950/70 border border-amber-600/50 text-amber-300 font-serif-tc text-sm sm:text-base tracking-widest">
+          紀念 1969–1971
+        </div>
+      </div>
+
+      <!-- Item 7: 精準內文（中英文各露出第一段約 4~5 行，分別透過「繼續閱讀」與「Read on...」獨立展開） -->
+      <div class="glass-panel p-4 sm:p-7 rounded-2xl sm:rounded-3xl text-left border border-amber-700/40 shadow-2xl space-y-3 sm:space-y-4">
+        
+        <!-- === 中文敘事區塊 === -->
+        <div class="space-y-2.5">
+          <!-- 中文預設露出第一段引言 (約 4~5 行) -->
+          <p class="text-sm sm:text-base text-stone-200 leading-relaxed font-light text-justify">
+            座落在台南火車站附近北門路二段的福隆宮，走近巷弄裡是北忠街，原本這個地方是一整排背靠背的日式木屋建築，帶有日式斜屋頂或木板外牆的木造連棟長屋。在日文裡稱作「長屋（ながや）」。
+          </p>
+
+          <!-- 中文未露出段落 (第 2、3、4 段，預設收合) -->
+          <div id="zh-narrative-extended" class="hidden space-y-3 pt-1 transition-all duration-300">
+            <p class="text-sm sm:text-base text-stone-200 leading-relaxed font-light text-justify">
+              北忠街（舊稱「白金町」或「總爺街」周邊）緊鄰當時的陸軍步兵第二聯隊（現今的台南公園與成功大學一帶），依照建築的特色與地緣關係，這批建築極有可能是在 1930 至 1940 年代的日治時期建造的，也就是日本的昭和年間 (Showa-era)。這批木造老屋與台灣戰後的透天厝不同，它們是標準日式都市庶民建築中的連棟長屋（Nagaya）。建築特徵是使用杉木作為樑柱，木外牆使用雨淋板覆蓋，屋頂鋪設黑色的日式文化瓦。
+            </p>
+            <p class="text-sm sm:text-base text-stone-200 leading-relaxed font-light text-justify">
+              這一排長屋社區無論當初建造的使用目的為何，它歷經了日本統治的殖民時期，等到了二次世界大戰的結束，戰後嬰兒潮世代出生、長大，人口流動並湧進城市，這排長屋或租或買成了當時 1960 年代一群庶民落腳的生活據點。
+            </p>
+            <p class="text-sm sm:text-base text-stone-200 leading-relaxed font-light text-justify">
+              一樓的空間並不大，以旁邊舊有的殘屋尺寸來比對約是一個 <span class="text-amber-300 font-medium">2×2×2 公尺</span>大小的空間（約 1.2 坪），閣樓高度也是同樣一個尺寸只是斜屋頂削掉了大部分的空間，更顯得狹隘。這樣的格局為一個單位，背靠背連續蓋成一排約 10 間的屋舍，座落在當時的北忠街巷弄裡。當時的社區裡也有把一樓拆成雙面開放的空間來當作雜貨店，社區中間有一個早期常見的汲水幫浦供附近居民共用，可以想見當時的居民共同形成的生活聚落。
+            </p>
+          </div>
+
+          <!-- 中文專屬展開按鈕：繼續閱讀 -->
+          <div>
+            <button id="btn-toggle-zh" class="group text-xs text-amber-400 hover:text-amber-300 font-medium tracking-wider inline-flex items-center gap-1.5 py-0.5 px-3 rounded-full bg-amber-950/40 border border-amber-600/30 hover:border-amber-500/60 transition-all" title="展開 / 收合完整中文歷史脈絡">
+              <span id="zh-toggle-text">繼續閱讀</span>
+              <svg id="zh-toggle-icon" class="w-3 h-3 transition-transform duration-300 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- === 英文敘事區塊 (上方帶有淡金色細線分隔) === -->
+        <div class="border-t border-amber-800/40 pt-3.5 space-y-2.5 font-serif-tc text-xs sm:text-sm text-stone-300/90 leading-relaxed font-light text-justify">
+          <!-- 英文預設露出第一小節 (Origins & Architecture，約 4~5 行) -->
+          <div class="space-y-1">
+            <h3 class="text-[11px] sm:text-xs font-bold text-amber-400/90 font-mono tracking-wider uppercase">Origins & Architecture</h3>
+            <p>
+              Tucked in the alleys of Beizhong Street near Tainan Railway Station and Fulong Temple, this modest Japanese-style wooden row house—known as Nagaya (長屋)—dates back to the Japanese colonial period (the Showa era), most likely built in the 1930s–1940s. Characterized by its cedar timber framing, horizontal rainscreen weatherboards, and dark Japanese roof tiles, it embodies a classic pre-war urban dwelling.
+            </p>
+          </div>
+
+          <!-- 英文未露出章節 (Spatial Scale & Community Life、Dedication & Spatial Heritage，預設收合) -->
+          <div id="en-narrative-extended" class="hidden space-y-3 pt-1 transition-all duration-300">
+            <div class="space-y-1">
+              <h3 class="text-[11px] sm:text-xs font-bold text-amber-400/90 font-mono tracking-wider uppercase">Spatial Scale & Community Life</h3>
+              <p>
+                Following World War II and the post-war population influx, these back-to-back row houses became an essential haven for working-class families settling in 1960s Tainan. Each micro-dwelling measured a mere <span class="text-amber-300 font-medium">2×2×2 meters</span> (approx. 43 sq ft), topped by an intimate attic loft tucked beneath a single-slope roof. Centered around a communal water pump and an open-front corner grocery, neighbors forged a resilient, tightly-knit alleyway community.
+              </p>
+            </div>
+
+            <div class="space-y-1">
+              <h3 class="text-[11px] sm:text-xs font-bold text-amber-400/90 font-mono tracking-wider uppercase">Dedication & Spatial Heritage</h3>
+              <p>
+                Dedicated to a close friend's parents who embarked on their life's journey under this roof, this 3D spatial preservation project by <a href="https://elementslab.net/2026/10/29/japanese-wooden-house-digital-twin/" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:text-amber-300 underline font-medium">Elements Lab (實驗元素工作室)</a> meticulously reconstructs all 14 timber components, reviving the everyday memories of 1960s Taiwan.
+              </p>
+            </div>
+          </div>
+
+          <!-- 英文專屬展開按鈕：Read on... -->
+          <div>
+            <button id="btn-toggle-en" class="group text-[11px] sm:text-xs text-amber-400 hover:text-amber-300 font-mono tracking-wider inline-flex items-center gap-1.5 py-0.5 px-3 rounded-full bg-amber-950/40 border border-amber-600/30 hover:border-amber-500/60 transition-all" title="Read full English historical narrative">
+              <span id="en-toggle-text">Read on...</span>
+              <svg id="en-toggle-icon" class="w-3 h-3 transition-transform duration-300 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Primary Action: Enter 3D House -->
+      <div class="pt-2 flex justify-center">
+        <button id="hero-enter-3d-btn" class="px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-50 font-semibold rounded-2xl shadow-2xl hover:shadow-amber-900/50 transition transform hover:-translate-y-0.5 flex items-center gap-3 text-base sm:text-lg group border border-amber-400/40">
+          <span>🚀 進入3D互動空間 / Enter</span>
+          <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Bottom Footer: Centered Presented by Elements Lab, Visitors Counter & Guestbook Button -->
+    <footer class="max-w-4xl w-full mx-auto pt-6 pb-2 border-t border-stone-800/80 text-center space-y-2.5">
+      <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5">
+        <a href="https://elementslab.net/" target="_blank" rel="noopener noreferrer" class="text-amber-400/90 hover:text-amber-300 font-mono text-xs sm:text-sm tracking-widest uppercase transition-colors inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-stone-900/50 border border-amber-900/40 hover:border-amber-700/70 shadow-sm" title="Visit Elements Lab (實驗元素工作室)">
+          <span>Presented by Elements Lab</span>
+          <span class="text-xs text-amber-500">↗</span>
+        </a>
+
+        <!-- 彈跳框式常民留言板觸發按鈕 -->
+        <button id="btn-open-guestbook-landing" class="text-amber-400 hover:text-amber-200 font-mono text-xs py-1 px-3 rounded-full bg-amber-950/40 border border-amber-600/40 hover:border-amber-500/70 flex items-center gap-1.5 transition-all shadow-sm" title="打開常民記憶留言板">
+          <span>💬</span>
+          <span>常民留言板</span>
+        </button>
+      </div>
+      <div class="text-[10px] sm:text-[11px] text-stone-500 tracking-wider">
+        © 2024–2026 實驗元素工作室 Elements Lab · 版權所有 · 3D模型與程式碼未經授權禁止拷貝、提取或商業使用
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 頁面 2: 3D 空間互動探索 (全螢幕 3D 互動屋舍，黑金展廳氛圍)                  -->
+  <!-- ========================================================================= -->
+  <div id="view-model" class="fixed inset-0 z-0 overflow-hidden">
+    
+    <!-- 3D WebGL Canvas Container -->
+    <div id="canvas-container" class="absolute inset-0 z-0"></div>
+
+    <!-- 3D 空間頂部獨立跑馬燈橫幅 (可按 X 關閉，只跑 Public 公開留言) -->
+    <div id="top-marquee-banner" class="absolute top-1 sm:top-2.5 left-1.5 right-1.5 sm:left-6 sm:right-6 z-30 pointer-events-auto flex items-center justify-between gap-2 py-0.5 sm:py-1 px-2.5 sm:px-3 rounded-full glass-panel border border-amber-600/50 shadow-2xl overflow-hidden text-[11px] sm:text-xs max-w-4xl mx-auto transition-all duration-300">
+      <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+        <!-- 關閉跑馬燈按鈕 X (現代人都知道 X 是關閉) -->
+        <button id="btn-close-marquee" class="w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-800/80 transition" title="關閉跑馬燈 (Close Ticker)">
+          <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <span class="text-amber-400 font-mono font-bold flex items-center gap-1 text-[9px] sm:text-[10px] uppercase tracking-wider bg-amber-950/80 px-1 py-0.5 rounded border border-amber-700/50 select-none">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE
+        </span>
+      </div>
+      <!-- Marquee track (只跑 Public 公開留言) -->
+      <div class="overflow-hidden w-full relative">
+        <div id="top-marquee-track" class="marquee-track flex gap-4 text-stone-200 text-[10px] sm:text-xs">
+          <!-- Rendered dynamically with public messages only -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP HEADER: Title, Time Line & Controls -->
+    <header id="main-3d-header" class="absolute top-7 sm:top-14 left-2 right-2 sm:left-6 sm:right-6 z-20 pointer-events-none flex flex-col md:flex-row items-center justify-between gap-2 sm:gap-3 transition-all duration-300">
+      <!-- Title Badge & Back to Intro Button (恢復原始大方尺寸，保留歷史莊重感) -->
+      <div class="pointer-events-auto glass-panel px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-xl flex items-center gap-2.5 sm:gap-3 border border-amber-600/40">
+        <div class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <h2 class="font-serif-tc font-bold text-sm sm:text-base text-amber-200 tracking-wide whitespace-nowrap">台南北忠街小屋舍</h2>
+            <span class="text-[11px] font-sans px-1.5 py-0.5 rounded bg-amber-900/60 text-amber-300 font-medium border border-amber-700/40 whitespace-nowrap">紀念1969-1971</span>
+          </div>
+        </div>
+        <!-- 背景按鈕：恢復原有舒適大小 -->
+        <button id="back-to-intro-btn" class="ml-1 sm:ml-2 glass-btn text-xs text-stone-300 hover:text-amber-200 px-2.5 py-1 rounded-xl flex items-center gap-1 border-stone-700 font-serif-tc tracking-wider whitespace-nowrap" title="返回歷史背景 / Background">
+          <span>📜</span>
+          <span class="hidden sm:inline">背景 / Background</span>
+          <span class="sm:hidden">背景</span>
+        </button>
+      </div>
+
+      <!-- Item 5: Time Line (Morning, Noon, Evening, Night) & Sound Controls -->
+      <div class="pointer-events-auto glass-panel px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl shadow-xl flex items-center gap-2 sm:gap-3.5 border border-amber-600/40">
+        <!-- Preset Time Buttons (晨曦、正午、黃昏、深夜四大經典時段) -->
+        <div class="flex items-center gap-1 sm:gap-1.5">
+          <button id="btn-time-morning" class="glass-btn px-2 py-1 rounded-lg text-xs flex items-center gap-1 text-amber-200" title="Morning (06:30)">
+            <span>🌅</span>
+            <span class="text-[11px]">Morning</span>
+          </button>
+          <button id="btn-time-noon" class="glass-btn px-2 py-1 rounded-lg text-xs flex items-center gap-1 text-amber-200" title="Noon (12:00)">
+            <span>☀️</span>
+            <span class="text-[11px]">Noon</span>
+          </button>
+          <button id="btn-time-evening" class="glass-btn px-2 py-1 rounded-lg text-xs flex items-center gap-1 text-amber-200" title="Evening (17:30)">
+            <span>🌇</span>
+            <span class="text-[11px]">Evening</span>
+          </button>
+          <button id="btn-time-night" class="glass-btn px-2 py-1 rounded-lg text-xs flex items-center gap-1 text-amber-200" title="Night (21:00)">
+            <span>✨</span>
+            <span class="text-[11px]">Night</span>
+          </button>
+        </div>
+
+        <!-- Ambient Soundscape Toggle (直接以 sound 呈現) -->
+        <div class="border-l border-stone-700/70 pl-2 sm:pl-2.5 flex items-center gap-1.5">
+          <button id="global-sound-toggle-btn" class="glass-btn text-amber-300 border-amber-700/60 px-2.5 py-1 rounded-xl text-xs flex items-center gap-1.5 shadow" title="sound">
+            <span id="sound-icon">🔈</span>
+            <span class="font-medium text-[11px]" id="sound-text">sound</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- INTERACTION HINT TOAST -->
+    <div id="toast-hint" class="fixed top-36 left-1/2 -translate-x-1/2 z-30 pointer-events-none opacity-0 transition-opacity duration-300 bg-stone-900/90 text-amber-300 text-xs px-3.5 py-1.5 rounded-full border border-amber-500/40 shadow-lg">
+      提示訊息
+    </div>
+
+    <!-- BOTTOM TOOLBAR (Item 1: 14 Icons in Bottom Row; Item 4: Exploded View) -->
+    <footer class="absolute bottom-3 left-2 right-2 sm:left-6 sm:right-6 z-20 pointer-events-none flex flex-col items-center gap-2">
+      <!-- Bottom Controls: 2-Column Responsive Dashboard (30% Left: Recenter & Guestbook; 70% Right: Exploded & Door Sliders) -->
+      <div class="pointer-events-auto glass-panel px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl shadow-2xl border border-amber-600/40 max-w-xl mx-auto w-full">
+        <!-- 30% / 70% 比例分欄：左邊收斂為精巧按鈕列，右邊大比例釋放給核心拉條 -->
+        <div class="grid gap-2 sm:gap-3.5 items-center" style="grid-template-columns: 30% 1fr;">
+          
+          <!-- 左欄 (30% 空間)：視角歸位 與 留言板 (精巧緊湊、上下垂直齊頭對齊) -->
+          <div class="flex flex-col gap-1.5 justify-center w-full">
+            <!-- 視角歸位按鈕 (手機/桌機皆顯示) -->
+            <button id="btn-recenter-origin" class="glass-btn px-1.5 sm:px-2 py-1 rounded-xl text-[11px] sm:text-xs font-medium text-amber-300 hover:text-white flex items-center justify-center gap-1 border-amber-500/50 w-full shadow-sm select-none" title="一鍵視角歸零回到 (0,0,0) 原位置中">
+              <span>🎯</span>
+              <span class="whitespace-nowrap">視角歸位</span>
+            </button>
+
+            <!-- 常民留言板按鈕 -->
+            <button id="btn-open-guestbook-3d" class="glass-btn px-1.5 sm:px-2 py-1 rounded-xl text-[11px] sm:text-xs text-amber-300 hover:text-white flex items-center justify-center gap-1 border-amber-600/40 font-serif-tc tracking-wider w-full whitespace-nowrap shadow-sm select-none" title="開啟常民記憶留言板 / Guestbook">
+              <span>💬</span>
+              <span class="whitespace-nowrap">留言板</span>
+            </button>
+          </div>
+
+          <!-- 右欄 (70% 空間)：Exploded 與 Door 核心控制拉條 (長軌道滑動、標籤與滑軌精準齊頭對齊) -->
+          <div class="flex flex-col gap-1.5 border-l border-stone-700/70 pl-2 sm:pl-3.5 justify-center w-full">
+            <!-- Exploded View Slider (長軌道平滑操作) -->
+            <div class="flex items-center gap-1.5 sm:gap-2 w-full">
+              <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono uppercase tracking-wider whitespace-nowrap min-w-[66px] sm:min-w-[74px]">
+                <svg class="w-3.5 h-3.5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span>Exploded:</span>
+              </span>
+              <input id="explode-slider" type="range" min="0" max="100" value="0" class="h-1.5 bg-stone-700 rounded-lg cursor-pointer flex-1 w-full accent-amber-500">
+              <span id="explode-percent-text" class="font-mono text-xs text-amber-400 font-bold w-6 sm:w-7 text-right">0%</span>
+            </div>
+
+            <!-- Door Slider (長軌道平滑操作，與 Exploded 幾何齊頭平行) -->
+            <div class="flex items-center gap-1.5 sm:gap-2 w-full">
+              <span class="text-xs font-bold text-amber-300 flex items-center gap-1 font-mono uppercase tracking-wider whitespace-nowrap min-w-[66px] sm:min-w-[74px]">
+                <span>🚪</span>
+                <span>Door:</span>
+              </span>
+              <input id="door-slider" type="range" min="0" max="100" value="0" class="h-1.5 bg-stone-700 rounded-lg cursor-pointer flex-1 w-full accent-amber-500" title="左右滑動控制前拉門開關">
+              <span id="door-percent-text" class="font-mono text-xs text-amber-400 font-bold w-6 sm:w-7 text-right">0%</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Item 1: 14 Simple Icons Arranged in Bottom Horizontal Row (手機折疊面盤，只露第一行) -->
+      <div id="dock-panel" class="pointer-events-auto w-full max-w-5xl glass-panel px-2.5 py-1.5 sm:py-2 rounded-2xl shadow-2xl border border-amber-600/40 transition-all duration-300">
+        <!-- 面盤標題列：手機版點擊展開/收合，桌機版固定顯示 -->
+        <div id="dock-toggle-bar" class="flex items-center justify-between px-2 py-0.5 sm:pb-1 sm:border-b sm:border-stone-700/60 text-[11px] text-stone-300 cursor-pointer sm:cursor-default select-none" title="點擊切換零件面盤展開 / 收合">
+          <span class="font-bold text-amber-400 flex items-center gap-1.5">
+            <span>🏛️</span>
+            <span>14 項建築零件</span>
+            <!-- 手機版箭頭指示器 (展開/收合提示) -->
+            <span id="dock-arrow" class="sm:hidden text-[10px] text-amber-400/90 bg-amber-950/70 px-1.5 py-0.5 rounded border border-amber-700/50 flex items-center gap-0.5 ml-1 font-sans">
+              <span id="dock-arrow-text">展開</span>
+              <svg id="dock-arrow-icon" class="w-3 h-3 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </span>
+          </span>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <button id="btn-show-all" class="text-amber-300 hover:text-white font-medium text-[11px] hover:underline px-1 py-0.5" title="顯示所有零件">
+              [全部顯示]
+            </button>
+            <button id="btn-hide-all" class="text-stone-400 hover:text-amber-200 font-medium text-[11px] hover:underline px-1 py-0.5" title="隱藏所有零件">
+              [全部隱藏]
+            </button>
+          </div>
+        </div>
+
+        <!-- 14個零件按鈕容器：手機版預設隱藏(收合)，展開時為 grid grid-cols-7；桌機版永遠維持 sm:flex -->
+        <div id="components-dock" class="hidden sm:flex sm:items-center sm:justify-center gap-1.5 sm:gap-2 pt-1.5 pb-0.5 border-t border-stone-700/60 sm:border-t-0">
+          <!-- Rendered dynamically by JavaScript -->
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // =========================================================================
+    // 🛡️ ELEMENTS LAB 網域授權安全鎖 (Domain Authorization Lock)
+    // 僅授權於 3d.elementslab.net、elementslab.net、GitHub Pages 與本機測試環境運行；
+    // 任何未經授權之第三方網域鏡像盜用將自動清除模型數據並重定向至正版官方站點。
+    // =========================================================================
+    (function enforceDomainSecurity() {
+      const allowedHosts = [
+        '3d.elementslab.net',
+        'elementslab.net',
+        'localhost',
+        '127.0.0.1'
+      ];
+      const currentHost = (window.location.hostname || '').toLowerCase();
+      const isAllowed = 
+        allowedHosts.some(h => currentHost === h || currentHost.endsWith('.' + h)) ||
+        currentHost.endsWith('.github.io') ||
+        window.location.protocol === 'file:';
+
+      if (!isAllowed) {
+        try {
+          document.querySelectorAll('script[type="text/plain"]').forEach(s => s.remove());
+        } catch(e) {}
+
+        const defenseScreen = `
+          <div style="position:fixed;inset:0;background:#0d0b09;color:#f5f5f4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;z-index:999999;">
+            <div style="font-size:48px;margin-bottom:16px;">🏛️</div>
+            <h1 style="font-size:22px;color:#f59e0b;margin-bottom:12px;font-weight:bold;">未經授權之鏡像網域 / Unauthorized Domain</h1>
+            <p style="font-size:14px;color:#d6d3d1;max-width:480px;line-height:1.6;margin-bottom:24px;">
+              本「北忠街小屋舍 3D 數位孿生專案」之三維模型幾何數據、聲景合成演算法與文獻，著作權全數隸屬<strong>「實驗元素工作室 Elements Lab」</strong>原創所有。<br><br>
+              未經授權嚴禁跨域鏡像或轉載使用。系統即將為您導向官方正版展示站點：
+            </p>
+            <a href="https://3d.elementslab.net/" style="display:inline-block;padding:12px 28px;background:#d97706;color:#ffffff;text-decoration:none;border-radius:12px;font-weight:bold;font-size:14px;box-shadow:0 4px 14px rgba(217,119,6,0.4);">
+              前往官方站點 / Visit Official Site
+            </a>
+          </div>
+        `;
+
+        if (document.body) {
+          document.body.innerHTML = defenseScreen;
+        } else {
+          document.addEventListener('DOMContentLoaded', () => {
+            document.body.innerHTML = defenseScreen;
+          });
+        }
+
+        setTimeout(() => {
+          window.location.href = 'https://3d.elementslab.net/';
+        }, 3500);
+
+        throw new Error("Unauthorized domain execution terminated by Elements Lab Security.");
+      }
+    })();
+
+    // 自動清理舊版殘留的錨點（如 #section-sketches），讓網址永遠保持純淨
+    if (window.location.hash) {
+      try {
+        history.replaceState(null, document.title, window.location.pathname + window.location.search);
+      } catch (e) {}
+    }
+    // --- 14 Architectural Components Definition ---
+    const COMPONENT_METADATA = [
+      { id: '01_1F', name: '01_1F', file: '01_1F.obj', color: 0x8b5a2b, explodeOffset: [0, 0, 0] },
+      { id: '02_2F', name: '02_2F', file: '02_2F.obj', color: 0x9c6634, explodeOffset: [0, 1.4, 0] },
+      { id: '03_淋雨板1', name: '03_淋雨板1', file: '03_side_wall_top.obj', color: 0x6e4a27, explodeOffset: [-1.4, 0.5, 0] },
+      { id: '04_淋雨板2', name: '04_淋雨板2', file: '04_side_wall.obj', color: 0x6e4a27, explodeOffset: [-1.4, 0, 0] },
+      { id: '05_淋雨板3', name: '05_淋雨板3', file: '05_front_wall.obj', color: 0x6e4a27, explodeOffset: [0, 0.4, 1.3] },
+      { id: '06_屋頂', name: '06_屋頂', file: '06_roof.obj', color: 0x3d4348, explodeOffset: [0, 2.2, 0] },
+      { id: '07_竹編床', name: '07_竹編床', file: '07_bed.obj', color: 0xbfa04d, explodeOffset: [0.9, 0.2, 0.2] },
+      { id: '08_竹梯', name: '08_竹梯', file: '08_ladder.obj', color: 0xb8923a, explodeOffset: [-0.6, 0.5, -0.4] },
+      { id: '09_桌子', name: '09_桌子', file: '09_Table.obj', color: 0x75471f, explodeOffset: [-0.6, 0.2, 0.6] },
+      { id: '10_瓦斯爐', name: '10_瓦斯爐', file: '10_gas_burner.obj', color: 0x4a5568, explodeOffset: [-0.7, 0.6, 0.6] },
+      { id: '11_瓦斯桶', name: '11_瓦斯桶', file: '11_gas.obj', color: 0x718096, explodeOffset: [-1.2, 0.2, 0.7] },
+      { id: '12_窗格', name: '12_窗格', file: '12_Grid.obj', color: 0x5c3d1e, explodeOffset: [-1.5, 0.8, 0] },
+      { id: '13_後拉門', name: '13_後拉門', file: '13_sliding_door_rear.obj', color: 0x734822, explodeOffset: [0.6, 0, 1.4] },
+      { id: '14_前拉門', name: '14_前拉門', file: '14_sliding_door_front.obj', color: 0x734822, explodeOffset: [-0.6, 0, 1.7] }
+    ];
+
+    // Global 3D Variables
+    let scene, camera, renderer, controls;
+    let componentGroups = {};
+    let basePositions = {};
+    let currentExplodeRatio = 0.0;
+    let currentDoorRatio = 0.0; // 0.0 = fully closed (-0.6018m), 1.0 = fully open (+0.3082m)
+    let selectedComponentId = null;
+
+    // Lighting & Environment (Curatorial Dark)
+    let ambientLight, dirSunLight, fillLight, roomSpotLight;
+    let starPoints = null;
+    let floorMat = null;
+
+    // Rain & Eaves Droplet Particle System
+    let rainGroup = null;
+    let rainGeo = null, rainParticles = null;
+    let dripGeo = null, dripParticles = null;
+    let rainVelocities = [];
+    let dripVelocities = [];
+    let isRainActive = false;
+    let rainAudioNode = null, rainGainNode = null, rainDripTimer = null;
+
+    // Web Audio State
+    let audioCtx = null;
+    let isAudioPlaying = false;
+    let audioNodes = {};
+    let currentPeriod = 'noon';
+
+    // Raycasting
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    // ==========================================
+    // 1. INITIALIZE THREE.JS SCENE (Item 1 & 2)
+    // ==========================================
+    function initScene() {
+      const container = document.getElementById('canvas-container');
+      
+      scene = new THREE.Scene();
+      // Item 2: 保留典雅黑金展廳風格 (Curatorial Dark Gold)
+      scene.background = new THREE.Color(0x151210);
+      scene.fog = new THREE.FogExp2(0x151210, 0.025);
+
+      camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(4.6, 3.2, 5.6);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      renderer.domElement.style.touchAction = 'none';
+      container.appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.target.set(0, 1.8, 0);
+      controls.maxPolarAngle = Math.PI / 2 + 0.02; // Prevent going underground
+      controls.minDistance = 1.5;
+      controls.maxDistance = 18;
+
+      // Item 1: 模型在任何狀況下都緩緩轉動 (Continuous gentle auto-rotation)
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.6;
+
+      setupCuratorialDarkStudio();
+      setupLighting();
+      build14HouseComponents();
+      renderBottomComponentDock();
+      setupEvents();
+      updateComponentTransforms();
+
+      // Start render loop
+      animate();
+    }
+
+    // ==========================================
+    // 2. 典雅黑金展廳 (Curatorial Dark Exhibition Studio)
+    // ==========================================
+    function setupCuratorialDarkStudio() {
+      const roomGroup = new THREE.Group();
+      roomGroup.name = 'curatorial_dark_room';
+
+      // 1. Polished Dark Exhibition Stone Floor
+      const floorGeo = new THREE.PlaneGeometry(30, 30);
+      floorMat = new THREE.MeshStandardMaterial({
+        color: 0x25211e,
+        roughness: 0.52,
+        metalness: 0.15
+      });
+      const floor = new THREE.Mesh(floorGeo, floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -0.01;
+      floor.receiveShadow = true;
+      roomGroup.add(floor);
+
+      // Setup 3D Rain & Eaves Dripping Particle System
+      setupRainSystem();
+
+      // Gold Brass Edge Ring
+      const ringGeo = new THREE.RingGeometry(4.8, 4.88, 64);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xd97706, side: THREE.DoubleSide });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.y = 0.002;
+      roomGroup.add(ring);
+
+      scene.add(roomGroup);
+
+      // Item 6: 天上星星 (Twinkling Stars in Night Mode)
+      createTwinklingStars();
+    }
+
+    // Item 6: 星星閃爍機制
+    function createTwinklingStars() {
+      const starGeo = new THREE.BufferGeometry();
+      const coords = [];
+      for (let i = 0; i < 450; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.random() * (Math.PI / 2.2);
+        const rad = 18 + Math.random() * 8;
+        coords.push(
+          rad * Math.sin(phi) * Math.cos(theta),
+          rad * Math.cos(phi) + 2.5,
+          rad * Math.sin(phi) * Math.sin(theta)
+        );
+      }
+      starGeo.setAttribute('position', new THREE.Float32BufferAttribute(coords, 3));
+      const starMat = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.16,
+        transparent: true,
+        opacity: 0.0
+      });
+      starPoints = new THREE.Points(starGeo, starMat);
+      scene.add(starPoints);
+    }
+
+    // ==========================================
+    // 3. LIGHTING SETUP
+    // ==========================================
+    function setupLighting() {
+      ambientLight = new THREE.AmbientLight(0xfff5ea, 0.7);
+      scene.add(ambientLight);
+
+      dirSunLight = new THREE.DirectionalLight(0xffeedb, 1.5);
+      dirSunLight.position.set(5.5, 8.5, 4.5);
+      dirSunLight.castShadow = true;
+      dirSunLight.shadow.mapSize.width = 2048;
+      dirSunLight.shadow.mapSize.height = 2048;
+      dirSunLight.shadow.camera.near = 0.5;
+      dirSunLight.shadow.camera.far = 25;
+      dirSunLight.shadow.camera.left = -3.8;
+      dirSunLight.shadow.camera.right = 3.8;
+      dirSunLight.shadow.camera.top = 5.2;
+      dirSunLight.shadow.camera.bottom = -1.5;
+      dirSunLight.shadow.bias = -0.0004;
+      scene.add(dirSunLight);
+
+      fillLight = new THREE.DirectionalLight(0xd99555, 0.4);
+      fillLight.position.set(-5, 4, -4);
+      scene.add(fillLight);
+
+      roomSpotLight = new THREE.PointLight(0xffb74d, 0.75, 7);
+      roomSpotLight.position.set(0, 3.2, 0);
+      scene.add(roomSpotLight);
+    }
+
+// ==========================================
+    // 4. EMBEDDED HIGH-PERFORMANCE OBJ PARSER
+    // ==========================================
+    function parseSimpleOBJ(text) {
+      const lines = text.split('\n');
+      const vertices = [];
+      const positions = [];
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line || line.charCodeAt(0) === 35) continue; // skip comments '#'
+        
+        if (line.charCodeAt(0) === 118 && line.charCodeAt(1) === 32) { // 'v '
+          const parts = line.split(/\s+/);
+          vertices.push(parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3]));
+        } else if (line.charCodeAt(0) === 102 && line.charCodeAt(1) === 32) { // 'f '
+          const parts = line.split(/\s+/);
+          const faceIndices = [];
+          for (let j = 1; j < parts.length; j++) {
+            if (!parts[j]) continue;
+            const vIdx = parseInt(parts[j].split('/')[0], 10);
+            const actualIdx = vIdx < 0 ? (vertices.length / 3 + vIdx) : (vIdx - 1);
+            faceIndices.push(actualIdx);
+          }
+          // Fan triangulation for polygons
+          for (let j = 1; j < faceIndices.length - 1; j++) {
+            const i0 = faceIndices[0];
+            const i1 = faceIndices[j];
+            const i2 = faceIndices[j + 1];
+            positions.push(
+              vertices[i0 * 3], vertices[i0 * 3 + 1], vertices[i0 * 3 + 2],
+              vertices[i1 * 3], vertices[i1 * 3 + 1], vertices[i1 * 3 + 2],
+              vertices[i2 * 3], vertices[i2 * 3 + 1], vertices[i2 * 3 + 2]
+            );
+          }
+        }
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(positions), 3));
+      geometry.computeVertexNormals();
+      return geometry;
+    }
+
+    async function build14HouseComponents() {
+      console.log('%c🏛️ 台南北忠街小屋舍 3D 空間保存與生活記憶重構專案 | Crafted by Elements Lab (實驗元素工作室) -> https://elementslab.net/', 'color: #d97706; font-size: 13px; font-weight: bold;');
+
+      const loadSingleModel = async (meta) => {
+        let objText = null;
+
+        // 1. Check embedded script tag first (optional fallback if any)
+        const embedEl = document.getElementById(`embedded-${meta.id}`);
+        if (embedEl && embedEl.textContent.trim()) {
+          objText = embedEl.textContent.trim();
+        }
+
+        // 2. Fetch external .obj file from ./models/ folder
+        if (!objText && meta.file) {
+          const candidates = [
+            `./models/${meta.file}`,
+            `models/${meta.file}`
+          ];
+          for (const url of candidates) {
+            try {
+              const resp = await fetch(url);
+              if (resp.ok) {
+                const text = await resp.text();
+                if (text && (text.includes('v ') || text.includes('f ') || text.startsWith('#'))) {
+                  objText = text;
+                  break;
+                }
+              }
+            } catch (e) {
+              console.warn('Fetch failed for', url, e);
+            }
+          }
+        }
+
+        if (!objText) {
+          console.warn('Model data missing for', meta.id);
+          return false;
+        }
+
+        let geometry = null;
+        try {
+          geometry = parseSimpleOBJ(objText);
+        } catch (e) {
+          console.warn('Failed parsing OBJ model', meta.id, e);
+          return false;
+        }
+
+        const isGas = meta.id.includes('瓦斯');
+        const isRoof = meta.id.includes('屋頂');
+        const isBed = meta.id.includes('竹編床');
+        const isTable = meta.id.includes('桌子');
+        const isLadder = meta.id.includes('竹梯');
+
+        let matColor = meta.color || 0x8b5a2b;
+        let roughness = 0.8;
+        let metalness = 0.08;
+
+        if (isGas) {
+          roughness = meta.id.includes('桶') ? 0.45 : 0.4;
+          metalness = meta.id.includes('桶') ? 0.45 : 0.65;
+        } else if (isRoof) {
+          matColor = 0x3d4348;
+          roughness = 0.65;
+          metalness = 0.25;
+        } else if (isBed) {
+          matColor = 0xbfa04d;
+          roughness = 0.7;
+        } else if (isLadder) {
+          matColor = 0xb8923a;
+          roughness = 0.65;
+        } else if (isTable) {
+          matColor = 0x75471f;
+          roughness = 0.75;
+        }
+
+        const material = new THREE.MeshStandardMaterial({
+          color: matColor,
+          roughness: roughness,
+          metalness: metalness,
+          side: THREE.DoubleSide
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+
+        const group = new THREE.Group();
+        group.name = meta.id;
+        group.userData = {
+          id: meta.id,
+          meta: meta,
+          isDoor: meta.id.includes('拉門'),
+          doorId: meta.id
+        };
+        group.add(mesh);
+
+        // ZBrush coordinate calibration:
+        // cm -> meters (0.01). Anchor 1F floor to ground slab (Y=1.01) and center house depth (Z=-1.01).
+        group.scale.set(0.01, 0.01, 0.01);
+        group.position.set(0, 1.01, -1.01);
+
+        basePositions[meta.id] = group.position.clone();
+        componentGroups[meta.id] = group;
+        scene.add(group);
+        return true;
+      };
+
+      const results = await Promise.all(COMPONENT_METADATA.map(loadSingleModel));
+      const loadedCount = results.filter(Boolean).length;
+      if (loadedCount > 0) {
+        updateComponentTransforms();
+        console.log(`✅ Loaded ${loadedCount}/${COMPONENT_METADATA.length} 3D models from ./models/`);
+      }
+    }
+
+    // ==========================================
+    // 5. BOTTOM 14-COMPONENT DOCK UI & VISIBILITY TOGGLE
+    // ==========================================
+    // 14 構件完整向量圖示庫（全數採用作者原創以拉 SVG）
+    const COMPONENT_ICONS = {"01_1F": "<svg viewBox=\"0 0 136.063 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><g> <g> <path fill=\"#EB9A19\" d=\"M119.281,116.907h-102.5V23.492h102.5V116.907z M19.281,114.407h97.5V25.992h-97.5V114.407z\"/> </g> <g> <path fill=\"#EB9A19\" d=\"M111.781,113.493h-87.5V31.241h87.5V113.493z M25.281,112.493h85.5V32.241h-85.5V112.493z\"/> </g> </g></svg>", "02_2F": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><g> <polygon fill=\"none\" points=\"110.5,66.864 110.5,60.884 83.917,50.799 83.917,53.614 78.667,53.614 78.667,48.807 44.667,35.907 44.667,38.114 39.417,38.114 39.417,33.916 22.542,27.513 22.542,29.364 19.25,29.364 19.25,106.531 114.25,106.531 114.25,66.864 \"/> <path fill=\"#E29622\" d=\"M18.965,22.948H16.25v86.583h101V60.237L18.965,22.948z M19.25,106.531V29.364h3.292v-1.851l16.875,6.402 v4.199h5.25v-2.207l34,12.9v4.807h5.25v-2.815L110.5,60.884v5.98h3.75v39.667H19.25z\"/> </g> <path fill=\"#E29622\" d=\"M48.667,77.448v25.583h37.917V77.448H48.667z M72.063,79.448h3.125v21.583h-3.125V79.448z M65.375,101.031 h-4.688V79.448h4.688V101.031z M50.667,79.448H54v21.583h-3.333 M84.584,101.031h-2.709V79.448h2.709V101.031z\"/></svg>", "03_淋雨板1": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><g> <polygon fill=\"none\" points=\"120.881,79.211 122.522,71.378 75.597,71.378 73.955,79.211 \"/> <polygon fill=\"none\" points=\"120.396,91.514 122.037,83.681 75.111,83.681 73.47,91.514 \"/> <polygon fill=\"none\" points=\"32.669,28.356 23.518,24.993 22.813,28.356 \"/> <polygon fill=\"none\" points=\"68.881,79.211 70.522,71.378 23.597,71.378 21.956,79.211 \"/> <polygon fill=\"none\" points=\"68.396,91.514 70.037,83.681 23.111,83.681 21.47,91.514 \"/> <polygon fill=\"none\" points=\"21.611,96.181 19.97,104.014 66.896,104.014 68.537,96.181 \"/> <polygon fill=\"none\" points=\"118.896,104.014 120.537,96.181 73.611,96.181 71.97,104.014 \"/> <polygon fill=\"none\" points=\"68.88,67.031 70.521,59.198 23.596,59.198 21.955,67.031 \"/> <polygon fill=\"none\" points=\"23.596,46.234 21.955,54.067 68.88,54.067 70.521,46.234 \"/> <polygon fill=\"none\" points=\"73.954,67.031 120.88,67.031 122.099,61.214 116.612,59.198 75.596,59.198 \"/> <polygon fill=\"none\" points=\"21.955,40.389 65.42,40.389 44.101,32.556 23.596,32.556 \"/> <polygon fill=\"none\" points=\"73.954,54.067 102.647,54.067 81.328,46.234 75.596,46.234 \"/> <path fill=\"#DA9328\" d=\"M70.506,81.211l2.479-11.833H21.973l-2.48,11.833H70.506z M23.597,71.378h46.926l-1.641,7.833H21.956 L23.597,71.378z\"/> <path fill=\"#DA9328\" d=\"M71.492,81.211h51.014l2.479-11.833H73.972L71.492,81.211z M122.522,71.378l-1.642,7.833H73.955 l1.642-7.833H122.522z\"/> <path fill=\"#DA9328\" d=\"M70.505,69.031l2.479-11.833H21.972l-2.48,11.833H70.505z M23.596,59.198h46.926l-1.641,7.833H21.955 L23.596,59.198z\"/> <polygon fill=\"#DA9328\" points=\"120.88,67.031 73.954,67.031 75.596,59.198 116.612,59.198 111.169,57.198 73.971,57.198 71.491,69.031 122.505,69.031 123.997,61.912 122.099,61.214 \"/> <path fill=\"#DA9328\" d=\"M72.984,44.234H21.972l-2.48,11.833h51.013L72.984,44.234z M21.955,54.067l1.641-7.833h46.926l-1.641,7.833 H21.955z\"/> <polygon fill=\"#DA9328\" points=\"73.954,54.067 75.596,46.234 81.328,46.234 75.885,44.234 73.971,44.234 71.491,56.067 108.091,56.067 102.647,54.067 \"/> <polygon fill=\"#DA9328\" points=\"21.955,40.389 23.596,32.556 44.101,32.556 38.657,30.556 21.972,30.556 19.492,42.389 70.505,42.389 70.53,42.267 65.42,40.389 \"/> <polygon fill=\"#DA9328\" points=\"23.298,28.021 23.915,25.077 22.254,24.466 21.142,29.772 36.696,29.772 31.929,28.021 \"/> <path fill=\"#DA9328\" d=\"M70.021,93.514L72.5,81.681H21.487l-2.48,11.833H70.021z M23.111,83.681h46.926l-1.641,7.833H21.47 L23.111,83.681z\"/> <path fill=\"#DA9328\" d=\"M71.007,93.514h51.014l2.479-11.833H73.486L71.007,93.514z M122.037,83.681l-1.642,7.833H73.47l1.642-7.833 H122.037z\"/> <path fill=\"#DA9328\" d=\"M19.987,94.181l-2.48,11.833H68.52L71,94.181H19.987z M66.896,104.014H19.97l1.641-7.833h46.926 L66.896,104.014z\"/> <path fill=\"#DA9328\" d=\"M69.507,106.014h51.014L123,94.181H71.986L69.507,106.014z M120.537,96.181l-1.642,7.833H71.97l1.642-7.833 H120.537z\"/> </g> <line fill=\"none\" stroke=\"#DA9328\" stroke-miterlimit=\"10\" x1=\"21.62\" y1=\"24.296\" x2=\"123.997\" y2=\"61.912\"/></svg>", "04_淋雨板2": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><g> <g> <polygon fill=\"none\" points=\"116.194,84.988 117.836,77.155 70.91,77.155 69.269,84.988 \"/> <polygon fill=\"none\" points=\"115.709,97.291 117.351,89.458 70.425,89.458 68.783,97.291 \"/> <polygon fill=\"none\" points=\"64.195,84.988 65.836,77.155 18.91,77.155 17.269,84.988 \"/> <polygon fill=\"none\" points=\"63.709,97.291 65.351,89.458 18.425,89.458 16.784,97.291 \"/> <polygon fill=\"none\" points=\"16.925,101.958 15.284,109.791 62.209,109.791 63.851,101.958 \"/> <polygon fill=\"none\" points=\"114.209,109.791 115.851,101.958 68.925,101.958 67.283,109.791 \"/> <path fill=\"#DA9328\" d=\"M65.819,86.988l2.479-11.833H17.286l-2.48,11.833H65.819z M18.91,77.155h46.926l-1.641,7.833H17.269 L18.91,77.155z\"/> <path fill=\"#DA9328\" d=\"M66.806,86.988h51.014l2.479-11.833H69.285L66.806,86.988z M117.836,77.155l-1.642,7.833H69.269 l1.642-7.833H117.836z\"/> <path fill=\"#DA9328\" d=\"M65.334,99.291l2.479-11.833H16.801l-2.48,11.833H65.334z M18.425,89.458h46.926l-1.641,7.833H16.784 L18.425,89.458z\"/> <path fill=\"#DA9328\" d=\"M66.32,99.291h51.014l2.479-11.833H68.8L66.32,99.291z M117.351,89.458l-1.642,7.833H68.783l1.642-7.833 H117.351z\"/> <path fill=\"#DA9328\" d=\"M15.301,99.958l-2.48,11.833h51.013l2.48-11.833H15.301z M62.209,109.791H15.284l1.641-7.833h46.926 L62.209,109.791z\"/> <path fill=\"#DA9328\" d=\"M64.82,111.791h51.014l2.479-11.833H67.3L64.82,111.791z M115.851,101.958l-1.642,7.833H67.283 l1.642-7.833H115.851z\"/> </g> <g> <polygon fill=\"none\" points=\"118.418,46.907 120.06,39.074 73.134,39.074 71.492,46.907 \"/> <polygon fill=\"none\" points=\"117.933,59.21 119.574,51.377 72.648,51.377 71.007,59.21 \"/> <polygon fill=\"none\" points=\"66.419,46.907 68.06,39.074 21.134,39.074 19.493,46.907 \"/> <polygon fill=\"none\" points=\"65.933,59.21 67.574,51.377 20.648,51.377 19.007,59.21 \"/> <polygon fill=\"none\" points=\"19.148,63.877 17.507,71.71 64.433,71.71 66.074,63.877 \"/> <polygon fill=\"none\" points=\"116.433,71.71 118.074,63.877 71.148,63.877 69.507,71.71 \"/> <path fill=\"#DA9328\" d=\"M68.043,48.907l2.479-11.833H19.51l-2.48,11.833H68.043z M21.134,39.074H68.06l-1.641,7.833H19.493 L21.134,39.074z\"/> <path fill=\"#DA9328\" d=\"M68.043,35.907l2.479-11.833H19.51l-2.48,11.833H68.043z M21.134,26.074H68.06l-1.641,7.833H19.493 L21.134,26.074z\"/> <path fill=\"#DA9328\" d=\"M69.029,48.907h51.014l2.479-11.833H71.509L69.029,48.907z M120.06,39.074l-1.642,7.833H71.492 l1.642-7.833H120.06z\"/> <path fill=\"#DA9328\" d=\"M69.029,35.907h51.014l2.479-11.833H71.509L69.029,35.907z M120.06,26.074l-1.642,7.833H71.492 l1.642-7.833H120.06z\"/> <path fill=\"#DA9328\" d=\"M67.558,61.21l2.479-11.833H19.024l-2.48,11.833H67.558z M20.648,51.377h46.926l-1.642,7.833H19.007 L20.648,51.377z\"/> <path fill=\"#DA9328\" d=\"M68.544,61.21h51.014l2.479-11.833H71.023L68.544,61.21z M119.574,51.377l-1.642,7.833H71.007l1.642-7.833 H119.574z\"/> <path fill=\"#DA9328\" d=\"M17.524,61.877l-2.48,11.833h51.013l2.479-11.833H17.524z M64.433,71.71H17.507l1.641-7.833h46.926 L64.433,71.71z\"/> <path fill=\"#DA9328\" d=\"M67.044,73.71h51.014l2.479-11.833H69.523L67.044,73.71z M118.074,63.877l-1.642,7.833H69.507l1.642-7.833 H118.074z\"/> </g> </g></svg>", "05_淋雨板3": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><g> <g> <polygon fill=\"none\" points=\"117.291,66.186 118.933,58.353 72.007,58.353 70.365,66.186 \"/> <polygon fill=\"none\" points=\"116.806,78.488 118.447,70.655 71.521,70.655 69.88,78.488 \"/> <polygon fill=\"none\" points=\"65.292,66.186 66.933,58.353 20.007,58.353 18.366,66.186 \"/> <polygon fill=\"none\" points=\"64.806,78.488 66.447,70.655 19.521,70.655 17.88,78.488 \"/> <polygon fill=\"none\" points=\"18.021,83.155 16.38,90.988 63.306,90.988 64.947,83.155 \"/> <polygon fill=\"none\" points=\"115.306,90.988 116.947,83.155 70.021,83.155 68.38,90.988 \"/> <path fill=\"#DA9328\" d=\"M66.916,68.186l2.479-11.833H18.383l-2.48,11.833H66.916z M20.007,58.353h46.926l-1.641,7.833H18.366 L20.007,58.353z\"/> <path fill=\"#DA9328\" d=\"M67.902,68.186h51.014l2.479-11.833H70.382L67.902,68.186z M118.933,58.353l-1.642,7.833H70.365 l1.642-7.833H118.933z\"/> <path fill=\"#DA9328\" d=\"M66.431,80.488l2.479-11.833H17.897l-2.48,11.833H66.431z M19.521,70.655h46.926l-1.641,7.833H17.88 L19.521,70.655z\"/> <path fill=\"#DA9328\" d=\"M67.417,80.488h51.014l2.479-11.833H69.896L67.417,80.488z M118.447,70.655l-1.642,7.833H69.88 l1.642-7.833H118.447z\"/> <path fill=\"#DA9328\" d=\"M16.397,81.155l-2.48,11.833H64.93l2.48-11.833H16.397z M63.306,90.988H16.38l1.641-7.833h46.926 L63.306,90.988z\"/> <path fill=\"#DA9328\" d=\"M65.917,92.988h51.014l2.479-11.833H68.396L65.917,92.988z M116.947,83.155l-1.642,7.833H68.38 l1.642-7.833H116.947z\"/> </g> <g> <polygon fill=\"none\" points=\"20.245,45.074 18.604,52.907 65.529,52.907 67.171,45.074 \"/> <polygon fill=\"none\" points=\"117.529,52.907 119.171,45.074 72.245,45.074 70.604,52.907 \"/> <path fill=\"#DA9328\" d=\"M18.621,43.074l-2.48,11.833h51.013l2.479-11.833H18.621z M65.529,52.907H18.604l1.641-7.833h46.926 L65.529,52.907z\"/> <path fill=\"#DA9328\" d=\"M68.141,54.907h51.014l2.479-11.833H70.62L68.141,54.907z M119.171,45.074l-1.642,7.833H70.604 l1.642-7.833H119.171z\"/> </g> </g></svg>", "06_屋頂": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><path fill=\"#E29622\" d=\"M124,39.657v-0.772c0-0.007,0.002-0.013,0.002-0.02v-4.75c0-0.007-0.002-0.013-0.002-0.02v-0.064h-0.007 c-0.044-0.743-0.654-1.333-1.407-1.333c-0.756,0-1.366,0.59-1.41,1.333h-13.271c-0.044-0.743-0.654-1.333-1.408-1.333 c-0.755,0-1.365,0.59-1.409,1.333H91.816c-0.044-0.743-0.654-1.333-1.408-1.333c-0.755,0-1.365,0.59-1.409,1.333H75.729 c-0.044-0.743-0.655-1.333-1.408-1.333c-0.755,0-1.365,0.59-1.409,1.333H59.641c-0.044-0.743-0.654-1.333-1.409-1.333 c-0.754,0-1.365,0.59-1.409,1.333H43.47c-0.044-0.743-0.655-1.333-1.409-1.333s-1.365,0.59-1.409,1.333H26.965 c-0.044-0.743-0.655-1.333-1.409-1.333c-0.146,0-0.284,0.028-0.417,0.069v-0.735c0-1.565-1.269-2.833-2.834-2.833 c-1.565,0-3.597,0.542-3.681,2.833l0.042,2H8.969v5.625v1.875v49.125h115.047v-51H124z M122.016,88.656H10.969v-47h111.047V88.656z\" /> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"20.375\" y1=\"40.656\" x2=\"20.375\" y2=\"89.531\"/> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"30.75\" y1=\"41.323\" x2=\"30.75\" y2=\"90.197\"/> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"41.417\" y1=\"41.323\" x2=\"41.417\" y2=\"90.197\"/> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"52.083\" y1=\"41.323\" x2=\"52.083\" y2=\"90.197\"/> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"62.75\" y1=\"41.323\" x2=\"62.75\" y2=\"90.197\"/> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"73.416\" y1=\"41.323\" x2=\"73.416\" y2=\"90.197\"/> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"84.082\" y1=\"41.323\" x2=\"84.082\" y2=\"90.197\"/> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"94.748\" y1=\"41.323\" x2=\"94.748\" y2=\"90.197\"/> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"105.414\" y1=\"41.323\" x2=\"105.414\" y2=\"90.197\"/> <line fill=\"none\" stroke=\"#E29622\" stroke-miterlimit=\"10\" x1=\"116.08\" y1=\"41.323\" x2=\"116.08\" y2=\"90.197\"/> <g> <g> <path fill=\"#E29622\" d=\"M18.984,86.728c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C20.708,86.245,19.837,86.728,18.984,86.728z\"/> </g> <g> <path fill=\"#E29622\" d=\"M18.984,80.771c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C20.708,80.288,19.837,80.771,18.984,80.771z\"/> </g> <g> <path fill=\"#E29622\" d=\"M18.984,74.813c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C20.708,74.331,19.837,74.813,18.984,74.813z\"/> </g> <g> <path fill=\"#E29622\" d=\"M18.984,68.856c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C20.708,68.374,19.837,68.856,18.984,68.856z\"/> </g> <g> <path fill=\"#E29622\" d=\"M18.984,62.899c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C20.708,62.417,19.837,62.899,18.984,62.899z\"/> </g> <g> <path fill=\"#E29622\" d=\"M18.984,56.942c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C20.708,56.46,19.837,56.942,18.984,56.942z\"/> </g> <g> <path fill=\"#E29622\" d=\"M18.984,50.985c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C20.708,50.503,19.837,50.985,18.984,50.985z\"/> </g> <g> <path fill=\"#E29622\" d=\"M18.984,45.028c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C20.708,44.546,19.837,45.028,18.984,45.028z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M29.276,87.326c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C31,86.844,30.129,87.326,29.276,87.326z\"/> </g> <g> <path fill=\"#E29622\" d=\"M29.276,81.369c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C31,80.887,30.129,81.369,29.276,81.369z\"/> </g> <g> <path fill=\"#E29622\" d=\"M29.276,75.412c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C31,74.93,30.129,75.412,29.276,75.412z\"/> </g> <g> <path fill=\"#E29622\" d=\"M29.276,69.455c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.772,1.533,2.149 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.81,3.57-0.739,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C31,68.973,30.129,69.455,29.276,69.455z\"/> </g> <g> <path fill=\"#E29622\" d=\"M29.276,63.499c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C31,63.016,30.129,63.499,29.276,63.499z\"/> </g> <g> <path fill=\"#E29622\" d=\"M29.276,57.542c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C31,57.059,30.129,57.542,29.276,57.542z\"/> </g> <g> <path fill=\"#E29622\" d=\"M29.276,51.584c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C31,51.102,30.129,51.584,29.276,51.584z\"/> </g> <g> <path fill=\"#E29622\" d=\"M29.276,45.627c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C31,45.145,30.129,45.627,29.276,45.627z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M39.568,87.634c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C41.292,87.151,40.421,87.634,39.568,87.634z\"/> </g> <g> <path fill=\"#E29622\" d=\"M39.568,81.677c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C41.292,81.194,40.421,81.677,39.568,81.677z\"/> </g> <g> <path fill=\"#E29622\" d=\"M39.568,75.72c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C41.292,75.237,40.421,75.72,39.568,75.72z\"/> </g> <g> <path fill=\"#E29622\" d=\"M39.568,69.763c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.772,1.533,2.149 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.81,3.57-0.739,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C41.292,69.28,40.421,69.763,39.568,69.763z\"/> </g> <g> <path fill=\"#E29622\" d=\"M39.568,63.806c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C41.292,63.324,40.421,63.806,39.568,63.806z\"/> </g> <g> <path fill=\"#E29622\" d=\"M39.568,57.849c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C41.292,57.367,40.421,57.849,39.568,57.849z\"/> </g> <g> <path fill=\"#E29622\" d=\"M39.568,51.892c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C41.292,51.41,40.421,51.892,39.568,51.892z\"/> </g> <g> <path fill=\"#E29622\" d=\"M39.568,45.935c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C41.292,45.453,40.421,45.935,39.568,45.935z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M50.234,87.634c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C51.958,87.151,51.087,87.634,50.234,87.634z\"/> </g> <g> <path fill=\"#E29622\" d=\"M50.234,81.677c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C51.958,81.194,51.087,81.677,50.234,81.677z\"/> </g> <g> <path fill=\"#E29622\" d=\"M50.234,75.72c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C51.958,75.237,51.087,75.72,50.234,75.72z\"/> </g> <g> <path fill=\"#E29622\" d=\"M50.234,69.763c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.772,1.533,2.149 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.81,3.57-0.739,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C51.958,69.28,51.087,69.763,50.234,69.763z\"/> </g> <g> <path fill=\"#E29622\" d=\"M50.234,63.806c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C51.958,63.324,51.087,63.806,50.234,63.806z\"/> </g> <g> <path fill=\"#E29622\" d=\"M50.234,57.849c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C51.958,57.367,51.087,57.849,50.234,57.849z\"/> </g> <g> <path fill=\"#E29622\" d=\"M50.234,51.892c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C51.958,51.41,51.087,51.892,50.234,51.892z\"/> </g> <g> <path fill=\"#E29622\" d=\"M50.234,45.935c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C51.958,45.453,51.087,45.935,50.234,45.935z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M61.338,88.015c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C63.062,87.532,62.191,88.015,61.338,88.015z\"/> </g> <g> <path fill=\"#E29622\" d=\"M61.338,82.058c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C63.062,81.575,62.191,82.058,61.338,82.058z\"/> </g> <g> <path fill=\"#E29622\" d=\"M61.338,76.101c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C63.062,75.618,62.191,76.101,61.338,76.101z\"/> </g> <g> <path fill=\"#E29622\" d=\"M61.338,70.144c-0.28,0-0.558-0.051-0.806-0.186c-1.459-0.791-2.949-0.854-4.43-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.772,1.533,2.149 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.81,3.57-0.739,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C63.062,69.661,62.191,70.144,61.338,70.144z\"/> </g> <g> <path fill=\"#E29622\" d=\"M61.338,64.187c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C63.062,63.705,62.191,64.187,61.338,64.187z\"/> </g> <g> <path fill=\"#E29622\" d=\"M61.338,58.23c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C63.062,57.748,62.191,58.23,61.338,58.23z\"/> </g> <g> <path fill=\"#E29622\" d=\"M61.338,52.273c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C63.062,51.791,62.191,52.273,61.338,52.273z\"/> </g> <g> <path fill=\"#E29622\" d=\"M61.338,46.316c-0.28,0-0.558-0.052-0.806-0.187c-1.459-0.791-2.949-0.853-4.43-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.409,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C63.062,45.833,62.191,46.316,61.338,46.316z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M71.567,88.015c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C73.291,87.532,72.42,88.015,71.567,88.015z\"/> </g> <g> <path fill=\"#E29622\" d=\"M71.567,82.058c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C73.291,81.575,72.42,82.058,71.567,82.058z\"/> </g> <g> <path fill=\"#E29622\" d=\"M71.567,76.101c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.697,1.771,1.533,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C73.291,75.618,72.42,76.101,71.567,76.101z\"/> </g> <g> <path fill=\"#E29622\" d=\"M71.567,70.144c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.331,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.772,1.533,2.149 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.81,3.57-0.739,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C73.291,69.661,72.42,70.144,71.567,70.144z\"/> </g> <g> <path fill=\"#E29622\" d=\"M71.567,64.187c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C73.291,63.705,72.42,64.187,71.567,64.187z\"/> </g> <g> <path fill=\"#E29622\" d=\"M71.567,58.23c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C73.291,57.748,72.42,58.23,71.567,58.23z\"/> </g> <g> <path fill=\"#E29622\" d=\"M71.567,52.273c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C73.291,51.791,72.42,52.273,71.567,52.273z\"/> </g> <g> <path fill=\"#E29622\" d=\"M71.567,46.316c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.331,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.697,1.771,1.533,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C73.291,45.833,72.42,46.316,71.567,46.316z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M82.233,87.932c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C83.957,87.449,83.086,87.932,82.233,87.932z\"/> </g> <g> <path fill=\"#E29622\" d=\"M82.233,81.975c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C83.957,81.492,83.086,81.975,82.233,81.975z\"/> </g> <g> <path fill=\"#E29622\" d=\"M82.233,76.018c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C83.957,75.535,83.086,76.018,82.233,76.018z\"/> </g> <g> <path fill=\"#E29622\" d=\"M82.233,70.061c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.685-2.075-2.771l0.958-0.289c0.143,0.47,0.696,1.772,1.532,2.149 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.739,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.356l0.498,0.868 C83.957,69.578,83.086,70.061,82.233,70.061z\"/> </g> <g> <path fill=\"#E29622\" d=\"M82.233,64.104c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C83.957,63.621,83.086,64.104,82.233,64.104z\"/> </g> <g> <path fill=\"#E29622\" d=\"M82.233,58.146c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C83.957,57.664,83.086,58.146,82.233,58.146z\"/> </g> <g> <path fill=\"#E29622\" d=\"M82.233,52.189c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C83.957,51.707,83.086,52.189,82.233,52.189z\"/> </g> <g> <path fill=\"#E29622\" d=\"M82.233,46.232c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C83.957,45.75,83.086,46.232,82.233,46.232z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M92.9,88.016c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C94.624,87.533,93.753,88.016,92.9,88.016z\"/> </g> <g> <path fill=\"#E29622\" d=\"M92.9,82.059c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C94.624,81.576,93.753,82.059,92.9,82.059z\"/> </g> <g> <path fill=\"#E29622\" d=\"M92.9,76.102c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C94.624,75.619,93.753,76.102,92.9,76.102z\"/> </g> <g> <path fill=\"#E29622\" d=\"M92.9,70.145c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.685-2.075-2.771l0.958-0.289c0.143,0.47,0.696,1.772,1.532,2.15 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.74,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.356l0.498,0.868 C94.624,69.662,93.753,70.145,92.9,70.145z\"/> </g> <g> <path fill=\"#E29622\" d=\"M92.9,64.187c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C94.624,63.705,93.753,64.187,92.9,64.187z\"/> </g> <g> <path fill=\"#E29622\" d=\"M92.9,58.23c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C94.624,57.748,93.753,58.23,92.9,58.23z\"/> </g> <g> <path fill=\"#E29622\" d=\"M92.9,52.273c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C94.624,51.791,93.753,52.273,92.9,52.273z\"/> </g> <g> <path fill=\"#E29622\" d=\"M92.9,46.316c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C94.624,45.833,93.753,46.316,92.9,46.316z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M103.566,87.635c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C105.29,87.152,104.419,87.635,103.566,87.635z\"/> </g> <g> <path fill=\"#E29622\" d=\"M103.566,81.678c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C105.29,81.195,104.419,81.678,103.566,81.678z\"/> </g> <g> <path fill=\"#E29622\" d=\"M103.566,75.721c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C105.29,75.238,104.419,75.721,103.566,75.721z\"/> </g> <g> <path fill=\"#E29622\" d=\"M103.566,69.764c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.685-2.075-2.771l0.958-0.289c0.143,0.47,0.696,1.772,1.532,2.15 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.74,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.356l0.498,0.868 C105.29,69.281,104.419,69.764,103.566,69.764z\"/> </g> <g> <path fill=\"#E29622\" d=\"M103.566,63.806c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C105.29,63.324,104.419,63.806,103.566,63.806z\"/> </g> <g> <path fill=\"#E29622\" d=\"M103.566,57.849c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C105.29,57.367,104.419,57.849,103.566,57.849z\"/> </g> <g> <path fill=\"#E29622\" d=\"M103.566,51.892c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C105.29,51.41,104.419,51.892,103.566,51.892z\"/> </g> <g> <path fill=\"#E29622\" d=\"M103.566,45.935c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C105.29,45.453,104.419,45.935,103.566,45.935z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M114.233,87.218c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C115.957,86.735,115.086,87.218,114.233,87.218z\"/> </g> <g> <path fill=\"#E29622\" d=\"M114.233,81.261c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C115.957,80.778,115.086,81.261,114.233,81.261z\"/> </g> <g> <path fill=\"#E29622\" d=\"M114.233,75.304c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.469,0.696,1.771,1.532,2.148 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C115.957,74.821,115.086,75.304,114.233,75.304z\"/> </g> <g> <path fill=\"#E29622\" d=\"M114.233,69.347c-0.28,0-0.558-0.051-0.806-0.186c-1.46-0.791-2.95-0.854-4.431-0.18 c-0.676,0.307-1.33,0.32-1.943,0.043c-1.421-0.645-2.049-2.685-2.075-2.771l0.958-0.289c0.143,0.47,0.696,1.772,1.532,2.15 c0.343,0.154,0.708,0.141,1.115-0.043c1.78-0.811,3.57-0.74,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.356l0.498,0.868 C115.957,68.864,115.086,69.347,114.233,69.347z\"/> </g> <g> <path fill=\"#E29622\" d=\"M114.233,63.389c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C115.957,62.907,115.086,63.389,114.233,63.389z\"/> </g> <g> <path fill=\"#E29622\" d=\"M114.233,57.432c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C115.957,56.95,115.086,57.432,114.233,57.432z\"/> </g> <g> <path fill=\"#E29622\" d=\"M114.233,51.475c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C115.957,50.993,115.086,51.475,114.233,51.475z\"/> </g> <g> <path fill=\"#E29622\" d=\"M114.233,45.518c-0.28,0-0.558-0.052-0.806-0.187c-1.46-0.791-2.95-0.853-4.431-0.18 c-0.676,0.307-1.33,0.321-1.943,0.043c-1.421-0.645-2.049-2.684-2.075-2.77l0.958-0.289c0.143,0.47,0.696,1.771,1.532,2.149 c0.343,0.154,0.708,0.14,1.115-0.044c1.78-0.81,3.57-0.738,5.32,0.211c0.408,0.223,1.308-0.145,1.68-0.355l0.498,0.867 C115.957,45.036,115.086,45.518,114.233,45.518z\"/> </g> </g> <g> <g> <path fill=\"#E29622\" d=\"M122.385,87.01c-0.206,0-0.411-0.051-0.594-0.186c-1.076-0.791-2.175-0.854-3.267-0.18 c-0.498,0.307-0.98,0.32-1.433,0.043c-1.048-0.645-1.511-2.684-1.53-2.77l0.706-0.289c0.105,0.469,0.514,1.771,1.13,2.148 c0.253,0.154,0.522,0.141,0.822-0.043c1.313-0.811,2.633-0.738,3.923,0.211c0.301,0.223,0.964-0.145,1.238-0.355l0.367,0.867 C123.656,86.527,123.014,87.01,122.385,87.01z\"/> </g> <g> <path fill=\"#E29622\" d=\"M122.385,81.053c-0.206,0-0.411-0.051-0.594-0.186c-1.076-0.791-2.175-0.854-3.267-0.18 c-0.498,0.307-0.98,0.32-1.433,0.043c-1.048-0.645-1.511-2.684-1.53-2.77l0.706-0.289c0.105,0.469,0.514,1.771,1.13,2.148 c0.253,0.154,0.522,0.141,0.822-0.043c1.313-0.811,2.633-0.738,3.923,0.211c0.301,0.223,0.964-0.145,1.238-0.355l0.367,0.867 C123.656,80.57,123.014,81.053,122.385,81.053z\"/> </g> <g> <path fill=\"#E29622\" d=\"M122.385,75.096c-0.206,0-0.411-0.051-0.594-0.186c-1.076-0.791-2.175-0.854-3.267-0.18 c-0.498,0.307-0.98,0.32-1.433,0.043c-1.048-0.645-1.511-2.684-1.53-2.77l0.706-0.289c0.105,0.469,0.514,1.771,1.13,2.148 c0.253,0.154,0.522,0.141,0.822-0.043c1.313-0.811,2.633-0.738,3.923,0.211c0.301,0.223,0.964-0.145,1.238-0.355l0.367,0.867 C123.656,74.613,123.014,75.096,122.385,75.096z\"/> </g> <g> <path fill=\"#E29622\" d=\"M122.385,69.139c-0.206,0-0.411-0.051-0.594-0.186c-1.076-0.792-2.175-0.854-3.267-0.18 c-0.498,0.307-0.98,0.321-1.433,0.043c-1.048-0.645-1.511-2.686-1.53-2.771l0.706-0.289c0.105,0.47,0.514,1.772,1.13,2.15 c0.253,0.154,0.522,0.141,0.822-0.043c1.313-0.811,2.633-0.74,3.923,0.211c0.301,0.223,0.964-0.145,1.238-0.356l0.367,0.868 C123.656,68.656,123.014,69.139,122.385,69.139z\"/> </g> <g> <path fill=\"#E29622\" d=\"M122.385,63.181c-0.206,0-0.411-0.052-0.594-0.187c-1.076-0.791-2.175-0.853-3.267-0.18 c-0.498,0.307-0.98,0.321-1.433,0.043c-1.048-0.645-1.511-2.684-1.53-2.77l0.706-0.289c0.105,0.47,0.514,1.771,1.13,2.149 c0.253,0.154,0.522,0.14,0.822-0.044c1.313-0.81,2.633-0.738,3.923,0.211c0.301,0.223,0.964-0.145,1.238-0.355l0.367,0.867 C123.656,62.698,123.014,63.181,122.385,63.181z\"/> </g> <g> <path fill=\"#E29622\" d=\"M122.385,57.224c-0.206,0-0.411-0.052-0.594-0.187c-1.076-0.791-2.175-0.853-3.267-0.18 c-0.498,0.307-0.98,0.321-1.433,0.043c-1.048-0.645-1.511-2.684-1.53-2.77l0.706-0.289c0.105,0.47,0.514,1.771,1.13,2.149 c0.253,0.154,0.522,0.14,0.822-0.044c1.313-0.81,2.633-0.738,3.923,0.211c0.301,0.223,0.964-0.145,1.238-0.355l0.367,0.867 C123.656,56.741,123.014,57.224,122.385,57.224z\"/> </g> <g> <path fill=\"#E29622\" d=\"M122.385,51.267c-0.206,0-0.411-0.052-0.594-0.187c-1.076-0.791-2.175-0.853-3.267-0.18 c-0.498,0.307-0.98,0.321-1.433,0.043c-1.048-0.645-1.511-2.684-1.53-2.77l0.706-0.289c0.105,0.47,0.514,1.771,1.13,2.149 c0.253,0.154,0.522,0.14,0.822-0.044c1.313-0.81,2.633-0.738,3.923,0.211c0.301,0.223,0.964-0.145,1.238-0.355l0.367,0.867 C123.656,50.784,123.014,51.267,122.385,51.267z\"/> </g> <g> <path fill=\"#E29622\" d=\"M122.385,45.31c-0.206,0-0.411-0.052-0.594-0.187c-1.076-0.791-2.175-0.853-3.267-0.18 c-0.498,0.307-0.98,0.321-1.433,0.043c-1.048-0.645-1.511-2.684-1.53-2.77l0.706-0.289c0.105,0.47,0.514,1.771,1.13,2.149 c0.253,0.154,0.522,0.14,0.822-0.044c1.313-0.81,2.633-0.738,3.923,0.211c0.301,0.223,0.964-0.145,1.238-0.355l0.367,0.867 C123.656,44.827,123.014,45.31,122.385,45.31z\"/> </g> </g> <polygon fill=\"#E29622\" points=\"121.667,89.531 121.667,96.281 11.922,96.281 11.922,89.516 10.922,89.516 10.922,97.266 11,97.266 11,97.281 121.667,97.281 122.167,97.281 122.667,97.281 122.667,89.531 \"/></svg>", "07_竹編床": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><g> <path fill=\"none\" d=\"M115.875,44.67L99.834,28.777c0.574,1.08,0.297,2.537-0.783,3.55L38.139,89.529 c-1.29,1.213-3.219,1.324-4.31,0.251c-1.09-1.072-0.929-2.925,0.361-4.136l60.914-57.204c1.084-1.017,2.611-1.247,3.723-0.663 L86.729,15.792L20.186,77.875l29.145,28.879L115.875,44.67z M22.929,80.5c-1.09-1.073-0.929-2.926,0.361-4.136L84.203,19.16 c1.289-1.211,3.219-1.322,4.311-0.25c1.09,1.073,0.928,2.925-0.361,4.136L27.239,80.249C25.948,81.461,24.02,81.573,22.929,80.5z M28.579,85.027c-1.089-1.074-0.929-2.926,0.361-4.136l60.913-57.204c1.291-1.211,3.219-1.323,4.311-0.25 c1.09,1.074,0.928,2.926-0.361,4.136L32.889,84.776C31.599,85.988,29.67,86.101,28.579,85.027z M38.302,94.761 c-1.09-1.074-0.929-2.925,0.362-4.137l60.913-57.203c1.289-1.211,3.219-1.323,4.311-0.25c1.09,1.074,0.928,2.925-0.361,4.136 L42.612,94.511C41.321,95.722,39.393,95.833,38.302,94.761z M42.54,99.74c-1.09-1.074-0.929-2.925,0.361-4.136l60.913-57.204 c1.289-1.211,3.219-1.323,4.311-0.25c1.09,1.074,0.928,2.926-0.363,4.136L46.85,99.49C45.559,100.702,43.631,100.813,42.54,99.74z M48.081,99.792l60.913-57.204c1.289-1.211,3.219-1.323,4.309-0.25c1.092,1.073,0.93,2.925-0.361,4.136l-60.912,57.203 c-1.29,1.211-3.219,1.323-4.31,0.25C46.63,102.855,46.791,101.003,48.081,99.792z\"/> <path fill=\"#DA9328\" d=\"M88.514,18.911c-1.092-1.073-3.021-0.961-4.311,0.25L23.29,76.364c-1.29,1.21-1.451,3.063-0.361,4.136 c1.091,1.073,3.019,0.961,4.31-0.251l60.914-57.202C89.441,21.836,89.604,19.984,88.514,18.911z\"/> <path fill=\"#DA9328\" d=\"M94.164,23.438c-1.092-1.073-3.02-0.961-4.311,0.25L28.94,80.892c-1.29,1.21-1.451,3.062-0.361,4.136 c1.091,1.073,3.02,0.961,4.31-0.251l60.914-57.203C95.092,26.363,95.254,24.512,94.164,23.438z\"/> <path fill=\"#DA9328\" d=\"M103.525,37.307c1.289-1.21,1.451-3.062,0.361-4.136c-1.092-1.073-3.021-0.961-4.311,0.25L38.664,90.624 c-1.291,1.212-1.452,3.063-0.362,4.137c1.091,1.072,3.019,0.961,4.311-0.25L103.525,37.307z\"/> <path fill=\"#DA9328\" d=\"M108.125,38.151c-1.092-1.073-3.021-0.961-4.311,0.25L42.901,95.604c-1.291,1.211-1.451,3.062-0.361,4.136 c1.091,1.073,3.019,0.962,4.31-0.25l60.912-57.203C109.053,41.077,109.215,39.225,108.125,38.151z\"/> <path fill=\"#DA9328\" d=\"M52.029,103.678l60.912-57.203c1.291-1.211,1.453-3.063,0.361-4.136c-1.09-1.073-3.02-0.961-4.309,0.25 L48.081,99.792c-1.291,1.211-1.451,3.063-0.362,4.136C48.811,105.001,50.739,104.889,52.029,103.678z\"/> <path fill=\"#DA9328\" d=\"M119.725,44.863l0.146-0.135L86.789,11.952L16.191,77.816l0.161,0.161 c-0.391,0.442-0.636,1.022-0.636,1.663v21.753c0,1.385,1.106,2.505,2.472,2.505c1.365,0,2.472-1.12,2.472-2.505V82.246 l27.515,27.264v13.268c0,0.922,1.106,1.668,2.472,1.668s2.472-0.746,2.472-1.668v-14.477c0-0.338-0.152-0.652-0.409-0.915 l62.69-58.488v18.166c0,1.313,1.105,2.377,2.473,2.377c1.365,0,2.471-1.064,2.471-2.377v-20.64 C120.344,45.824,120.105,45.282,119.725,44.863z M86.729,15.792l12.098,11.986c-1.111-0.584-2.639-0.354-3.723,0.663L34.19,85.645 c-1.29,1.211-1.451,3.063-0.361,4.136c1.09,1.073,3.02,0.962,4.31-0.251l60.912-57.202c1.08-1.013,1.357-2.471,0.783-3.55 l16.041,15.893l-66.544,62.084L20.186,77.875L86.729,15.792z\"/> </g></svg>", "08_竹梯": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><path fill=\"#E29622\" d=\"M78.375,13.031c-1.104,0-2,0.896-2,2v5.063H55.25v-5.063c0-1.104-0.896-2-2-2s-2,0.896-2,2v109 c0,1.104,0.896,2,2,2s2-0.896,2-2v-12.25h21.125v12.25c0,1.104,0.896,2,2,2s2-0.896,2-2v-109 C80.375,13.927,79.479,13.031,78.375,13.031z M76.375,22.594v15.5H55.25v-15.5H76.375z M55.25,76.094h21.125v15.521H55.25V76.094z M76.375,73.594H55.25V58.719h21.125V73.594z M76.375,56.219H55.25V40.594h21.125V56.219z M55.25,109.281V94.115h21.125v15.166 H55.25z\"/></svg>", "09_桌子": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><polygon fill=\"#E29622\" points=\"91.734,29.781 17.97,29.781 13.447,29.781 13.446,29.781 13.446,67.448 17.97,67.448 17.97,34.814 43.701,63.448 43.701,101.115 48.224,101.115 48.224,63.448 89.396,63.448 89.396,72.448 94.386,72.448 94.386,63.448 117.155,63.448 117.155,101.115 122.613,101.115 122.613,63.448 \"/></svg>", "10_瓦斯爐": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><g> <path fill=\"#E29622\" d=\"M50.352,60.009c-0.366,0.366-1.015,0.312-1.449-0.124c-0.436-0.436-0.491-1.084-0.124-1.449l2.474-2.476 c-1.753-1.256-3.896-2.003-6.217-2.003c-2.257,0-4.348,0.702-6.074,1.895l2.585,2.583c0.365,0.367,0.311,1.015-0.125,1.45 c-0.436,0.435-1.083,0.49-1.449,0.124l-2.701-2.701c-1.815,1.917-2.937,4.499-2.937,7.349c0,2.489,0.857,4.774,2.283,6.592 l2.693-2.695c0.367-0.365,1.015-0.311,1.45,0.125c0.435,0.436,0.49,1.083,0.124,1.449l-2.725,2.725 c1.86,1.561,4.256,2.504,6.875,2.504c2.338,0,4.493-0.758,6.253-2.03l-2.511-2.511c-0.366-0.366-0.312-1.015,0.124-1.449 c0.436-0.436,1.084-0.491,1.449-0.124l2.599,2.597c1.725-1.899,2.784-4.414,2.784-7.182c0-2.784-1.072-5.312-2.814-7.215 L50.352,60.009z M45.034,68.563c-2.157,0-3.906-1.749-3.906-3.906s1.749-3.906,3.906-3.906s3.906,1.749,3.906,3.906 S47.191,68.563,45.034,68.563z\"/> <path fill=\"#E29622\" d=\"M103.25,39.531h-71.5c-6.627,0-12,5.373-12,12v26.25c0,6.627,5.373,12,12,12h11.375v1.339h2.708v-1.339 h41.701v1.047h2.708v-1.047h13.008c6.627,0,12-5.373,12-12v-26.25C115.25,44.904,109.877,39.531,103.25,39.531z M45.036,77.434 c-7.059,0-12.779-5.721-12.779-12.777c0-7.058,5.721-12.777,12.779-12.777c7.057,0,12.776,5.72,12.776,12.777 C57.812,71.713,52.092,77.434,45.036,77.434z M87.535,77.434c-7.059,0-12.779-5.721-12.779-12.777 c0-7.058,5.721-12.777,12.779-12.777c7.057,0,12.777,5.72,12.777,12.777C100.313,71.713,94.592,77.434,87.535,77.434z\"/> <path fill=\"#E29622\" d=\"M92.852,60.009c-0.365,0.366-1.014,0.312-1.449-0.124s-0.49-1.084-0.123-1.449l2.473-2.476 c-1.752-1.256-3.895-2.003-6.217-2.003c-2.256,0-4.348,0.702-6.074,1.895l2.586,2.583c0.365,0.367,0.311,1.015-0.125,1.45 c-0.436,0.435-1.084,0.49-1.449,0.124l-2.701-2.701c-1.816,1.917-2.938,4.499-2.938,7.349c0,2.489,0.857,4.774,2.283,6.592 l2.693-2.695c0.367-0.365,1.016-0.311,1.451,0.125c0.434,0.436,0.49,1.083,0.123,1.449l-2.725,2.725 c1.861,1.561,4.256,2.504,6.875,2.504c2.338,0,4.494-0.758,6.254-2.03l-2.512-2.511c-0.365-0.366-0.311-1.015,0.125-1.449 c0.436-0.436,1.084-0.491,1.449-0.124l2.598,2.597c1.725-1.899,2.785-4.414,2.785-7.182c0-2.784-1.072-5.312-2.814-7.215 L92.852,60.009z M87.533,68.563c-2.156,0-3.906-1.749-3.906-3.906s1.75-3.906,3.906-3.906c2.158,0,3.906,1.749,3.906,3.906 S89.691,68.563,87.533,68.563z\"/> <circle fill=\"#FFFFFF\" cx=\"45.034\" cy=\"64.656\" r=\"3.906\"/> <path fill=\"#FFFFFF\" d=\"M45.036,51.879c-7.059,0-12.779,5.72-12.779,12.777c0,7.057,5.721,12.777,12.779,12.777 c7.057,0,12.776-5.721,12.776-12.777C57.812,57.599,52.092,51.879,45.036,51.879z M52.95,71.838l-2.599-2.597 c-0.365-0.367-1.014-0.312-1.449,0.124c-0.436,0.435-0.49,1.083-0.124,1.449l2.511,2.511c-1.76,1.272-3.915,2.03-6.253,2.03 c-2.619,0-5.015-0.943-6.875-2.504l2.725-2.725c0.366-0.366,0.311-1.014-0.124-1.449c-0.436-0.436-1.083-0.49-1.45-0.125 l-2.693,2.695c-1.426-1.817-2.283-4.103-2.283-6.592c0-2.85,1.121-5.432,2.937-7.349l2.701,2.701 c0.366,0.366,1.014,0.311,1.449-0.124c0.436-0.436,0.49-1.083,0.125-1.45l-2.585-2.583c1.727-1.192,3.817-1.895,6.074-1.895 c2.321,0,4.464,0.747,6.217,2.003l-2.474,2.476c-0.367,0.365-0.312,1.014,0.124,1.449c0.435,0.436,1.083,0.49,1.449,0.124 l2.567-2.567c1.742,1.903,2.814,4.431,2.814,7.215C55.734,67.424,54.674,69.938,52.95,71.838z\"/> <circle fill=\"#FFFFFF\" cx=\"87.533\" cy=\"64.656\" r=\"3.906\"/> <path fill=\"#FFFFFF\" d=\"M87.535,51.879c-7.059,0-12.779,5.72-12.779,12.777c0,7.057,5.721,12.777,12.779,12.777 c7.057,0,12.777-5.721,12.777-12.777C100.313,57.599,94.592,51.879,87.535,51.879z M95.449,71.838l-2.598-2.597 c-0.365-0.367-1.014-0.312-1.449,0.124c-0.436,0.435-0.49,1.083-0.125,1.449l2.512,2.511c-1.76,1.272-3.916,2.03-6.254,2.03 c-2.619,0-5.014-0.943-6.875-2.504l2.725-2.725c0.367-0.366,0.311-1.014-0.123-1.449c-0.436-0.436-1.084-0.49-1.451-0.125 l-2.693,2.695c-1.426-1.817-2.283-4.103-2.283-6.592c0-2.85,1.121-5.432,2.938-7.349l2.701,2.701 c0.365,0.366,1.014,0.311,1.449-0.124c0.436-0.436,0.49-1.083,0.125-1.45l-2.586-2.583c1.727-1.192,3.818-1.895,6.074-1.895 c2.322,0,4.465,0.747,6.217,2.003l-2.473,2.476c-0.367,0.365-0.313,1.014,0.123,1.449s1.084,0.49,1.449,0.124l2.568-2.567 c1.742,1.903,2.814,4.431,2.814,7.215C98.234,67.424,97.174,69.938,95.449,71.838z\"/> </g></svg>", "11_瓦斯桶": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><path fill=\"#E29622\" d=\"M78.168,36.999c1.441-1.611,2.334-3.838,2.334-6.3c0-4.914-3.557-8.897-7.943-8.897h-9.057 c-4.388,0-7.944,3.984-7.944,8.897c0,2.461,0.893,4.688,2.335,6.3c-4.92,2.531-8.293,7.647-8.293,13.562v52.116 c0,5.9,3.357,11.01,8.262,13.547v4.037h20.336v-4.037c4.906-2.537,8.264-7.646,8.264-13.547V50.561 C86.461,44.646,83.088,39.53,78.168,36.999z M64.494,25.099h7.071c1.953,0,3.535,1.583,3.535,3.535c0,1.953-1.582,3.535-3.535,3.535 h-7.071c-1.952,0-3.535-1.583-3.535-3.535C60.958,26.682,62.542,25.099,64.494,25.099z\"/></svg>", "12_窗格": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><polygon fill=\"#E29622\" points=\"96.921,27.531 96.921,57.609 79.243,57.609 79.243,27.531 57.344,27.531 57.344,57.609 39.139,57.609 39.139,27.531 17.24,27.531 17.24,108.531 39.139,108.531 39.139,72.121 57.344,72.121 57.344,108.531 79.243,108.531 79.243,72.121 96.921,72.121 96.921,108.531 118.82,108.531 118.82,27.531 \"/></svg>", "13_後拉門": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><path fill=\"#E29622\" d=\"M35.779,11.785v112.993h64.5V11.785H35.779z M64.969,15.551h3.06v105.459h-3.06V15.551z M53.199,121.011 h-2.119V15.551h2.119V121.011z M79.8,15.551h2.274v105.459H79.8V15.551z M39.546,15.551h0.785v105.459h-0.785V15.551z M96.513,121.011h-2.668V15.551h2.668V121.011z\"/></svg>", "14_前拉門": "<svg viewBox=\"0 0 136.06 136.063\" class=\"w-5 h-5 flex-shrink-0\" fill=\"none\"><path fill=\"#E29622\" d=\"M35.779,11.785v112.993h64.5V11.785H35.779z M64.969,15.551h3.06v105.459h-3.06V15.551z M53.199,121.011 h-2.119V15.551h2.119V121.011z M79.8,15.551h2.274v105.459H79.8V15.551z M39.546,15.551h0.785v105.459h-0.785V15.551z M96.513,121.011h-2.668V15.551h2.668V121.011z\"/> <path fill=\"#5C5D5D\" d=\"M45.188,68.354c0,0.776-0.699,1.406-1.563,1.406l0,0c-0.863,0-1.563-0.63-1.563-1.406v-3.688 c0-0.777,0.699-1.406,1.563-1.406l0,0c0.863,0,1.563,0.629,1.563,1.406V68.354z\"/></svg>"};
+
+
+
+    function renderBottomComponentDock() {
+      const container = document.getElementById('components-dock');
+      if (!container) return;
+      container.innerHTML = '';
+
+      COMPONENT_METADATA.forEach(meta => {
+        const btn = document.createElement('button');
+        btn.id = `dock-btn-${meta.id}`;
+        // 純圖示方形晶片按鈕 (桌機一列排滿14個無須滾動，手機7x2完全顯示)
+        btn.className = 'component-chip w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex flex-col items-center justify-center rounded-xl border border-amber-500/60 bg-amber-950/40 text-amber-200 hover:bg-amber-900/60 hover:scale-105 active:scale-95 transition-all shadow-md';
+        btn.title = `點擊切換顯示/隱藏：${meta.name}`;
+
+        const iconSvg = COMPONENT_ICONS[meta.id] || `<span class="text-xs">👁️</span>`;
+        const numLabel = meta.id.slice(0, 2);
+
+        btn.innerHTML = `
+          <div class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center flex-shrink-0">
+            ${iconSvg}
+          </div>
+          <span class="text-[8px] font-mono text-amber-300/80 leading-none mt-0.5 select-none">${numLabel}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+          toggleComponentVisibility(meta.id);
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    function toggleComponentVisibility(id) {
+      const group = componentGroups[id];
+      const meta = COMPONENT_METADATA.find(m => m.id === id);
+      if (!group || !meta) return;
+
+      group.visible = !group.visible;
+      const isVisible = group.visible;
+
+      const btn = document.getElementById(`dock-btn-${id}`);
+      if (btn) {
+        if (isVisible) {
+          btn.className = 'component-chip w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex flex-col items-center justify-center rounded-xl border border-amber-500/60 bg-amber-950/40 text-amber-200 hover:bg-amber-900/60 hover:scale-105 active:scale-95 transition-all shadow-md';
+        } else {
+          btn.className = 'component-chip w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex flex-col items-center justify-center rounded-xl border border-stone-800 bg-stone-900/70 text-stone-600 opacity-40 hover:opacity-70 transition-all grayscale';
+        }
+      }
+
+      showToast(`${meta.name} 已${isVisible ? '顯示' : '隱藏'}`);
+    }
+
+    function setAllComponentsVisibility(visible) {
+      COMPONENT_METADATA.forEach(meta => {
+        const group = componentGroups[meta.id];
+        if (group) group.visible = visible;
+
+        const btn = document.getElementById(`dock-btn-${meta.id}`);
+        if (btn) {
+          if (visible) {
+            btn.className = 'component-chip w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex flex-col items-center justify-center rounded-xl border border-amber-500/60 bg-amber-950/40 text-amber-200 hover:bg-amber-900/60 hover:scale-105 active:scale-95 transition-all shadow-md';
+          } else {
+            btn.className = 'component-chip w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex flex-col items-center justify-center rounded-xl border border-stone-800 bg-stone-900/70 text-stone-600 opacity-40 hover:opacity-70 transition-all grayscale';
+          }
+        }
+      });
+      showToast(visible ? '已全部顯示 14 項零件' : '已全部隱藏 14 項零件');
+    }
+
+    // ==========================================
+    // 6. EXPLODED VIEW & FRONT DOOR SLIDER ENGINE
+    // ==========================================
+    function updateComponentTransforms() {
+      COMPONENT_METADATA.forEach(meta => {
+        const group = componentGroups[meta.id];
+        const basePos = basePositions[meta.id];
+        if (!group || !basePos) return;
+
+        const [ox, oy, oz] = meta.explodeOffset || [0, 0, 0];
+        let doorOffsetX = 0;
+
+        // Front Door Sliding:
+        // Closed (0%): offset = -0.6018m (covers left half X=[-0.91, 0.00]m of doorway)
+        // Open (100%): offset = +0.3082m (overlaps right rear door X=[0.00, +0.91]m)
+        if (meta.id === '14_前拉門') {
+          doorOffsetX = -0.6018 + currentDoorRatio * 0.9100;
+        }
+
+        group.position.set(
+          basePos.x + ox * currentExplodeRatio + doorOffsetX,
+          basePos.y + oy * currentExplodeRatio,
+          basePos.z + oz * currentExplodeRatio
+        );
+      });
+    }
+
+    function setDoorRatio(ratio, animate = false) {
+      ratio = Math.max(0, Math.min(1, ratio));
+      if (animate) {
+        new TWEEN.Tween({ r: currentDoorRatio })
+          .to({ r: ratio }, 400)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .onUpdate(obj => {
+            currentDoorRatio = obj.r;
+            updateComponentTransforms();
+            syncDoorUI();
+          })
+          .start();
+      } else {
+        currentDoorRatio = ratio;
+        updateComponentTransforms();
+        syncDoorUI();
+      }
+    }
+
+    function syncDoorUI() {
+      const slider = document.getElementById('door-slider');
+      const text = document.getElementById('door-percent-text');
+      const pct = Math.round(currentDoorRatio * 100);
+      if (slider) slider.value = pct;
+      if (text) {
+        text.textContent = `${pct}%`;
+      }
+    }
+
+    function setExplodeRatio(ratio, animate = false) {
+      ratio = Math.max(0, Math.min(1, ratio));
+
+      if (animate) {
+        new TWEEN.Tween({ r: currentExplodeRatio })
+          .to({ r: ratio }, 600)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .onUpdate(obj => {
+            currentExplodeRatio = obj.r;
+            updateComponentTransforms();
+            syncExplodeUI();
+          })
+          .start();
+      } else {
+        currentExplodeRatio = ratio;
+        updateComponentTransforms();
+        syncExplodeUI();
+      }
+    }
+
+    function syncExplodeUI() {
+      const slider = document.getElementById('explode-slider');
+      const text = document.getElementById('explode-percent-text');
+      const pct = Math.round(currentExplodeRatio * 100);
+      if (slider) slider.value = pct;
+      if (text) {
+        text.textContent = `${pct}%`;
+      }
+    }
+
+    // ==========================================
+    // 8. TIME LINE ENGINE (Item 5 & 6: Morning, Noon, Evening, Night)
+    // ==========================================
+        // ==========================================
+    // 3D RAIN & EAVES DRIPPING PARTICLE SYSTEM
+    // ==========================================
+    function setupRainSystem() {
+      rainGroup = new THREE.Group();
+      rainGroup.visible = false;
+      scene.add(rainGroup);
+
+      // 1. Vertical falling rain streaks (空中斜雨絲)
+      const rainCount = 1400;
+      rainGeo = new THREE.BufferGeometry();
+      const rainPos = new Float32Array(rainCount * 3);
+      rainVelocities = [];
+
+      for (let i = 0; i < rainCount; i++) {
+        rainPos[i * 3] = (Math.random() - 0.5) * 12;
+        rainPos[i * 3 + 1] = Math.random() * 8;
+        rainPos[i * 3 + 2] = (Math.random() - 0.5) * 12;
+        rainVelocities.push({
+          vy: 0.16 + Math.random() * 0.08,
+          vx: 0.015,
+          vz: 0.01
+        });
+      }
+      rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+
+      const rainMat = new THREE.PointsMaterial({
+        color: 0xc8d8e8,
+        size: 0.065,
+        transparent: true,
+        opacity: 0.65,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      rainParticles = new THREE.Points(rainGeo, rainMat);
+      rainGroup.add(rainParticles);
+
+      // 2. Eaves dripping particles (單斜黑瓦前簷滴水粒子)
+      // Front lower eaves line: X ∈ [-1.25, 1.0], Y ≈ 2.68, Z ≈ 1.26
+      const dripCount = 45;
+      dripGeo = new THREE.BufferGeometry();
+      const dripPos = new Float32Array(dripCount * 3);
+      dripVelocities = [];
+
+      for (let i = 0; i < dripCount; i++) {
+        const startX = -1.25 + Math.random() * 2.25;
+        dripPos[i * 3] = startX;
+        dripPos[i * 3 + 1] = Math.random() * 2.68;
+        dripPos[i * 3 + 2] = 1.26 + (Math.random() - 0.5) * 0.04;
+        dripVelocities.push({
+          x: startX,
+          vy: 0.02 + Math.random() * 0.06,
+          delay: Math.random() * 60
+        });
+      }
+      dripGeo.setAttribute('position', new THREE.BufferAttribute(dripPos, 3));
+
+      const dripMat = new THREE.PointsMaterial({
+        color: 0xe0ecf8,
+        size: 0.08,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      dripParticles = new THREE.Points(dripGeo, dripMat);
+      rainGroup.add(dripParticles);
+    }
+
+    function updateRainSystem() {
+      if (!isRainActive || !rainGroup || !rainGroup.visible) return;
+
+      if (rainGeo) {
+        const pos = rainGeo.attributes.position.array;
+        for (let i = 0; i < rainVelocities.length; i++) {
+          pos[i * 3] += rainVelocities[i].vx;
+          pos[i * 3 + 1] -= rainVelocities[i].vy;
+          pos[i * 3 + 2] += rainVelocities[i].vz;
+
+          if (pos[i * 3 + 1] < 0) {
+            pos[i * 3] = (Math.random() - 0.5) * 12;
+            pos[i * 3 + 1] = 7.5 + Math.random() * 0.5;
+            pos[i * 3 + 2] = (Math.random() - 0.5) * 12;
+          }
+        }
+        rainGeo.attributes.position.needsUpdate = true;
+      }
+
+      if (dripGeo) {
+        const pos = dripGeo.attributes.position.array;
+        for (let i = 0; i < dripVelocities.length; i++) {
+          const v = dripVelocities[i];
+          if (v.delay > 0) {
+            v.delay--;
+            continue;
+          }
+
+          pos[i * 3 + 1] -= v.vy;
+          v.vy += 0.003;
+
+          if (pos[i * 3 + 1] <= 0.01) {
+            pos[i * 3 + 1] = 2.68;
+            pos[i * 3] = -1.25 + Math.random() * 2.25;
+            v.vy = 0.02 + Math.random() * 0.04;
+            v.delay = 10 + Math.floor(Math.random() * 50);
+          }
+        }
+        dripGeo.attributes.position.needsUpdate = true;
+      }
+    }
+
+    function setTimeLinePeriod(period, animDuration = 600) {
+      currentPeriod = period;
+
+      let bgHex, sunPos, sunColor, sunInt, ambColor, ambInt;
+      let starOpacity = 0.0;
+
+      if (period === 'morning') {
+        // 🌅 清晨晨曦（依福隆宮東北座向與正門朝向實地校準）：
+        // 晨陽自東側低仰角直射入正門內，在室內地坪、竹床與木柱拉出長長晨光；
+        // 亮度適度微調至 1.65，環境光 0.95，四周地坪泛著透亮晨霧白光，既真實又保留中午豔陽的震撼感！
+        bgHex = 0x24201c;
+        sunPos = { x: 2.2, y: 3.2, z: 8.0 };
+        sunColor = 0xfff8ee;
+        sunInt = 1.65;
+        ambColor = 0xf4efe6;
+        ambInt = 0.95;
+      } else if (period === 'noon') {
+        // ☀️ 正午豔陽（南台灣盛夏正午頂光）：
+        // 太陽當空高懸頂照，直射黑色文化瓦斜屋頂與地面，呈現強烈耀眼的高對比度豔陽白光！
+        bgHex = 0x161311;
+        sunPos = { x: 2.5, y: 10.5, z: 3.2 };
+        sunColor = 0xffffff;
+        sunInt = 2.3;
+        ambColor = 0xfff8ee;
+        ambInt = 1.2;
+      } else if (period === 'evening') {
+        bgHex = 0x24140e;
+        sunPos = { x: -7, y: 3.2, z: 2 };
+        sunColor = 0xff8c3b;
+        sunInt = 1.4;
+        ambColor = 0x8a4522;
+        ambInt = 0.7;
+      } else { // Night (Item 6: 天上出現星星閃爍)
+        bgHex = 0x090807;
+        sunPos = { x: -3.5, y: 8, z: -5.5 };
+        sunColor = 0x88aacc;
+        sunInt = 0.5; // Moonlight
+        ambColor = 0x222a35;
+        ambInt = 0.45;
+        starOpacity = 0.95;
+      }
+
+      // Update active state of time buttons
+      ['morning', 'noon', 'evening', 'night'].forEach(p => {
+        const b = document.getElementById(`btn-time-${p}`);
+        if (b) {
+          if (p === period) {
+            b.classList.add('border-amber-400', 'bg-amber-900/50', 'text-amber-300');
+          } else {
+            b.classList.remove('border-amber-400', 'bg-amber-900/50', 'text-amber-300');
+          }
+        }
+      });
+
+      new TWEEN.Tween(scene.background).to(new THREE.Color(bgHex), animDuration).start();
+      new TWEEN.Tween(scene.fog.color).to(new THREE.Color(bgHex), animDuration).start();
+
+      new TWEEN.Tween(dirSunLight.position).to(sunPos, animDuration).start();
+      new TWEEN.Tween(dirSunLight).to({ intensity: sunInt }, animDuration).start();
+      new TWEEN.Tween(dirSunLight.color).to(new THREE.Color(sunColor), animDuration).start();
+
+      new TWEEN.Tween(ambientLight).to({ intensity: ambInt }, animDuration).start();
+      new TWEEN.Tween(ambientLight.color).to(new THREE.Color(ambColor), animDuration).start();
+
+      if (fillLight) {
+        const fillInt = period === 'morning' ? 0.65 : (period === 'night' ? 0.2 : 0.4);
+        const fillColor = period === 'morning' ? 0xeae5dc : (period === 'evening' ? 0xd98545 : 0xd99555);
+        new TWEEN.Tween(fillLight).to({ intensity: fillInt }, animDuration).start();
+        new TWEEN.Tween(fillLight.color).to(new THREE.Color(fillColor), animDuration).start();
+      }
+
+      // Item 6: Stars twinkle in Night
+      if (starPoints) {
+        new TWEEN.Tween(starPoints.material).to({ opacity: starOpacity }, animDuration).start();
+      }
+
+      // Wet floor reflection in rain mode
+      if (floorMat) {
+        const floorRoughness = period === 'rain' ? 0.18 : 0.52;
+        const floorMetalness = period === 'rain' ? 0.35 : 0.15;
+        new TWEEN.Tween(floorMat).to({ roughness: floorRoughness, metalness: floorMetalness }, animDuration).start();
+      }
+
+      // Rain particles and soundscape toggle
+      if (period === 'rain') {
+        // Rain shelved
+      } else {
+        isRainActive = false;
+        // Rain shelved
+      }
+    }
+
+    // ==========================================
+    // 9. WEB AUDIO API AMBIENT SOUNDSCAPE
+    // ==========================================
+        // ==========================================
+    // RAIN SOUNDSCAPE SYNTHESIS (雨打黑瓦與簷前滴水)
+    // ==========================================
+    function startRainAudio() {
+      if (!audioCtx || !isAudioPlaying) return;
+      try {
+        if (!rainAudioNode) {
+          const bufferSize = audioCtx.sampleRate * 2;
+          const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            b3 = 0.86650 * b3 + white * 0.3104856;
+            b4 = 0.55000 * b4 + white * 0.5329522;
+            b5 = -0.7616 * b5 - white * 0.0168980;
+            output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.08;
+            b6 = white * 0.115926;
+          }
+
+          const whiteNoiseSource = audioCtx.createBufferSource();
+          whiteNoiseSource.buffer = noiseBuffer;
+          whiteNoiseSource.loop = true;
+
+          const rainFilter = audioCtx.createBiquadFilter();
+          rainFilter.type = 'bandpass';
+          rainFilter.frequency.setValueAtTime(850, audioCtx.currentTime);
+          rainFilter.Q.setValueAtTime(1.1, audioCtx.currentTime);
+
+          rainGainNode = audioCtx.createGain();
+          rainGainNode.gain.setValueAtTime(0.001, audioCtx.currentTime);
+          rainGainNode.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 1.2);
+
+          whiteNoiseSource.connect(rainFilter);
+          rainFilter.connect(rainGainNode);
+          rainGainNode.connect(audioCtx.destination);
+          whiteNoiseSource.start();
+
+          rainAudioNode = whiteNoiseSource;
+        }
+
+        if (!rainDripTimer) {
+          scheduleRainDripSounds();
+        }
+      } catch (e) {
+        console.warn("Rain audio error:", e);
+      }
+    }
+
+    function scheduleRainDripSounds() {
+      if (!isRainActive) return;
+      playEavesDripSound();
+      const delay = 1200 + Math.random() * 2200;
+      rainDripTimer = setTimeout(() => {
+        if (isRainActive) scheduleRainDripSounds();
+      }, delay);
+    }
+
+    function playEavesDripSound() {
+      if (!audioCtx || !isAudioPlaying || !isRainActive) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const freq = 1300 + Math.random() * 600;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.6, audioCtx.currentTime + 0.07);
+
+        gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.07, audioCtx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.09);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
+    function stopRainAudio() {
+      if (rainDripTimer) {
+        clearTimeout(rainDripTimer);
+        rainDripTimer = null;
+      }
+      if (rainGainNode && audioCtx) {
+        try {
+          rainGainNode.gain.setValueAtTime(rainGainNode.gain.value, audioCtx.currentTime);
+          rainGainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+          setTimeout(() => {
+            if (rainAudioNode) {
+              try { rainAudioNode.stop(); } catch(e){}
+              rainAudioNode = null;
+            }
+            rainGainNode = null;
+          }, 900);
+        } catch(e) {
+          rainAudioNode = null;
+          rainGainNode = null;
+        }
+      }
+    }
+
+    function setupAudioEngine() {
+      const toggleBtn = document.getElementById('global-sound-toggle-btn');
+      const soundText = document.getElementById('sound-text');
+      const soundIcon = document.getElementById('sound-icon');
+
+      toggleBtn.addEventListener('click', () => {
+        if (!audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        isAudioPlaying = !isAudioPlaying;
+
+        if (isAudioPlaying) {
+          startSoundscapeLoop();
+          if (isRainActive) startRainAudio();
+          toggleBtn.classList.add('border-amber-400', 'bg-amber-900/40');
+          soundText.textContent = 'sound ON';
+          soundIcon.textContent = '🔊';
+          showToast('Sound ON');
+        } else {
+          stopSoundscapeLoop();
+          stopRainAudio();
+          toggleBtn.classList.remove('border-amber-400', 'bg-amber-900/40');
+          soundText.textContent = 'sound';
+          soundIcon.textContent = '🔈';
+          showToast('Sound OFF');
+        }
+      });
+    }
+
+    function startSoundscapeLoop() {
+      if (!audioCtx) return;
+      playAmbientWindHum();
+      scheduleRandomAmbientSounds();
+    }
+
+    function stopSoundscapeLoop() {
+      if (audioNodes.ambientHum) {
+        try { audioNodes.ambientHum.stop(); } catch(e) {}
+      }
+      if (audioNodes.timer) {
+        clearTimeout(audioNodes.timer);
+      }
+      audioNodes = {};
+    }
+
+        function playVintageCarHorn() {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      const t = audioCtx.currentTime;
+      // 1960年代老爺車雙音喇叭三連音「叭——！叭——！... 叭——！」(長度 2.20 秒)
+      const honks = [
+        { time: 0.0,  dur: 0.55 },
+        { time: 0.72, dur: 0.55 },
+        { time: 1.50, dur: 0.65 }
+      ];
+
+      honks.forEach(h => {
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(360, t + h.time);
+        osc2.type = 'sawtooth';
+        osc2.frequency.setValueAtTime(435, t + h.time);
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(850, t + h.time);
+        filter.Q.setValueAtTime(2.2, t + h.time);
+
+        g.gain.setValueAtTime(0.001, t + h.time);
+        g.gain.linearRampToValueAtTime(0.32, t + h.time + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.001, t + h.time + h.dur);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(g);
+        g.connect(audioCtx.destination);
+
+        osc1.start(t + h.time); osc2.start(t + h.time);
+        osc1.stop(t + h.time + h.dur + 0.02); osc2.stop(t + h.time + h.dur + 0.02);
+      });
+    }
+
+function scheduleRandomAmbientSounds() {
+      if (!isAudioPlaying) return;
+
+      // 依需求：不分時段常態隨機播放（火車鳴笛、公雞啼、嬰兒哭、貓叫、狗吠、市井人聲、腳步聲、老爺車喇叭）
+      const soundChoices = [
+        playSteamTrainWhistle,
+        playRoosterCrow,
+        playHumanChatter,
+        playFootsteps,
+        playBabyCry,
+        playCatMeow,
+        playDogBark,
+        playVintageCarHorn
+      ];
+
+      const choice = soundChoices[Math.floor(Math.random() * soundChoices.length)];
+      try {
+        choice();
+      } catch (e) {
+        console.warn('Audio play error:', e);
+      }
+
+      // 聲音已全面延長至 2 秒以上，間隔設定為 4.0 ~ 6.5 秒自然隨機穿插
+      const nextDelay = (4.0 + Math.random() * 2.5) * 1000;
+      audioNodes.timer = setTimeout(scheduleRandomAmbientSounds, nextDelay);
+    }
+
+    function playAmbientWindHum() {
+      if (!audioCtx) return;
+      const bufSize = audioCtx.sampleRate * 2;
+      const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buf;
+      noise.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(320, audioCtx.currentTime);
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.045, audioCtx.currentTime);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+
+      audioNodes.ambientHum = noise;
+    }
+
+    function playSteamTrainWhistle() {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      const t = audioCtx.currentTime;
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(440, t);
+      osc1.frequency.exponentialRampToValueAtTime(452, t + 1.2);
+
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(554, t);
+      osc2.frequency.exponentialRampToValueAtTime(566, t + 1.2);
+
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.exponentialRampToValueAtTime(0.22, t + 0.3);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 2.2);
+
+      osc1.connect(g); osc2.connect(g);
+      g.connect(audioCtx.destination);
+      osc1.start(t); osc2.start(t);
+      osc1.stop(t + 2.3); osc2.stop(t + 2.3);
+    }
+
+    function playRoosterCrow() {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      const t = audioCtx.currentTime;
+      const freqs = [380, 490, 560, 720, 460];
+      const durations = [0.12, 0.14, 0.18, 0.45, 0.25];
+
+      let start = t;
+      freqs.forEach((f, idx) => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        const dur = durations[idx];
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f, start);
+
+        g.gain.setValueAtTime(0.001, start);
+        g.gain.linearRampToValueAtTime(0.22, start + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + dur);
+        start += dur + 0.04;
+      });
+    }
+
+    function playHumanChatter() {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      const t = audioCtx.currentTime;
+      [0, 0.18, 0.35].forEach((offset, idx) => {
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const g = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140 + idx * 30, t + offset);
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(650 + idx * 200, t + offset);
+        filter.Q.setValueAtTime(3.0, t + offset);
+
+        g.gain.setValueAtTime(0.001, t + offset);
+        g.gain.linearRampToValueAtTime(0.18, t + offset + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.28);
+
+        osc.connect(filter);
+        filter.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(t + offset);
+        osc.stop(t + offset + 0.30);
+      });
+    }
+
+    function playFootsteps() {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      const t = audioCtx.currentTime;
+      [0, 0.35, 0.72].forEach(offset => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(95, t + offset);
+        osc.frequency.exponentialRampToValueAtTime(38, t + offset + 0.08);
+
+        g.gain.setValueAtTime(0.20, t + offset);
+        g.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.08);
+
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(t + offset);
+        osc.stop(t + offset + 0.09);
+      });
+    }
+
+    function playBabyCry() {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      const t = audioCtx.currentTime;
+
+      // Realistic Two-Pulse Infant Wail ("哇——！哇——！")
+      function cryPulse(startTime, baseFreq, peakFreq, endFreq, duration, maxGain) {
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const g = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(baseFreq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(peakFreq, startTime + duration * 0.35);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1450, startTime);
+        filter.Q.setValueAtTime(2.2, startTime);
+
+        g.gain.setValueAtTime(0.001, startTime);
+        g.gain.linearRampToValueAtTime(maxGain, startTime + duration * 0.15);
+        g.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+        osc.connect(filter);
+        filter.connect(g);
+        g.connect(audioCtx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      }
+
+      // First cry pulse: "哇——" (~0.75s)
+      cryPulse(t, 460, 680, 490, 0.75, 0.36);
+      // Second cry pulse: "哇——！" (~0.85s)
+      cryPulse(t + 0.82, 480, 720, 510, 0.85, 0.38);
+    }
+
+    function playCatMeow() {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(650, t);
+      osc.frequency.linearRampToValueAtTime(920, t + 0.35);
+      osc.frequency.exponentialRampToValueAtTime(520, t + 0.75);
+
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.20, t + 0.15);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.75);
+
+      osc.connect(g);
+      g.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.78);
+    }
+
+    function playDogBark() {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      const t = audioCtx.currentTime;
+      [0, 0.22].forEach(offset => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(310, t + offset);
+        osc.frequency.exponentialRampToValueAtTime(140, t + offset + 0.14);
+
+        g.gain.setValueAtTime(0.22, t + offset);
+        g.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.14);
+
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(t + offset);
+        osc.stop(t + offset + 0.15);
+      });
+    }
+
+    function playDoorSlideSound() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const t = audioCtx.currentTime;
+      const bufSize = audioCtx.sampleRate * 0.4;
+      const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buf;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(260, t);
+      filter.frequency.exponentialRampToValueAtTime(140, t + 0.35);
+
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.22, t + 0.08);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+
+      noise.connect(filter);
+      filter.connect(g);
+      g.connect(audioCtx.destination);
+      noise.start(t);
+      noise.stop(t + 0.4);
+    }
+
+    // ==========================================
+    // ==========================================
+    // 10. TOAST CONTROLLER
+    // ==========================================
+        function resetToDefaultView() {
+      new TWEEN.Tween(camera.position)
+        .to({ x: 4.6, y: 3.2, z: 5.6 }, 800)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+
+      new TWEEN.Tween(controls.target)
+        .to({ x: 0, y: 1.8, z: 0 }, 800)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+
+      if (camera.fov !== 40) {
+        new TWEEN.Tween({ fov: camera.fov })
+          .to({ fov: 40 }, 800)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .onUpdate(obj => {
+            camera.fov = obj.fov;
+            camera.updateProjectionMatrix();
+          })
+          .start();
+      }
+
+      controls.autoRotate = true;
+      controls.minDistance = 1.5;
+      controls.maxDistance = 18;
+      controls.maxPolarAngle = Math.PI / 2 + 0.02;
+      showToast('視角已歸零復位（置中對齊）');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast-hint");
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+      }, 2000);
+    }
+
+    // ==========================================
+    // 11. EVENT LISTENERS SETUP
+    // ==========================================
+    function setupEvents() {
+      const viewLanding = document.getElementById('view-landing');
+      const heroEnterBtn = document.getElementById('hero-enter-3d-btn');
+      const backToIntroBtn = document.getElementById('back-to-intro-btn');
+
+      // Separate Chinese and English Narrative Collapsible Toggles
+      const btnToggleZh = document.getElementById('btn-toggle-zh');
+      const zhExtended = document.getElementById('zh-narrative-extended');
+      const zhText = document.getElementById('zh-toggle-text');
+      const zhIcon = document.getElementById('zh-toggle-icon');
+
+      if (btnToggleZh && zhExtended) {
+        btnToggleZh.addEventListener('click', () => {
+          const isHidden = zhExtended.classList.contains('hidden');
+          if (isHidden) {
+            zhExtended.classList.remove('hidden');
+            if (zhText) zhText.textContent = '收合內容';
+            if (zhIcon) zhIcon.classList.add('rotate-180');
+          } else {
+            zhExtended.classList.add('hidden');
+            if (zhText) zhText.textContent = '繼續閱讀';
+            if (zhIcon) zhIcon.classList.remove('rotate-180');
+          }
+        });
+      }
+
+      const btnToggleEn = document.getElementById('btn-toggle-en');
+      const enExtended = document.getElementById('en-narrative-extended');
+      const enText = document.getElementById('en-toggle-text');
+      const enIcon = document.getElementById('en-toggle-icon');
+
+      if (btnToggleEn && enExtended) {
+        btnToggleEn.addEventListener('click', () => {
+          const isHidden = enExtended.classList.contains('hidden');
+          if (isHidden) {
+            enExtended.classList.remove('hidden');
+            if (enText) enText.textContent = 'Collapse';
+            if (enIcon) enIcon.classList.add('rotate-180');
+          } else {
+            enExtended.classList.add('hidden');
+            if (enText) enText.textContent = 'Read on...';
+            if (enIcon) enIcon.classList.remove('rotate-180');
+          }
+        });
+      }
+
+      // Enter 3D from landing page
+      if (heroEnterBtn && viewLanding) {
+        heroEnterBtn.addEventListener('click', () => {
+          viewLanding.classList.add('opacity-0', 'pointer-events-none');
+          setTimeout(() => {
+            viewLanding.classList.add('hidden');
+            onWindowResize();
+            showToast('已進入 3D 空間！模型持續緩緩轉動，可自由探索');
+          }, 500);
+        });
+      }
+
+      // Back to Intro
+      if (backToIntroBtn && viewLanding) {
+        backToIntroBtn.addEventListener('click', () => {
+          viewLanding.classList.remove('hidden');
+          setTimeout(() => {
+            viewLanding.classList.remove('opacity-0', 'pointer-events-none');
+          }, 20);
+        });
+      }
+
+      
+      // Time Line Buttons (Morning, Noon, Evening, Night)
+      ['morning', 'noon', 'evening', 'night'].forEach(p => {
+        const b = document.getElementById(`btn-time-${p}`);
+        if (b) b.addEventListener('click', () => setTimeLinePeriod(p));
+      });
+      // Initialize noon state
+      setTimeLinePeriod('noon', 0);
+
+      // 一鍵視角歸零回到 (0,0,0) 原位置中按鈕
+      const btnRecenter = document.getElementById("btn-recenter-origin");
+      if (btnRecenter) {
+        btnRecenter.addEventListener("click", () => {
+          resetToDefaultView();
+          showToast("已一鍵視角歸零回到原位（置中對齊）");
+        });
+      }
+
+      // Exploded View Slider
+      const explodeSlider = document.getElementById('explode-slider');
+      if (explodeSlider) {
+        explodeSlider.addEventListener('input', e => setExplodeRatio(parseFloat(e.target.value) / 100));
+      }
+
+      // Front Door Slider (前拉門拉桿)
+      const doorSlider = document.getElementById('door-slider');
+      if (doorSlider) {
+        doorSlider.addEventListener('input', e => {
+          setDoorRatio(parseFloat(e.target.value) / 100);
+          playDoorSlideSound();
+        });
+      }
+
+      // Show All / Hide All Components
+      const btnShowAll = document.getElementById('btn-show-all');
+      if (btnShowAll) {
+        btnShowAll.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setAllComponentsVisibility(true);
+        });
+      }
+      const btnHideAll = document.getElementById('btn-hide-all');
+      if (btnHideAll) {
+        btnHideAll.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setAllComponentsVisibility(false);
+        });
+      }
+
+      // Mobile collapsible dock panel toggle
+      const dockToggleBar = document.getElementById('dock-toggle-bar');
+      const componentsDock = document.getElementById('components-dock');
+      const dockArrowIcon = document.getElementById('dock-arrow-icon');
+      const dockArrowText = document.getElementById('dock-arrow-text');
+
+      if (dockToggleBar && componentsDock) {
+        dockToggleBar.addEventListener('click', (e) => {
+          if (e.target.closest('#btn-show-all') || e.target.closest('#btn-hide-all')) {
+            return;
+          }
+          if (window.innerWidth < 640) {
+            const isHidden = componentsDock.classList.contains('hidden');
+            if (isHidden) {
+              componentsDock.classList.remove('hidden');
+              componentsDock.classList.add('grid', 'grid-cols-7');
+              if (dockArrowIcon) dockArrowIcon.classList.add('rotate-180');
+              if (dockArrowText) dockArrowText.textContent = '收合';
+            } else {
+              componentsDock.classList.add('hidden');
+              componentsDock.classList.remove('grid', 'grid-cols-7');
+              if (dockArrowIcon) dockArrowIcon.classList.remove('rotate-180');
+              if (dockArrowText) dockArrowText.textContent = '展開';
+            }
+          }
+        });
+      }
+
+      // Reset Camera View (Handled by bottom recenter origin button)
+
+      // Audio Engine Setup
+      setupAudioEngine();
+
+      // 依需求取消 3D 畫布觸碰隱藏零件的關聯，避免用戶漫遊旋轉視角時誤觸隱藏
+      // 14 個零件的顯示與隱藏完全交由底部工具列專用按鈕控制
+      // renderer.domElement.addEventListener('pointerdown', on3DPointerDown, { passive: true });
+
+      // Window resize
+      window.addEventListener('resize', onWindowResize);
+
+      // Initialize Community Guestbook
+      initGuestbook();
+    }
+
+    function on3DPointerDown(e) {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+
+      const intersects = raycaster.intersectObjects(scene.children, true);
+      for (const hit of intersects) {
+        let cur = hit.object;
+        while (cur && cur !== scene) {
+          if (cur.userData && cur.userData.isDoor) {
+            const nextRatio = currentDoorRatio > 0.5 ? 0 : 1;
+            setDoorRatio(nextRatio, true);
+            playDoorSlideSound();
+            showToast(nextRatio === 1 ? '前拉門已拉開（與後拉門重疊，淨寬90公分）' : '前拉門已閉合');
+            return;
+          }
+          if (cur.userData && cur.userData.id) {
+            toggleComponentVisibility(cur.userData.id);
+            return;
+          }
+          cur = cur.parent;
+        }
+      }
+    }
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // ==========================================
+    // 12. MAIN ANIMATION LOOP (Item 1 & 6)
+    // ==========================================
+    function animate() {
+      requestAnimationFrame(animate);
+
+      TWEEN.update();
+
+      // Item 6: Gentle Twinkle for Stars in Night Mode
+      if (starPoints && starPoints.material.opacity > 0.05) {
+        starPoints.rotation.y += 0.0003;
+      }
+
+
+
+      // Update Rain & Eaves Dripping particle positions
+      updateRainSystem();
+
+      // Item 1: controls.autoRotate is enabled, so controls.update() smoothly turns the house!
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // ==========================================
+    // COMMUNITY GUESTBOOK & PROFANITY FILTER
+    // ==========================================
+    // 3 Multilingual Initial Demo Messages (中英日示範留言)
+    const DEFAULT_GUESTBOOK_MESSAGES = [
+      {
+        id: 1,
+        author: 'Alex',
+        time: 'Just now',
+        content: 'Wow, this 3D digital house is amazing',
+        isPrivate: false
+      },
+      {
+        id: 2,
+        author: '阿華',
+        time: '剛剛',
+        content: '有懷舊的感覺，我喜歡這個雨淋板',
+        isPrivate: false
+      },
+      {
+        id: 3,
+        author: 'Kenji',
+        time: 'たった今',
+        content: '戦争前の小屋みたい　かなり狭いね',
+        isPrivate: false
+      }
+    ];
+
+    const PROFANITY_WORDS = [
+      '幹', '操', '肏', '榦', '三小', '靠北', '靠杯', '機掰', '雞掰', '白目', '腦殘', '去死',
+      '王八蛋', '臭婊子', '婊子', '媽的', '破麻', '死全家', '姦', '賤人', '屌', '屄', '垃圾人',
+      '傻逼', '操你妈', '卧槽', '草泥马', '煞笔', '尼玛', '狗日的', '王八羔子', '撕逼',
+      'fuck', 'fucking', 'fucker', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy',
+      'bastard', 'motherfucker', 'whore', 'slut', 'nigger', 'fag', 'fxxk', 'sh*t', 'f*ck'
+    ];
+
+    function checkProfanity(text) {
+      if (!text) return false;
+      const lower = text.toLowerCase().replace(/[\s\-_.,!?~@#$%^&*()+=/\\|<>[\]{}'"`]/g, '');
+      for (const bad of PROFANITY_WORDS) {
+        if (lower.includes(bad.toLowerCase())) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function initGuestbook() {
+      const modal = document.getElementById('guestbook-modal');
+      const btnOpenLanding = document.getElementById('btn-open-guestbook-landing');
+      const btnOpen3D = document.getElementById('btn-open-guestbook-3d');
+      const btnClose = document.getElementById('btn-close-guestbook');
+      const form = document.getElementById('guestbook-form');
+      const list = document.getElementById('guestbook-list');
+      const authorInput = document.getElementById('guestbook-author');
+      const contentInput = document.getElementById('guestbook-content');
+      const warningEl = document.getElementById('guestbook-warning');
+
+      // Top 3D Marquee elements
+      const topMarqueeBanner = document.getElementById('top-marquee-banner');
+      const main3dHeader = document.getElementById('main-3d-header');
+      const btnCloseMarquee = document.getElementById('btn-close-marquee');
+
+      // Close top marquee with X button
+      if (btnCloseMarquee && topMarqueeBanner) {
+        btnCloseMarquee.addEventListener('click', () => {
+          topMarqueeBanner.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
+          setTimeout(() => topMarqueeBanner.classList.add('hidden'), 300);
+          if (main3dHeader) {
+            main3dHeader.classList.remove('top-7', 'top-8', 'top-12', 'sm:top-14');
+            main3dHeader.classList.add('top-1.5', 'sm:top-3');
+          }
+        });
+      }
+
+      function openModal() {
+        if (!modal) return;
+        renderMessages();
+        modal.classList.remove('hidden');
+        if (warningEl) warningEl.classList.add('hidden');
+      }
+
+      function closeModal() {
+        if (!modal) return;
+        modal.classList.add('hidden');
+      }
+
+      if (btnOpenLanding) btnOpenLanding.addEventListener('click', openModal);
+      if (btnOpen3D) btnOpen3D.addEventListener('click', openModal);
+      if (btnClose) btnClose.addEventListener('click', closeModal);
+
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal();
+        });
+      }
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+
+      function getMessages() {
+        try {
+          const raw = localStorage.getItem('beizhong_guestbook_msgs_v5');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
+        } catch(e) {}
+        return DEFAULT_GUESTBOOK_MESSAGES;
+      }
+
+      function saveMessages(msgs) {
+        try {
+          localStorage.setItem('beizhong_guestbook_msgs_v5', JSON.stringify(msgs));
+        } catch(e) {}
+      }
+
+      function renderMessages() {
+        const msgs = getMessages();
+        
+        // 1. Render in Modal List
+        if (list) {
+          list.innerHTML = '';
+          msgs.forEach(m => {
+            const card = document.createElement('div');
+            card.className = 'glass-panel p-2.5 sm:p-3 rounded-2xl border border-amber-800/40 bg-stone-900/60 shadow-sm space-y-1';
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'flex items-center justify-between text-[11px]';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'font-bold text-amber-300 font-serif-tc flex items-center gap-1.5';
+            
+            if (m.isPrivate) {
+              const lockBadge = document.createElement('span');
+              lockBadge.className = 'text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-950/80 border border-amber-600/50 text-amber-400';
+              lockBadge.textContent = '🔒 Private';
+              nameSpan.appendChild(lockBadge);
+            } else {
+              const dot = document.createElement('span');
+              dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500';
+              nameSpan.appendChild(dot);
+            }
+            nameSpan.appendChild(document.createTextNode(' ' + (m.author || 'Guest')));
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'text-stone-500 font-mono text-[10px]';
+            timeSpan.textContent = m.time || '';
+            
+            headerDiv.appendChild(nameSpan);
+            headerDiv.appendChild(timeSpan);
+            
+            const contentP = document.createElement('p');
+            contentP.className = 'text-stone-200 text-xs leading-relaxed font-light text-justify pt-0.5';
+            contentP.textContent = m.content || '';
+            
+            card.appendChild(headerDiv);
+            card.appendChild(contentP);
+            list.appendChild(card);
+          });
+        }
+
+        // 2. Render Top 5 Public Messages in Top 3D Marquee Ticker (只跑 Public 公開留言)
+        const publicMsgs = msgs.filter(m => !m.isPrivate);
+        renderTopMarquee(publicMsgs.slice(0, 5));
+      }
+
+      function renderTopMarquee(publicTop5) {
+        const marquee = document.getElementById('top-marquee-track');
+        if (!marquee) return;
+        marquee.innerHTML = '';
+
+        if (!publicTop5 || publicTop5.length === 0) {
+          publicTop5 = DEFAULT_GUESTBOOK_MESSAGES;
+        }
+
+        function createItems() {
+          const frag = document.createDocumentFragment();
+          publicTop5.forEach(m => {
+            const item = document.createElement('div');
+            item.className = 'inline-flex items-center gap-1.5 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-stone-900/80 border border-amber-900/40 flex-shrink-0 shadow-sm';
+            
+            const authorSpan = document.createElement('span');
+            authorSpan.className = 'text-amber-400 font-bold font-mono text-[11px]';
+            authorSpan.textContent = (m.author || 'Guest') + ':';
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'text-stone-200 text-xs';
+            textSpan.textContent = `"${m.content}"`;
+            
+            item.appendChild(authorSpan);
+            item.appendChild(textSpan);
+            frag.appendChild(item);
+          });
+          return frag;
+        }
+
+        // Duplicate for seamless infinite marquee loop
+        marquee.appendChild(createItems());
+        marquee.appendChild(createItems());
+      }
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          let author = authorInput ? authorInput.value.trim() : '';
+          const content = contentInput ? contentInput.value.trim() : '';
+
+          if (!content) return;
+          if (!author) author = 'Guest';
+
+          // Profanity Filter Check
+          if (checkProfanity(author) || checkProfanity(content)) {
+            if (warningEl) {
+              warningEl.textContent = '⚠️ Inappropriate words detected / 包含不當字詞';
+              warningEl.classList.remove('hidden');
+            }
+            if (contentInput) {
+              contentInput.classList.add('border-red-500');
+              setTimeout(() => contentInput.classList.remove('border-red-500'), 3000);
+            }
+            showToast('⚠️ Inappropriate words detected / 已攔截不雅用語');
+            return;
+          }
+
+          if (warningEl) warningEl.classList.add('hidden');
+
+          const visibilityInput = form.querySelector('input[name="guestbook-visibility"]:checked');
+          const isPrivate = visibilityInput ? visibilityInput.value === 'private' : false;
+
+          const now = new Date();
+          const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+          const newMsg = {
+            id: Date.now(),
+            author: author,
+            time: timeStr,
+            content: content,
+            isPrivate: isPrivate
+          };
+
+          const msgs = getMessages();
+          msgs.unshift(newMsg);
+          saveMessages(msgs);
+          renderMessages();
+
+          if (contentInput) contentInput.value = '';
+          if (authorInput) authorInput.value = '';
+
+          if (isPrivate) {
+            showToast('🔒 私人留言已記錄 (僅作者可見，絕不公開跑馬燈)');
+            // Also prepare direct mailto dispatch to elementslab.net@gmail.com
+            const mailtoUrl = `mailto:elementslab.net@gmail.com?subject=${encodeURIComponent('【北忠街小屋舍】訪客私人留言 - ' + author)}&body=${encodeURIComponent('稱呼 / Name: ' + author + '\n時間 / Time: ' + timeStr + '\n\n留言內容 / Message:\n' + content)}`;
+            try {
+              window.open(mailtoUrl, '_blank');
+            } catch(e) {}
+          } else {
+            showToast('✨ Thank you! Public message posted / 公開留言已發布');
+          }
+        });
+      }
+
+      // Initialize top marquee on load
+      renderMessages();
+    }
+
+
+
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initScene();
+    });
+  </script>\n\n\n\n\n\n\n\n\n\n\n\n\n\n  <!-- ========================================================================= -->
+  <!-- 彈跳框式常民記憶留言板 (Community Guestbook Modal)                          -->
+  <!-- ========================================================================= -->
+  <div id="guestbook-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-5 select-text">
+    <div class="max-w-lg w-full glass-panel rounded-2xl sm:rounded-3xl border border-amber-600/60 p-3 sm:p-6 shadow-2xl flex flex-col max-h-[75vh] sm:max-h-[88vh] text-stone-200 relative animate-fade-in">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-2 sm:pb-3 border-b border-stone-700/70">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <span class="text-lg sm:text-xl">💬</span>
+          <div>
+            <h3 class="font-bold text-sm sm:text-lg text-amber-300 font-serif-tc">Guestbook / 留言板</h3>
+            <p class="text-[10px] sm:text-[11px] text-stone-400">Share your thoughts & memories of the Showa wooden house</p>
+          </div>
+        </div>
+        <button id="btn-close-guestbook" class="text-stone-400 hover:text-white p-1 rounded-lg hover:bg-stone-800/60 transition" title="Close (Esc)">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Messages Feed (List of cards) -->
+      <div id="guestbook-list" class="flex-1 overflow-y-auto space-y-1.5 sm:space-y-2.5 py-2 sm:py-3 pr-1 my-1 text-[11px] sm:text-xs max-h-[30vh] sm:max-h-[42vh]">
+        <!-- Rendered dynamically by JavaScript -->
+      </div>
+
+      <!-- Submission Form (Name, Visibility, Message) -->
+      <form id="guestbook-form" class="pt-2 sm:pt-3 border-t border-stone-700/70 space-y-2 sm:space-y-2.5 text-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+          <input id="guestbook-author" type="text" maxlength="20" placeholder="Name" class="w-full sm:w-1/2 bg-stone-900/80 border border-stone-700 focus:border-amber-500 rounded-xl px-2.5 py-1 sm:py-1.5 text-stone-100 placeholder-stone-500 focus:outline-none transition text-xs">
+          
+          <!-- Visibility Selector: Public vs Private -->
+          <div class="flex items-center gap-2 bg-stone-900/80 px-2.5 py-1 sm:py-1.5 rounded-xl border border-stone-700 text-[10px] sm:text-[11px] sm:ml-auto">
+            <span class="text-stone-400 font-mono">Visibility:</span>
+            <label class="flex items-center gap-1 cursor-pointer text-amber-300 font-medium">
+              <input type="radio" name="guestbook-visibility" value="public" checked class="accent-amber-500">
+              <span>Public</span>
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer text-stone-300 hover:text-amber-200">
+              <input type="radio" name="guestbook-visibility" value="private" class="accent-amber-500">
+              <span>Private</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <textarea id="guestbook-content" rows="2" maxlength="200" placeholder="Message (若選 Private 可附上 Email 或電話，僅作者可見)" class="w-full bg-stone-900/80 border border-stone-700 focus:border-amber-500 rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-2 text-stone-100 placeholder-stone-500 focus:outline-none transition resize-none text-xs" required></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-0.5">
+          <span id="guestbook-warning" class="text-[10px] sm:text-[11px] text-red-400 font-medium hidden">⚠️ Inappropriate words detected / 包含不當字詞</span>
+          <button type="submit" id="guestbook-submit-btn" class="ml-auto px-4 py-1 sm:px-5 sm:py-1.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-stone-50 font-semibold rounded-xl shadow transition flex items-center gap-1.5 text-xs">
+            <span>Send</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</body>
+</html>
